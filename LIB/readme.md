@@ -19,5 +19,7 @@
 7. Total number of specific books should be known.
 8. Current number of books on shelves should be possible.
 9. Books are divided according to their categories.
+10. Search function.
 
 # Non functional requirements
+1. Filtering booking according to categories.
