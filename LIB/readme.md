@@ -18,5 +18,6 @@
 6. Viewing book's details should be possible.
 7. Total number of specific books should be known.
 8. Current number of books on shelves should be possible.
+9. Books are divided according to their categories.
 
 # Non functional requirements
