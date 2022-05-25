@@ -23,3 +23,4 @@
 
 # Non functional requirements
 1. Filtering booking according to categories.
+2. Using icons and visuals to enable an intuitive understandin of a system.
