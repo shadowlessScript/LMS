@@ -14,7 +14,7 @@ form{
     flex-direction: column;
     align-items: center;
     border-radius: 2em;
-    background-color: hsla(1, 10%, 90%, 0.7);
+    background-color: hsla(0, 0%, 100%, 0.7);
 }
 form label, input{
     margin-bottom: 12px;

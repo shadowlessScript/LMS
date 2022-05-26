@@ -20,9 +20,14 @@
 8. Current number of books on shelves should be possible.
 9. Books are divided according to their categories.
 10. Search function.
+11. Section in the librairian account to add book. 
 
 # Non functional requirements
 1. Filtering booking according to categories.
 2. Using icons and visuals to enable an intuitive understandin of a system.
 3. Display summary detail of the book such as name of author, number of pages, it tags .
 4. It has a mobile view.
+
+
+# Things to use
+For no.11 will use forms

@@ -14,6 +14,7 @@ background-size: cover;
 background-repeat: no-repeat;
 height: 100vh;">
     <form method="post">
+        {%  csrf_token %}
         <label>Username *</label>
         <input type="text" name="username" required>
         <label>First Name *</label>
@@ -21,11 +22,11 @@ height: 100vh;">
         <label>Last Name *</label>
         <input type="text" name="lname" required>
         <label>Email *</label>
-        <input type="text" name="usernameEmail" required>
+        <input type="text" name="email" required>
         <label>Password *</label>
         <input type="password" name="passwd" required>
         <label>Confirm Password *</label>
-        <input type="password" name="passwd" required>
+        <input type="password" name="passwd1" required>
         <button type="submit">Sign Up</button>
         <a href="\">Already Have an account?</a>
     </form>

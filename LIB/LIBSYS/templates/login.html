@@ -13,7 +13,8 @@
 background-size: cover;
 background-repeat: no-repeat;
 height: 100vh;">
-    <form>
+    <form method="post">
+        {%  csrf_token %}
         <label>Username or email</label>
         <input type="text" name="usernameEmail" required>
         <label>password</label>
