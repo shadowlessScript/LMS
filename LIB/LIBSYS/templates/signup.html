@@ -8,20 +8,24 @@
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <title>Signup</title>
 </head>
-<body>
+<body style="background-image: url('{% static 'images/libbg.jpg' %}');
+/* background-position: center; */
+background-size: cover;
+background-repeat: no-repeat;
+height: 100vh;">
     <form method="post">
-        <label>Username</label><br>
-        <input type="text" name="username" required><br>
-        <label>First Name</label><br>
-        <input type="text" name="fname" required><br>
-        <label>Last Name</label><br>
-        <input type="text" name="lname" required><br>
-        <label>Email</label><br>
-        <input type="text" name="usernameEmail" required><br>
-        <label>Password</label><br>
-        <input type="password" name="passwd" required><br>
-        <label>Confirm Password</label><br>
-        <input type="password" name="passwd" required><br>
+        <label>Username *</label>
+        <input type="text" name="username" required>
+        <label>First Name *</label>
+        <input type="text" name="fname" required>
+        <label>Last Name *</label>
+        <input type="text" name="lname" required>
+        <label>Email *</label>
+        <input type="text" name="usernameEmail" required>
+        <label>Password *</label>
+        <input type="password" name="passwd" required>
+        <label>Confirm Password *</label>
+        <input type="password" name="passwd" required>
         <button type="submit">Sign Up</button>
         <a href="\">Already Have an account?</a>
     </form>
