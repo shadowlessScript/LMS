@@ -24,3 +24,5 @@
 # Non functional requirements
 1. Filtering booking according to categories.
 2. Using icons and visuals to enable an intuitive understandin of a system.
+3. Display summary detail of the book such as name of author, number of pages, it tags .
+4. It has a mobile view.

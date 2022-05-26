@@ -1,0 +1,11 @@
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+form label, input{
+    margin-bottom: 12px;
+    
+}
+
