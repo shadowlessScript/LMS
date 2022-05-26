@@ -8,14 +8,19 @@
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <title>Welcome</title>
 </head>
-<body>
+<body style="background-image: url('{% static 'images/libbg.jpg' %}');
+/* background-position: center; */
+background-size: cover;
+background-repeat: no-repeat;
+height: 100vh;">
     <form>
-        <label>Username or email</label><br>
-        <input type="text" name="usernameEmail" required><br>
-        <label>password</label><br>
-        <input type="password" name="passwd" required><br>
+        <label>Username or email</label>
+        <input type="text" name="usernameEmail" required>
+        <label>password</label>
+        <input type="password" name="passwd" required>
         <button type="submit">Login</button>
         <a href="lib/signup">No account?</a>
+        <a href="">Forgot Password?</a>
     </form>
 </body>
 </html>

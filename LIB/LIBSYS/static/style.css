@@ -3,9 +3,43 @@ body{
     justify-content: center;
     align-items: center;
 }
-
+form{
+    position: absolute;
+    top: 20%;
+    /* background: blue; */
+    width: 60vw;
+    padding: 50px 0px 50px 0px;
+    /* height: 0vh; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 2em;
+    background-color: hsla(1, 10%, 90%, 0.7);
+}
 form label, input{
     margin-bottom: 12px;
     
 }
+form input{
+    text-align: center;
+    border: none;
+    background-color: hsl(234, 45%, 65%);
+    color: white;
+}
+form input{
+    height: 23px;
+}
 
+form label{
+    text-transform: capitalize;
+}
+
+form button{
+    border: none;
+    border-radius: 20px;
+    width: 70px;
+    height: 50px;
+    margin: 12px;
+    background-color:hsl(194, 54%, 37%);
+    color: bisque
+}
