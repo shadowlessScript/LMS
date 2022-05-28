@@ -1,25 +1,26 @@
+from multiprocessing import context
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
+from .forms import MemberForm
 from django.contrib import messages
 # Create your views here.
 def signup(request):
-    if request.method == "POST":
-        username = request.POST.get('username')
-        fname = request.POST.get('fname')
-        lname = request.POST.get('lname')
-        email = request.POST.get('email')
+    if request.method == "POST":        
         passwd = request.POST.get('passwd')
         passwd1 = request.POST.get('passwd1')
+        form = MemberForm(request.POST or None)
 
-        if passwd == passwd1:
-            myuser = User.objects.create_user(username, email, passwd)
-            myuser.full_name = fname +" "+ lname
-            myuser.save()
-            messages.success(request, 'You have been registered successfully')
-        else:
-            return HttpResponse("Passwords do not match")
-    return render(request, "signup.html")
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request, "You have signed up successfully")
+        return redirect("signup")
+        # else:
+        #     return HttpResponse("Passwords do not match")
+    
+    else:
+        return render(request, "signup.html")
 
 def login(request):
     if request.method == 'POST':
