@@ -1,4 +1,5 @@
 body{
+    /* position: relative; */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -9,7 +10,7 @@ form{
     /* background: blue; */
     width: 60vw;
     padding: 50px 0px 50px 0px;
-    /* height: 0vh; */
+    /* height: 100vh; */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -34,12 +35,24 @@ form label{
     text-transform: capitalize;
 }
 
-form button{
+form > button{
     border: none;
     border-radius: 20px;
-    width: 70px;
+    width: 90px;
     height: 50px;
     margin: 12px;
     background-color:hsl(194, 54%, 37%);
     color: bisque
+}
+
+form label i{
+    color: red;
+}
+
+form .container{
+    position:relative;
+    bottom: 5%;
+    /* margin-bottom: -100px; */
+    width: 50vw;
+    transition: 1.2s;
 }

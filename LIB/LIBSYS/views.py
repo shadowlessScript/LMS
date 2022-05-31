@@ -2,33 +2,46 @@ from multiprocessing import context
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
-from .forms import MemberForm
+from django.contrib.auth.forms import UserCreationForm
+from LIBSYS.models import signupForm
+from .forms import AddBookForm
 from django.contrib import messages
+# from django.contrib.auth.hashers import make_password
+
 # Create your views here.
 def signup(request):
-    if request.method == "POST":        
-        passwd = request.POST.get('passwd')
-        passwd1 = request.POST.get('passwd1')
-        form = MemberForm(request.POST or None)
-
-        
+    # form = UserCreationForm()
+    # context = {'form': form}
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST or None)
         if form.is_valid():
             form.save()
-            messages.success(request, "You have signed up successfully")
-        return redirect("signup")
-        # else:
-        #     return HttpResponse("Passwords do not match")
-    
-    else:
-        return render(request, "signup.html")
+        # form = MemberForm(request.POST or None)
+    return render(request, "signup.html")
 
 def login(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        passwd = request.POST.get('passwd')
-        user = User.objects.get(username=username)
+    #     username = request.POST.get('username')
+    #     passwd = request.POST.get('password')
+    #     user = signupForm.objects.get(username=username)
 
-    if user.check_password(passwd):
-            return HttpResponse("success")
+    # if user.check_password(passwd):
+    #         return HttpResponse("success")
+        pass
     else:
         return HttpResponse("Incorrect password or username")
+
+def addBookstoShelf(request):
+    if request.method == 'POST':
+        form = AddBookForm(request.POST or None)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Book added successfully!')
+            return render(request, 'shelfs/addbooks.html')
+        else:
+            messages.success(request, 'Something went wrong, please try again!')
+            return render(request, 'shelfs/addbooks.html')
+
+    return render(request, 'shelfs/addbooks.html')
+
