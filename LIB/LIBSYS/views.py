@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from LIBSYS.models import signupForm
 from .forms import AddBookForm
+from .models import AddBook
 from django.contrib import messages
 # from django.contrib.auth.hashers import make_password
 
@@ -44,4 +45,17 @@ def addBookstoShelf(request):
             return render(request, 'shelfs/addbooks.html')
 
     return render(request, 'shelfs/addbooks.html')
+
+
+def manageBook(request):
+    Book = AddBook.objects.all()
+    context = {'Books': Book}   
+    return render(request, 'shelfs/manage.html', context)
+    
+def updateBook(request,serial_number):
+    context = {}
+    update  = AddBook.objects.get(id=serial_number)
+    form = AddBookForm(instance=update)
+    context['form']=form
+    return render(request, 'shelfs/addbooks.html', context)
 

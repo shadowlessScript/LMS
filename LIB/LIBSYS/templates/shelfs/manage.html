@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Books</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <style>
+        .col{
+            text-align: left;
+            margin-bottom: 10px;
+            /* color: red; */
+            /* border: 2px dashed black; */
+            padding-top: 10px;
+            padding-left: 10px;
+            width: 100%;
+           
+        }
+        .row{
+            margin-bottom: 10px;
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 9px;
+            border-radius: 1em;
+            /* height: 60px; */
+        }
+    </style>
+</head>
+<body>
+    {%include 'navlinks.html'%}
+    <div style="width: 100vw; text-align: center;"><h1>Books</h1></div>
+    <form method="post">
+        {% csrf_token %}
+    <div class="container">
+        <div style="display: flex;">
+            <div class="col"><strong>Serial Number</strong></div>
+            <div class="col"><strong>Book's Title</strong></div>
+            <div class="col"><strong>Author</strong></div>
+            <div class="col"> </div>  
+        </div>
+        {% for Book in Books%}
+        <div class="row" style="display: flex; justify-content:space-around;">
+            <div class="col" name="serial_number">
+            {{Book.serial_number}}
+            </div>
+            <div class="col"> {{Book.title}}</div>
+            <div class="col">{{Book.Author}}</div>  
+            <div class="col">  
+                <button type="submit" class="btn btn-outline-primary" "><a href="{% url 'updateBook' %}">UPDATE</a></button>
+                <button type="button" class="btn btn-outline-danger">DELETE</button>
+          
+            </div>  
+        </div>
+       
+        {% endfor %}
+        </div>
+</form>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+</body>
+</html>

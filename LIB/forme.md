@@ -22,6 +22,7 @@
 10. Search function.
 11. Section in the librairian account to add book. 
 12. Login and logout functions.
+13. An admin section for adding,removing and updating books
 
 # Non functional requirements
 1. Filtering booking according to categories.
