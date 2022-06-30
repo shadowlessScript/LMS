@@ -15,6 +15,7 @@
             padding-top: 10px;
             padding-left: 10px;
             width: 100%;
+            display: flex;
            
         }
         .row{
@@ -22,6 +23,10 @@
             box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 9px;
             border-radius: 1em;
             /* height: 60px; */
+        }
+        .btn a{
+            text-decoration: none;
+            color: inherit;
         }
     </style>
 </head>
@@ -43,11 +48,11 @@
             {{Book.serial_number}}
             </div>
             <div class="col"> {{Book.title}}</div>
-            <div class="col">{{Book.Author}}</div>  
+            <div class="col">{{Book.Author}}</div> 
+            <!-- <div class="col">{{Book.description}}</div>   -->
             <div class="col">  
-                <button type="submit" class="btn btn-outline-primary" "><a href="{% url 'updateBook' %}">UPDATE</a></button>
-                <button type="button" class="btn btn-outline-danger">DELETE</button>
-          
+                <button type="submit" class="btn btn-outline-primary" "><a href="{% url 'updateBook' Book.serial_number%}">UPDATE</a></button>
+                <button type="button" class="btn btn-outline-danger"><a href="{% url 'deletebook' Book.serial_number %}">DELETE</a></button>
             </div>  
         </div>
        
