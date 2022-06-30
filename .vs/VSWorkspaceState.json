@@ -1,7 +1,12 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\LIB",
+    "\\LIB\\LIB",
+    "\\LIB\\LIBSYS",
+    "\\LIB\\LIBSYS\\templates",
+    "\\LIB\\LIBSYS\\templates\\shelfs"
   ],
-  "SelectedNode": "\\C:\\Users\\MUNYA\\OneDrive\\Desktop\\LMS",
+  "SelectedNode": "\\LIB\\LIBSYS\\views.py",
   "PreviewInSolutionExplorer": false
 }

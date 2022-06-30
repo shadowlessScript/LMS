@@ -54,8 +54,20 @@ def manageBook(request):
     
 def updateBook(request,serial_number):
     context = {}
-    update  = AddBook.objects.get(id=serial_number)
+    update  = AddBook.objects.get(pk=serial_number)
     form = AddBookForm(instance=update)
+    if request.method == 'POST':
+        form = AddBookForm(request.POST,instance=update)
+        if form.is_valid():
+            form.save()
+            return redirect('manage')
     context['form']=form
-    return render(request, 'shelfs/addbooks.html', context)
+    return render(request, 'shelfs/updateBooks.html', context)
+
+
+def deleteBook(request, serial_number):
+    delete = AddBook.objects.get(pk=serial_number)    
+    delete.delete()
+    messages.success(request, 'Something went wrong, please try again!')
+    return redirect('manage')
 
