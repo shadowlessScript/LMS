@@ -1,0 +1,30 @@
+
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing:border-box;
+}
+
+.welcome-bg{
+    width: 90vw;
+    height: 80vh;
+    border-radius: 20px;
+    margin: 20px;
+}
+
+.welcome-bg-container{
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+
+.news-container{
+    
+}
+
+.news{
+    background-color: coral;
+    align-self: center;
+    margin: 20px;
+}
+

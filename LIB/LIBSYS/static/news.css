@@ -1,0 +1,19 @@
+.news-post{
+    width: 550px;
+    margin: 30px;
+}
+
+.news-post button{
+    border: 1px dashed coral;
+    /* background-color: chocolate; */
+     transition: 0.5s;  
+    padding: 5px;
+    /* border-radius: 10px; */
+}
+
+
+.news-post button:hover{
+    background-color: rgb(169, 224, 86);  
+    transition: 0.5s;  
+    /* border: 2px dashed blue; */
+}
