@@ -1,4 +1,6 @@
 from django.db import models
+from django_quill.fields import QuillField
+from django.utils import timezone
 # Create your models here.
 class signupForm(models.Model):
 
@@ -23,3 +25,12 @@ class AddBook(models.Model):
 
     def __str__(self):
         return self.title + "---"+self.Author
+
+# Creating a news models, which will show news about the LIB SYS
+class New(models.Model):
+    title = models.CharField(max_length=90)
+    story = QuillField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title

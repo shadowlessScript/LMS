@@ -1,16 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+    {%load static%}
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href={%static '/main.css'%}>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
 
 </head>
 <body>
     {% include 'navlinks.html' %}
-    <h2>welcome to the lib site.</h2>
+    <div class="welcome-bg-container">
+        <div class="welcome-bg" style="background-image: url({% static '/images/libbg.jpg' %});
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        
+        "></div>        
+    </div>
+    <section class="news-container">
+        {% for story in storys %}
+        <div class="news">        
+            {% comment %} <h2>{{story.title}}</h2> {% endcomment %}
+            <p>{{story.story.html|safe}}</p>
+            <span style="color: blue;">Created on: {{story.created}}</span>
+        </div>
+        {%endfor%}
+    </section>
 </body>
 
 </html>
