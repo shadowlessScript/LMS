@@ -11,14 +11,7 @@
         {% include '../navlinks.html' %}
         <form class='news-post' method='post' action="{% url 'blog' %}">
             {% csrf_token %}
-            {% if messages %}
-                {% for msg in messages %}
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <strong>{{msg}}</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>
-                {%endfor%}
-            {%endif%}
+            
             
             {{blog.media}}
             {{blog.as_p}}

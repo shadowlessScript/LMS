@@ -19,6 +19,8 @@ from .views import index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',index),
-    path('lib/', include('LIBSYS.urls'))
+    path('',index, name="home"),
+    path('lib/', include('LIBSYS.urls')),
+    path('members/', include('django.contrib.auth.urls')),
+    path('members/', include('members.urls')),
 ]
