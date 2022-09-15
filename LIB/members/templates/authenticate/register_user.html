@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+{% include 'navlinks.html' %}
+<html>
+    <head></head>
+    <body>
+        {% if form.errors %}
+
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          There was an error with your form ;(
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+            
+        {% endif %}
+        <h2>Register</h2>
+        <form method='post' action='{% url "register"%}' class="container">
+             {% csrf_token %}            
+                {{form.as_p}}
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+    </body>
+</html>
