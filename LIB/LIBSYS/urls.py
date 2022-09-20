@@ -6,5 +6,6 @@ urlpatterns = [
     path('updateBook/<str:serial_number>/', views.updateBook, name='updateBook'),
     path('delete/<str:serial_number>', views.deleteBook, name='deletebook'),
     path('blog/news', views.NewsUpdate, name='blog'),
-    
+    path('books/',views.ListOfBooks, name="books"),
+    path('view/<str:serial_number>', views.bookView, name='bookview'),
 ]

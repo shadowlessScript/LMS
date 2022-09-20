@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content%}
+{%if messages%}
+    {% for messages in messages  %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+  {{messages}}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+      
+    {% endfor %}
+  {% endif %}
+<form method="POST" class="container" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {{form.as_p}}
+    <input class="btn btn-secondary" type="submit" value="Update">
+    <a href="{% url 'manage' %}"><input class="btn btn-info" value="Back"></a>
+</form>
+{% endblock %}

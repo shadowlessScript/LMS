@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Profile Page{% endblock %}
+{% load static %}
+
+{% block content %}
+<link rel='stylesheet' href="{% static 'profile.css' %}">
+<h2>Edit Profile</h2>
+	{% if user.profile.profile_pic %}<img src="{{user.profile.profile_pic.url}}" class='profile' width="200px" height="200px" />{% endif %}
+	<form method='post' class="container" enctype="multipart/form-data">
+             {% csrf_token %}
+                <!-- {{p_form.media}}             -->
+                {{form.as_p}}
+                {{p_form.as_p}}
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+{% endblock %}

@@ -1,17 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
     {%load static%}
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href={%static '/main.css'%}>
-    
+    {% block title %}Home{% endblock %}
+    {% block content %}  
 
-</head>
-<body>
-    {% include 'navlinks.html' %}
+    <link rel="stylesheet" href={% static '/main.css'%}>
+   
     <div class="welcome-bg-container">
         <div class="welcome-bg" style="background-image: url({% static '/images/libbg.jpg' %});
         background-repeat: no-repeat;
@@ -35,10 +28,7 @@
         <h2>Fines Fines Fines!!!!</h2>
 
     </div>
-    <script src={% static 'JS/App.js' %}></script>
     
-
-</body>
-
-</html>
-
+    
+<script src={% static 'JS/App.js' %}></script>
+{% endblock %}

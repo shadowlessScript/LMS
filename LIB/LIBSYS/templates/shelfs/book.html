@@ -1,0 +1,20 @@
+{%extends 'base.html'%}
+{% load static %}
+{% block title %}Books{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'books.css' %}">
+<div class="books-container">
+	{% for book in Books %}
+	<div class="book">	
+		{% if book.Cover_image %}
+			<img class="book-cover" src = {{book.Cover_image.url}}/>
+		{% else %}
+			<img class="book-cover" src = ''>
+		{% endif %}
+		<h5><a href="{% url 'bookview' book.serial_number%}">{{book.title}}</a></h5>
+		<p>By: {{book.Author}}</p>
+		{% comment %} <p>{{book.description}}</p>	 {% endcomment %}
+	</div>
+	{% endfor %}
+</div>
+{% endblock %}
