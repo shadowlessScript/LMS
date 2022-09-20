@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+{% for ebook in Book %}
+    {{ebook.title}}<br/>
+    {{ebook.description}}<br/>
+    <img src={{ebook.Cover_image.url}} width="200px"/>
+    Author: {{ebook.Author}}
+    <hr>
+{% endfor %}
+<h2>Hi there</h2>
+{% endblock %}

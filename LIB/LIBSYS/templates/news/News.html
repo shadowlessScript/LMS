@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html>
-    {% load static %}
-    {%  load l10n%}
-    <head>
-        <title></title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
-        <link rel="stylesheet" href={% static 'news.css' %}
-    </head>
-    <body>
-        {% include '../navlinks.html' %}
+{% extends 'base.html' %}
+{% block content %}
+<link rel="stylesheet" href={% static 'news.css' %}>
+
         <form class='news-post' method='post' action="{% url 'blog' %}">
             {% csrf_token %}
             
@@ -18,7 +11,5 @@
             {% localize on %}{{blog.created}} {% endlocalize%}
             <button type='submit'>Submit</button> 
         </form>
-    </body>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
-
-</html>
+        <script src={% static 'JS/App.js' %}></script>
+{% endblock %}

@@ -1,8 +1,5 @@
-<!DOCTYPE html>
-{% include 'navlinks.html' %}
-<html>
-    <head></head>
-    <body>
+{%extends 'base.html'%}
+{% block content %}
         <div class="container">
             <h2>Login</h2>
             <form method='post' >
@@ -20,5 +17,4 @@
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
         </div>
-    </body>
-</html>
+    {% endblock %}
