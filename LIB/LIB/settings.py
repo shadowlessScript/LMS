@@ -125,6 +125,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 MEDIA_URL = '/media/'
 
+LOGIN_URL = '/members/login_user/' # works with the login_required decorator, redirects an anonymous if they try to access a page that requires login 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+    {%load static%}
+    {% block title %}Home{% endblock %}
+    {% block content %}  
+
+    <link rel="stylesheet" href="{% static '/main.css'%}">
+   
+    <div class="welcome-bg-container">
+        <div class="welcome-bg" style="background-image: url({% static '/images/libbg.jpg' %});
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        
+        "></div>        
+    </div>
+    <section class="news-container">
+        {% for story in storys %}
+        <div class="news">        
+            {% comment %} <h2>{{story.title}}</h2> {% endcomment %}
+            <p>{{story.story.html|safe}}</p>
+
+            <span style="color: blue;">Created on: {{story.created}}</span>
+        </div>
+        <a href="{% url 'update_news' story.id %}">Update</a>
+        {%endfor%}
+        <Button class="more" >more..</Button>
+    </section>
+    <div>
+        <h2>Fines Fines Fines!!!!</h2>
+
+    </div>
+    
+    
+<script src="{% static 'JS/App.js' %}"></script>
+{% endblock %}

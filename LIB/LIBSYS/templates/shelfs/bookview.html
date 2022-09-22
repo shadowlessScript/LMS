@@ -1,11 +1,31 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    {% for ebook in Book %}
+        {{ebook.title}}    
+    {% endfor %}
+{% endblock %}
+
 {% block content %}
+<link rel="stylesheet" href="{% static 'books.css' %}">
+
 {% for ebook in Book %}
-    {{ebook.title}}<br/>
-    {{ebook.description}}<br/>
-    <img src={{ebook.Cover_image.url}} width="200px"/>
-    Author: {{ebook.Author}}
+<h2>{{ebook.title}}</h2>
+<div class="book-card">
+    <br/>
+    {% if ebook.Cover_image %}
+        <img class="book-cover" src = {{ebook.Cover_image.url}} width="200px" />
+    {% else %}
+        <img class="book-cover" src = '{% static "images/105093.jpg"%}' width="200px"/>
+    {% endif %} 
+    <div class="book-info-container">
+        <p>{{ebook.description}}</p><br/>        
+        <h4>Author: {{ebook.Author}}</h4><br>
+        Catergory: <a class="genre" href="{% url 'filtered_view' ebook.genre %}"> {{ebook.genre}}</a>
+    </div>
+</div>
     <hr>
+
 {% endfor %}
 <h2>Hi there</h2>
 {% endblock %}
