@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block title %}Post News{% endblock %}
 {% block content %}
-<link rel="stylesheet" href={% static 'news.css' %}>
+<link rel="stylesheet" href="{% static 'news.css' %}">
 
         <form class='news-post' method='post' action="{% url 'blog' %}">
             {% csrf_token %}
@@ -8,8 +10,8 @@
             
             {{blog.media}}
             {{blog.as_p}}
-            {% localize on %}{{blog.created}} {% endlocalize%}
+          
             <button type='submit'>Submit</button> 
         </form>
-        <script src={% static 'JS/App.js' %}></script>
+        <script src="{% static 'JS/App.js' %}"></script>
 {% endblock %}

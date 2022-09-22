@@ -28,20 +28,25 @@
           {% endif %}
 
           {% if user.is_authenticated %}
+          {% if user.is_superuser%}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'blog'%}">Post News</a>
+            </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Books
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              {% if user.is_superuser%}
+              
               <li><a class="dropdown-item" href="{% url 'manage'  %}">Update Books</a></li>
               
               <li><a class="dropdown-item" href="{% url 'add' %}">Add new book</a></li>
-              {%endif%}
+              
               {%comment%}<li><hr class="dropdown-divider"></li>{%endcomment%}
               <li><a class="dropdown-item" href="#">Something else here</a></li>
             </ul>
           </li>
+          {%endif%}
           <li>{% if user.profile.profile_pic %}<img src="{{user.profile.profile_pic.url}}" class='prof-pic'  />{%else%}
             <img src="../media/images/profile_pic/22/default.jpg" class='prof-pic' />{% endif %}
           <li class="nav-item dropdown">
@@ -54,15 +59,35 @@
               <li><a class="dropdown-item" href="{% url 'profile' %}">My Account</a></li>
                            
               <li><a class="dropdown-item" href="#">My Books</a></li>
+              
+              
             </ul>             
           </li>
+              {% if user.is_superuser%}
+              {% if request.path == '/' or request.path == '/home_user_view/'%}
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      View Page as
+                  </a>                  
+                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                              
+                    <li><a class="dropdown-item" href="{% url 'home' %}">Admin</a></li>
+                                 
+                    <li><a class="dropdown-item" href="{% url 'home_user_view' %}">User</a></li>                   
+              
+                </ul>             
+              </li>
+              {% endif %}
+              {% endif %}
           {% endif %}
 
         </ul>
+        {% if request.path == '/books/' or request.path == filter_view %}
         <form class="d-flex" role="search">
           <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
+        {% endif%}
       </div>
     </div>
   </nav>

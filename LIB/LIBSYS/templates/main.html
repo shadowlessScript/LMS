@@ -3,7 +3,7 @@
     {% block title %}Home{% endblock %}
     {% block content %}  
 
-    <link rel="stylesheet" href={% static '/main.css'%}>
+    <link rel="stylesheet" href="{% static '/main.css'%}">
    
     <div class="welcome-bg-container">
         <div class="welcome-bg" style="background-image: url({% static '/images/libbg.jpg' %});
@@ -21,6 +21,7 @@
 
             <span style="color: blue;">Created on: {{story.created}}</span>
         </div>
+
         {%endfor%}
         <Button class="more" >more..</Button>
     </section>
@@ -30,5 +31,5 @@
     </div>
     
     
-<script src={% static 'JS/App.js' %}></script>
+<script src="{% static 'JS/App.js' %}"></script>
 {% endblock %}

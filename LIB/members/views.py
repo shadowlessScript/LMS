@@ -19,7 +19,7 @@ def login_user(request):
             # Redirect to a success page.  
             return redirect('home')         
         else:
-           messages.success(request,'There was an error logging in....')
+           messages.success(request,'Incorrect username or password')
            return redirect('login')
             # Return an 'invalid login' error message.
         

@@ -43,7 +43,7 @@
             <div class="col">{{Book.Author}}</div> 
             <!-- <div class="col">{{Book.description}}</div>   -->
             <div class="col">  
-                <button type="submit" class="btn btn-outline-primary" "><a href="{% url 'updateBook' Book.serial_number%}">UPDATE</a></button>
+                <button type="submit" class="btn btn-outline-primary" ><a href="{% url 'updateBook' Book.serial_number%}">UPDATE</a></button>
                 <button type="button" class="btn btn-outline-danger"><a href="{% url 'deletebook' Book.serial_number %}">DELETE</a></button>
             </div>  
         </div>

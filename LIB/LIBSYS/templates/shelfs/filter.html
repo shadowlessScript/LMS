@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{%load static%}
+{% block content %}
+{% url 'filtered_view' as filter_view %}
+<link rel="stylesheet" href="{% static 'books.css' %}">
+
+<div class="main-container">
+
+<div class="books-container">
+	{% for book in Book %}
+	<div class="book">	
+		{% if book.Cover_image %}
+			<img class="book-cover" src = {{book.Cover_image.url}}/>
+		{% else %}
+			<img class="book-cover" src = '{% static "images/105093.jpg"%}'>
+		{% endif %}
+		<div class='book-info'>
+			<h5><a class="book-link" href="{% url 'bookview' book.serial_number%}">{{book.title}}</a></h5>
+			<p class="author">By: {{book.Author}}</p>
+			{% comment %} <p>{{book.description}}</p>	 {% endcomment %}
+		</div>
+	</div>
+	{% endfor %}
+</div>
+</div>
+<div class='filter'>
+	<h4>Filter</h4>
+	<div class="filter-genre">
+		{% for genre in Genres %}
+			<a class="genre" href="{% url 'filtered_view' genre %}">{{genre}}</a>
+		{% endfor %}
+		<a class="genre" href="{% url 'books' %}">View All</a>
+	</div>
+	
+</div>
+{% endblock %}
