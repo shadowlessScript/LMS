@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block title %} Manage Books {% endblock %}
 {% block content %}
     <style>
         .col{
@@ -39,12 +41,15 @@
             <div class="col" name="serial_number">
             {{Book.serial_number}}
             </div>
-            <div class="col"> {{Book.title}}</div>
+            <div class="col"> {{Book.title|truncatewords:4}}</div>
             <div class="col">{{Book.Author}}</div> 
             <!-- <div class="col">{{Book.description}}</div>   -->
             <div class="col">  
-                <button type="submit" class="btn btn-outline-primary" ><a href="{% url 'updateBook' Book.serial_number%}">UPDATE</a></button>
-                <button type="button" class="btn btn-outline-danger"><a href="{% url 'deletebook' Book.serial_number %}">DELETE</a></button>
+                <a href="{% url 'updateBook' Book.serial_number%}"><button  type="button" class="btn btn-outline-primary" >UPDATE</button></a>
+                
+
+                <a href="{% url 'deletebook' Book.serial_number %}"><button type="button" class="btn btn-outline-danger">DELETE</button></a>
+                
             </div>  
         </div>
        
@@ -53,3 +58,4 @@
 </form>
 
 {% endblock %}
+<!-- {% block script %}<script src="{% static 'JS/manage.js' %}"></script>{% endblock %} -->

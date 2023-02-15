@@ -3,7 +3,7 @@ let newsContainer = document.querySelector(".news-container");
 // let childCheck = children.childElementCount;
 let mainContainerHeight = newsContainer.offsetHeight;
 var totalwidth = 0
-console.log(mainContainerHeight);
+
 for (let i = 0; i < children.length; i++)
 {
     totalwidth += parseInt(children[i].offsetHeight, 10);
@@ -21,6 +21,3 @@ button.addEventListener("click", () => {
     newsContainer.style.transition = "1s";
     button.style.display = "none";
 });
-
-
-    

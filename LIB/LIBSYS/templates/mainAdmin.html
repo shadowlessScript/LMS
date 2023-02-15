@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
     {%load static%}
     {% block title %}Home{% endblock %}
+    {% block style %}<link rel="stylesheet" href="{% static '/main.css'%}">{% endblock %}
+
     {% block content %}  
 
-    <link rel="stylesheet" href="{% static '/main.css'%}">
    
     <div class="welcome-bg-container">
         <div class="welcome-bg" style="background-image: url({% static '/images/libbg.jpg' %});

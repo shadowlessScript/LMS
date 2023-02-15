@@ -11,6 +11,8 @@
 - List of Librarians 
 - Books borrowed and the ones who borrowed them.
 - Clients with fines.
+- Past papers.
+- Comments/ chats
 
 3. A page for book acquisition.
 4. A page for reading books onlne.
@@ -23,12 +25,14 @@
 11. Section in the librairian account to add book. 
 12. Login and logout functions.
 13. An admin section for adding,removing and updating books
-
+14. Page for exam paper
+15. Forum
 # Non functional requirements
 1. Filtering booking according to categories.
 2. Using icons and visuals to enable an intuitive understanding of a system.
 3. Display summary detail of the book such as name of author, number of pages, it tags .
 4. It has a mobile view.
+5. Report option for comments.
 
 
 # Things to use

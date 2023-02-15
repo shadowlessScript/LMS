@@ -11,8 +11,12 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from .models import New
 # from django.contrib.auth.hashers import make_password
+from django.core.paginator import Paginator
 
 # Create your views here.
+def Notfound(request):
+    return render(request, '404.html')
+
 
 @staff_member_required
 def addBookstoShelf(request):
@@ -31,7 +35,7 @@ def addBookstoShelf(request):
         form = AddBookForm()
     return render(request, 'shelfs/addbooks.html', {"form":form})
 
-@staff_member_required
+@staff_member_required(redirect_field_name='next', login_url=None)
 def manageBook(request):
     Book = AddBook.objects.all()
     context = {'Books': Book}   
@@ -54,18 +58,29 @@ def updateBook(request,serial_number):
     context['title']=update.title
     return render(request, 'shelfs/updates/updateBooks.html', context)
 
-
+@staff_member_required
 def deleteBook(request, serial_number):
-    delete = AddBook.objects.get(pk=serial_number)    
-    delete.delete()
-    messages.success(request, 'Something went wrong, please try again!')
+    deleteBook = AddBook.objects.filter(serial_number=serial_number)
+    context = {'Book': deleteBook}      
+    return render(request, 'shelfs/updates/confirm_delete.html', context)
+@staff_member_required
+def deleteBookConfirmation(request, serial_number):
+    deleteBook = AddBook.objects.filter(serial_number=serial_number)
+    context = {'Book': deleteBook}
+    messages.success(request, f'Book has been deleted')
+    deleteBook.delete()
+
     return redirect('manage')
 
 # news form down here
 def index(request):
     News = New.objects.all()
+    p = Paginator(New.objects.all(), 3)
+    page = request.GET.get('page')
+    posts = p.get_page(page)
     context = {
-        'storys': News,
+        'storys': posts,
+        # 'pages': posts,
     }
     if request.user.is_superuser:
         return render(request,"mainAdmin.html", context)
@@ -160,3 +175,15 @@ def Filter(request, genre):
     'Genres': genreList(genre),
     }
     return render(request, 'shelfs/filter.html', context)
+
+@login_required
+def search_book(request):
+    if request.method == 'POST':
+        searched_books = request.POST['searched_books']  
+        books = AddBook.objects.filter(title__contains=searched_books) 
+        if books == []:
+            print(books)     
+        return render(request, 'search_books.html',{'searched': searched_books, 'Books': books})
+    else:
+        return render(request, 'search_books.html',{})
+

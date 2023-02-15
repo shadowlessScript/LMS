@@ -5,10 +5,9 @@
         {{ebook.title}}    
     {% endfor %}
 {% endblock %}
+{% block style %}<link rel="stylesheet" href="{% static 'books.css' %}">{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'books.css' %}">
-
 {% for ebook in Book %}
 <h2>{{ebook.title}}</h2>
 <div class="book-card">
@@ -26,6 +25,22 @@
 </div>
     <hr>
 
+    {% if ebook.type == 'online' %}
+        {% if ebook.file %}
+            <button id='file-links' class="btn btn-secondary"><a href='{{ebook.file.url}}' target="_blank"> Read </a></button>    
+            {% else %}
+            <div class ="alert alert-danger"> Book not yet uploaded to the database contact the Librarian.</div>
+        {% endif %}
+    {% endif %}
+
+    {% if ebook.type == 'physical' %}
+            <button id='file-links' class="btn btn-secondary"><a href='#' target="_blank"> BOOK </a></button> 
+    {% endif %}
+
+    {% if ebook.type == 'physical/online' %}
+            <button id='file-links' class="btn btn-secondary"><a href='#' target="_blank"> BOOK </a></button> 
+            <button id='file-links' class="btn btn-secondary"><a href='{{ebook.file.url}}' target="_blank"> Read </a></button>    
+    {% endif %}
 {% endfor %}
-<h2>Hi there</h2>
+
 {% endblock %}

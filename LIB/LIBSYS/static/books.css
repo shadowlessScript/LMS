@@ -1,7 +1,8 @@
 .main-container{
+	margin-top: 20px;
 	width: 70vw;
-	/*background-color: hsla(233, 53%, 50%, .2);*/
-
+	/* background-color: hsla(233, 53%, 50%, .2); */
+	padding: 20px;
 }
 
 .books-container{
@@ -11,6 +12,7 @@
 
 .book{
 	/*width:250px;*/
+	position: relative;
 	margin: 20px;
 	/*height: 300px;*/
 }
@@ -62,18 +64,38 @@
 	color: coral;
 	transition: 1s;
 }
-.filter{
+/* .filter{
 	text-align: center;
 	position: absolute;
 	top: 10%;
 	left: 2px;
 	width: 300px;
 
-	/*top: 0;*/
-}
+	
+} */
 .filter-genre{
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
 	gap: 5px;
+}
+
+.filter-genre > .genre{
+	border-radius: 10px;
+}
+
+#file-links > a{
+	text-decoration: none;
+	color: whitesmoke;
+}
+
+.tag{
+	position: absolute;
+	top: 20px;
+	right: 5px;
+	background-color: rgb(151, 56, 155);
+	color: #fff;
+	padding: 5px;
+	font-weight: 600;
+	border-radius: 5px;
 }

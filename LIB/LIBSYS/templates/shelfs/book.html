@@ -1,9 +1,21 @@
 {%extends 'base.html'%}
 {% load static %}
 {% block title %}Books{% endblock %}
+{% block style %}<link rel="stylesheet" href="{% static 'books.css' %}">{% endblock %}
+
 {% block content %}
-<link rel="stylesheet" href="{% static 'books.css' %}">
 <div class="main-container">
+
+	<div class='filter'>
+	
+	<div class="filter-genre">
+		{% for genre in Genres %}
+			<a class="genre" href="{% url 'filtered_view' genre %}">{{genre}}</a>
+		{% endfor %}
+		<!-- <a class="genre" href="{% url 'books' %}">View All</a> -->
+	</div>
+	
+</div>
 
 <div class="books-container">
 	{% for book in Books %}
@@ -14,22 +26,14 @@
 			<img class="book-cover" src = '{% static "images/105093.jpg"%}'>
 		{% endif %}
 		<div class='book-info'>
-			<h5><a class="book-link" href="{% url 'bookview' book.serial_number%}">{{book.title}}</a></h5>
+			<h5><a class="book-link" href="{% url 'bookview' book.serial_number%}">{{book.title|truncatewords:4}}</a></h5>
 			<p class="author">By: {{book.Author}}</p>
 			{% comment %} <p>{{book.description}}</p>	 {% endcomment %}
 		</div>
+		<div class='tag'>{{book.type}}</div>
 	</div>
 	{% endfor %}
 	</div>
 </div>
-<div class='filter'>
-	<h4>Filter</h4>
-	<div class="filter-genre">
-		{% for genre in Genres %}
-			<a class="genre" href="{% url 'filtered_view' genre %}">{{genre}}</a>
-		{% endfor %}
-		<!-- <a class="genre" href="{% url 'books' %}">View All</a> -->
-	</div>
-	
-</div>
+
 {% endblock %}
