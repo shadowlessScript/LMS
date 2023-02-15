@@ -30,7 +30,7 @@ class AddBookForm(forms.ModelForm):
     # genre = forms.CharField(label='Book\'s genre', widget=forms.Select(choices=GENRE))
     class Meta:
         model = AddBook
-        fields =('title', 'Author', 'serial_number', 'type','Cover_image','description','genre')
+        fields =('title', 'Author', 'serial_number', 'type','Cover_image','description','genre', 'file')
         
     def __init__(self, *args, **kwargs):
         super(AddBookForm, self).__init__(*args, **kwargs)

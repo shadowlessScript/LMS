@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}<link rel="stylesheet" type="text/css" href="{% static 'manage.css' %}">{% endblock %}
+
+{% block content %}
+{% for book in Book %}
+<div class="confirm-msg">
+	<p>Are you Sure you want to delete <em>{{book.title|truncatewords:4}}</em> ?</p>
+	
+	<a href="{% url 'deletebook_confirm' book.serial_number %}"><button type="submit" class="btn btn-danger">Yes</button></a>
+		
+	
+	<a href="{% url 'manage' %}"><button type="button" class="btn btn-dark">No</button></a>
+</div>
+{% endfor %}
+{% endblock %}

@@ -3,56 +3,116 @@
     padding: 0;
     margin: 0;
     box-sizing:border-box;
+    -webkit-scroll-behavior: smooth;
+    -moz-scroll-behavior: smooth;
+}
+/*body,html{
+    width: 100%;
+
+}
+main{
+    width: 100%;
+}*/
+
+.welcome-text{
+    text-align: center;
+    color: white;
+    animation: mytext 2s ease-in-out;
+    font-size: 2rem;
 }
 
-.welcome-bg{
-    width: 90vw;
-    height: 80vh;
-    border-radius: 20px;
-    margin: 20px;
-}
-
-.welcome-bg-container{
+ .welcome-bg{
     display: flex;
+    justify-content: center;    
+    align-items: center;    
+    background-size: cover;
+/*    object-fit: fill;*/
+    -webkit-width: 50vw;
+    -moz-width: 50vw;
+    -o-width: 50vw;
+    height: 80vh;
+    margin-top: 1rem;
+    width: 50vw;
+    -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  box-shadow: 2px 4px 10px 2px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    padding: 1em;
+} 
+
+
+
+/*.welcome-bg{
+    margin: 1rem;
+    
+    display: flex;
+    flex-direction:column;
     justify-content: center;
-    align-content: center;
+    align-self: center;
+    align-items: center;
+}*/
+
+#welcome-txt{
+    text-align: center;
+     display: flex;
+     flex-direction:column;
+    justify-content: center;    
+    align-items: center;
 }
+
+/*.welcome-svg{    
+    width: 80vw;
+    height: 80vw;
+    margin: 0;
+}*/
 
 .news-container{
-    /*padding-left: 5.4em;*/
-    position: relative;
-    height: 60vh;
-    /* background-color: bisque; */
-    overflow-y: hidden;
-    width: 800px;
+    padding: 0.8rem;
+    width: 60vw;
 }
 
 .news{
-    width: 599px;
-    background-color: rgb(228, 225, 225);
-    /* align-self: center; */
-    margin: 20px;
-    border-radius: 10px;
-    padding: 20px;
-    
+    /*background-color: hsl(35, 70%, 75%);*/
+    padding: 0.8rem;
+    margin-bottom:  0.5rem;
+    /*border: 2px solid hsl(35, 70%, 75%);*/
+    box-shadow: 0px 0px 5px hsl(35, 70%, 75%);
 }
 
-pre{
-    background-color: black;
+.page-links{
+    margin-top: 20px;
+    text-decoration: none;
+    padding: 0.3rem;
+    background-color: dimgrey;
     color: white;
-    padding: 10px;
-    border-radius: 10px;
+    /*border-radius: 0.3rem;*/
+    transition: 0.4s;
+}
+
+.page-links:hover{
+    background-color: #fff;
+    box-shadow: 0px 0px 5px hsl(35, 70%, 75%);
+    color: black;
+    transition: 0.4s;
 }
 
 
-.more{
-    position: absolute;
-    display: none;
-    border: none;
-    padding: 10px;
-    left: 44%;
-    bottom: -5px;
-    background-color: hsla(0,0%,0%, 0.3);
-    color: white;
-    font-weight: 900;
+/*Adding keyframes*/
+@keyframes mytext{
+    0%{
+        opacity: -1;
+    }
+    25%{
+        opacity: 0;
+    }
+    50%{
+        opacity: 0.25;
+    }
+    75%{
+        opacity: 0.5;
+    }
+    100%{
+        opacity: 1;
+    }
 }

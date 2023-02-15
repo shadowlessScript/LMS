@@ -43,6 +43,7 @@ class AddBook(models.Model):
     Cover_image = models.ImageField(upload_to="images/books/%y", blank=True, null=True)
     type = models.CharField(max_length=20, choices=STATE, default='online')
     genre = models.CharField(max_length=50,choices=GENRE, default='Engineering')
+    file = models.FileField(upload_to='books/%y', blank=True, null=True)
 
     def __str__(self):
         return '%s, %s'% (self.title, self.Author)
@@ -72,3 +73,5 @@ class Fine(models.Model):
 
     def __str__(self):
         return f'{self.clients_name.clients_name.username}'
+
+
