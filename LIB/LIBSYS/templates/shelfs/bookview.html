@@ -2,44 +2,53 @@
 {% load static %}
 {% block title %}
     {% for ebook in Book %}
-        {{ebook.title}}    
+{{ebook.title}}
     {% endfor %}
 {% endblock %}
-{% block style %}<link rel="stylesheet" href="{% static 'books.css' %}">{% endblock %}
+{% block style %}
+<link rel="stylesheet" href="{% static 'books.css' %}">{% endblock %}
 
 {% block content %}
 {% for ebook in Book %}
 <h2>{{ebook.title}}</h2>
 <div class="book-card">
-    <br/>
+    <br />
     {% if ebook.Cover_image %}
-        <img class="book-cover" src = {{ebook.Cover_image.url}} width="200px" />
+    <img class="book-cover" src={{ebook.Cover_image.url}} width="200px" />
     {% else %}
-        <img class="book-cover" src = '{% static "images/105093.jpg"%}' width="200px"/>
-    {% endif %} 
+    <img class="book-cover" src='{% static "images/105093.jpg"%}' width="200px" />
+    {% endif %}
     <div class="book-info-container">
-        <p>{{ebook.description}}</p><br/>        
+        <p>{{ebook.description}}</p><br />
         <h4>Author: {{ebook.Author}}</h4><br>
         Catergory: <a class="genre" href="{% url 'filtered_view' ebook.genre %}"> {{ebook.genre}}</a>
     </div>
 </div>
-    <hr>
+<hr>
 
     {% if ebook.type == 'online' %}
         {% if ebook.file %}
-            <button id='file-links' class="btn btn-secondary"><a href='{{ebook.file.url}}' target="_blank"> Read </a></button>    
+<button id='file-links' class="btn btn-secondary"><a href='{{ebook.file.url}}' target="_blank"> Read </a></button>
             {% else %}
-            <div class ="alert alert-danger"> Book not yet uploaded to the database contact the Librarian.</div>
+<div class="alert alert-danger"> Book not yet uploaded to the database contact the Librarian.</div>
         {% endif %}
     {% endif %}
 
     {% if ebook.type == 'physical' %}
-            <button id='file-links' class="btn btn-secondary"><a href='#' target="_blank"> BOOK </a></button> 
+<form method="POST">
+    {% csrf_token %}
+    <input class="btn btn-secondary" type="submit" value="Book">
+</form>
+{{ebook.copies}} Available
     {% endif %}
 
     {% if ebook.type == 'physical/online' %}
-            <button id='file-links' class="btn btn-secondary"><a href='#' target="_blank"> BOOK </a></button> 
-            <button id='file-links' class="btn btn-secondary"><a href='{{ebook.file.url}}' target="_blank"> Read </a></button>    
+<form method="POST">
+    {% csrf_token %}
+    <input class="btn btn-secondary" type="submit" value="Book">
+</form>
+<button id='file-links' class="btn btn-secondary"><a href='{{ebook.file.url}}' target="_blank"> Read </a></button>
+{{ebook.copies}} Available
     {% endif %}
 {% endfor %}
 

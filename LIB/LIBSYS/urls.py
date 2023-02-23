@@ -15,4 +15,11 @@ urlpatterns = [
     path('filter_view/<str:genre>/', views.Filter, name='filtered_view'),
     path('error404',views.Notfound, name='404'),
     path('results/', views.search_book, name='search_books'),
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('booking/', views.booking, name='booking'),
+    path('booking/<int:id>/<str:username>/<str:serial_number>', views.issuebookrequest, name='issuebookrequest'),
+    path('issuebook/', views.issueBook, name='IssueBook'),
+    path('view_issued_books/', views.viewIssuedBooks, name='view_issued_books'),
+    path('overdue_books/', views.overdue, name='overdue'),
+    path('bookacquire/', views.bookAcquisitionRequest, name='bookacquire'),
 ]

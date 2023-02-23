@@ -25,6 +25,7 @@
         </div>
     </div>        
     </center> 
+    <center>
         <section class="news-container">
             {% for story in storys %}
             <div class="news" id="news">           
@@ -33,7 +34,7 @@
             </div>
             {%endfor%}
             <!-- <Button class="more" >more..</Button> -->
-            <center class="page-link-container">
+            <!-- <center class="page-link-container"> -->
             {% if storys.has_previous %}
                 <a href="?page=1 #news" class="page-links">&laquo First</a>
                 <a href="?page={{storys.previous_page_number}} #news" class="page-links">{{storys.previous_page_number}}</a>
@@ -44,8 +45,9 @@
                 <a href="?page={{storys.next_page_number}} #news" class="page-links">{{storys.next_page_number}}</a>
                 <a href="?page={{storys.paginator.num_pages}} #news" class="page-links">&raquo</a>
             {% endif %}
-        </center>
+        <!-- </center> -->
         </section>
+    </center>
        
         
         

@@ -1,9 +1,10 @@
-{% extends 'base.html' %}
-    {% block content %}
+
+{%extends 'dashboard.html'%}
+   
+    {%block task%}
     {% if user.is_authenticated %}
     <form action="{%url 'add'%}" method="post" enctype="multipart/form-data">
-          <h4>Welcome {{user}}</h4>
-
+          
         {%csrf_token%}
         
         <div class="container" >           
@@ -16,4 +17,5 @@
       <h2>You not a member</h2>
       <a href='{% url "login"%}'>Login?</a>
     {% endif %}
-  {% endblock %}
+{%endblock%}
+  
