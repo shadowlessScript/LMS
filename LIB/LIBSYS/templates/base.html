@@ -13,8 +13,21 @@
 </head>
 <body>
 	{%include 'navlinks.html'%}
+	{%if messages%}
+	<div class="container" style="position:absolute;z-index:10;left:20%">
+		{% for messages in messages  %}
+		<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			{{messages}}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	</div>	
+	{% endfor %}
 
-	{%block content%}{%endblock%}
+	
+	{% endif %}
+	{%block content%}
+
+	{%endblock%}
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
 	{% block script %}{% endblock %}
 </body>

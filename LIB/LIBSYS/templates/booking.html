@@ -1,0 +1,9 @@
+{%extends 'dashboard.html' %}
+	{%block task%}
+		<h1>Booked Book(s)</h1>		
+			{% for request in requests %}
+				{{request.username}} |
+				{{request.serial_number}} | <a href="{% url 'issuebookrequest' request.id request.username request.serial_number  %}">Issue</a>
+			{% endfor %}
+		
+	{% endblock %}

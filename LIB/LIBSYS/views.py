@@ -5,11 +5,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from PIL import Image
-from .forms import AddBookForm, NewsForm
-from .models import AddBook
+from .forms import AddBookForm, NewsForm, IssueBookForm, BookAcquisitionRequestForm
+from .models import AddBook,New, Booking, IssueBook
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from .models import New
+
 # from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
 
@@ -63,6 +63,7 @@ def deleteBook(request, serial_number):
     deleteBook = AddBook.objects.filter(serial_number=serial_number)
     context = {'Book': deleteBook}      
     return render(request, 'shelfs/updates/confirm_delete.html', context)
+
 @staff_member_required
 def deleteBookConfirmation(request, serial_number):
     deleteBook = AddBook.objects.filter(serial_number=serial_number)
@@ -152,8 +153,20 @@ def ListOfBooks(request):
 
 @login_required
 def bookView(request, serial_number):
+    if request.method == 'POST':
+        # this sends a booking request, will be saved in the Booking model
+        # Booking model fields 'username' and 'serial_number'
+        try:
+            booking = Booking(username=request.user.id, serial_number=serial_number)
+            booking.save()
+            messages.success(request, 'Book request sent')
+        except:
+            messages.success(request, 'Something went wrong ;(')
+
+   
     whichbook = AddBook.objects.filter(serial_number=serial_number)
-    context = {'Book': whichbook}    
+    context = {'Book': whichbook} 
+    print(request.user.id)
     return render(request, 'shelfs/bookview.html', context)
 
 
@@ -175,6 +188,7 @@ def Filter(request, genre):
     'Genres': genreList(genre),
     }
     return render(request, 'shelfs/filter.html', context)
+# end of filter function
 
 @login_required
 def search_book(request):
@@ -186,4 +200,70 @@ def search_book(request):
         return render(request, 'search_books.html',{'searched': searched_books, 'Books': books})
     else:
         return render(request, 'search_books.html',{})
+@login_required
+def dashboard(request):
+    request_counter = Booking.objects.count()
+    return render(request, 'dashboard.html', {'counter':request_counter})
+                
+def booking(request):
+    booking_request = Booking.objects.all()
+    bookings = {'requests': booking_request}
+    return render(request, 'booking.html', bookings)
+
+def issuebookrequest(request, id, username, serial_number):
+    bookrequest = Booking.objects.get(id=id) 
+    form = IssueBookForm(instance=bookrequest)
+    con = {'check':bookrequest}
+    context = {}
+    context['form'] = form  
+    if request.method == 'POST':
+        form = IssueBookForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'{form.cleaned_data["serial_number"]} has been given to {form.cleaned_data["username"]}')
+            return redirect('IssueBook')
+    print(con.values())
+    return render(request, 'IssueBook.html', context)
+
+@staff_member_required
+def issueBook(request):
+    if request.method == 'POST':
+        form = IssueBookForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'{form.cleaned_data["serial_number"]} has been given to {form.cleaned_data["username"]}')
+            return redirect('IssueBook')
+    else:
+        form = IssueBookForm()
+    context = {}
+    context['form'] = form
+    return render(request, 'IssueBook.html', context)
+
+def viewIssuedBooks(request):
+   issuedBooks = IssueBook.objects.filter(status = 'active')
+   context = {
+       'issues':issuedBooks,
+       }
+   return render(request, 'viewIssued.html', context)
+
+def overdue(request):
+   issuedBooks = IssueBook.objects.filter(status = 'Over Due')
+   context = {
+       'issues':issuedBooks,
+       }
+   return render(request, 'overdue.html', context)
+
+def bookAcquisitionRequest(request):
+    if request.method == 'POST':
+        form = BookAcquisitionRequestForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Request has been sent!')
+        else:
+             messages.success(request, 'Something went wrong!')
+    else:
+        context = {}
+        form = BookAcquisitionRequestForm()
+        context['form'] = form
+    return render(request, 'bookacquire.html', context)
 

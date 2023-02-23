@@ -16,3 +16,13 @@
 
 ## RelatedObjectDoesNotExist error
 - add signals to create an instance of the related models
+
+## 'function' object has no attribute 'objects'
+- view function had the same name as model, thus django referred to the function instead of the model
+
+
+## Current Problem - MultipleObjectsReturned @ 23/02/2023 20 35hrs
+- I want multiple booking request from the same user but, when redirecting to the issue form, django get confused which info to populate.
+### Solution
+make sure the link paths are unique i.e if one link is /booking/1/be other should not be /booking/1/see_book here assuming 'booking' is like the parent i.e path('booking/<int:id>/<str:serial>/')
+

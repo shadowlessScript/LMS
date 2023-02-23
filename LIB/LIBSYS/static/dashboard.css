@@ -1,0 +1,42 @@
+*{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+.dash-nav-link{
+	text-decoration: none;
+	color: white;
+
+}
+
+.dashboard ul{
+	list-style: none;
+}
+.dashboard li{
+	margin: 0.5em;
+}
+.dashboard{
+	background-color: black;
+/*	position: absolute;*/
+	height: 100vh;
+	width: 300px;
+	padding: 1em;		
+	grid-area: dashboard;
+}
+
+.dash-container{
+	display: grid;
+	grid-template-areas: 'dashboard summary ';
+	gap: 1px;
+/*	padding:10px;*/
+}
+
+.view-section{
+	width: 80vw;
+/*	background-color: peru;*/
+	grid-area: summary;
+	margin:0;
+	padding: 10px;
+	overflow: none;
+}

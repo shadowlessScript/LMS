@@ -1,9 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'dashboard.html' %}
 {% block title %} Update {{title}}
     
  {% endblock %}
     
-{% block content%}
+{% block task %}
 {%if messages%}
     {% for messages in messages  %}
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -17,7 +17,7 @@
     {% csrf_token %}
 
     {{form.as_p}}
-    <input class="btn btn-secondary" type="submit" value="Update">
+    <input class="btn btn-secondary" id="liveToastBtn" type="submit" value="Update">
     <a href="{% url 'manage' %}"><input class="btn btn-info" value="Back"></a>
 </form>
 {% endblock %}
