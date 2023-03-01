@@ -1,0 +1,54 @@
+{% extends 'dashboard.html' %}
+    {% block task %}
+    <table class="table caption-top">
+        <caption>Acquisition Quest</caption>
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                
+                <th scope="col">Book's title</th>
+                <th scope="col">Publisher</th>
+                <th scope="col">Author</th>
+                <th scope="col">Requester</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+
+            <tr>
+                <th scope="row">{{forloop.counter}}</th>
+                <td>{{request.book_title}}</td>
+                <td>{{request.publisher}}</td>
+                <td>{{request.author}}</td>
+                <td>{{request.requester}}</td>
+                <td>
+                    {% if request.status == 'Pending' %}
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-danger">{{request.status}}</button>
+                        <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'status_update' request.id %}">Acquired</a></li>
+                            
+                        </ul>
+                    </div>
+                    {% endif %}
+                    {% if request.status == 'Acquired' %}
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary">{{request.status}}</button>
+                        
+                    </div>
+                    {% endif %}
+                </td>
+                
+
+            </tr>
+
+
+            {% endfor%}
+
+        </tbody>
+    </table>
+    {% endblock %}

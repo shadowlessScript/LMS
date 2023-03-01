@@ -1,12 +1,17 @@
 {%extends 'base.html'%}
 {%block title%}Book Acquisition{%endblock%}
 {%block content%}
-<div class="container">
-<p>Request for a book/ebook that is not in the library </p>
-<form method="post">
-    {% csrf_token %}
-    {{form.as_p}}
-    <input class="btn btn-secondary" id="liveToastBtn" type="submit" value="Update">
-</form>
-</div>
+    <div class="container">
+    <p>Request for a book/ebook that is not in the library </p>
+    <form method="post">
+        {% csrf_token %}
+
+        Book Title: {{form.book_title}}<br />
+        Author: {{form.author}}<br />
+        Publisher: {{form.publisher}}<br />
+        {{form.requester.hidden}}
+
+        <input class="btn btn-secondary" id="liveToastBtn" type="submit" value="Request">
+    </form>
+    </div>
 {%endblock%}

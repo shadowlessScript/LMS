@@ -1,4 +1,4 @@
 {
   "TestFramework": "Pytest",
-  "Interpreter": "C:\\Users\\MUNYA\\dev\\django\\venv\\Scripts\\python.exe"
+  "Interpreter": "Global|VisualStudio|Scripts"
 }

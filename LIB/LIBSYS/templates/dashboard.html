@@ -14,8 +14,9 @@
 		<h5 style="color: white">Info</h5>
 		<li style="color:white"><a class='dash-nav-link' href="{% url 'booking' %}">Booking Requests</a>{% if counter%}({{counter}}){%endif%}</li>
 		<li><a class="dash-nav-link" href="{% url 'view_issued_books' %}">Issued</a></li>
-		<li><a class="dash-nav-link">Returned Book</a></li>
-		<li><a class="dash-nav-link"  href="{% url 'overdue' %}" >Not Returned</a></li>
+		<li><a class="dash-nav-link" href="{% url 'getthisbook' %}">Book Acquisition Request</a></li>
+		<li><a class="dash-nav-link" href="{% url 'viewreturnedbooks' %}">Returned Book</a></li>
+		<li><a class="dash-nav-link" href="{% url 'overdue' %}">Not Returned</a></li>
 		<h5 style="color:white">Miscellaneous</h5>
 		<li><a class="dash-nav-link" href="{% url 'blog'%}">Announcements</a></li>
 		<li><a class="dash-nav-link" href="{% url 'books' %}">Repository</a></li>

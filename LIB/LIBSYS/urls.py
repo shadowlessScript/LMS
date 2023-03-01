@@ -22,4 +22,8 @@ urlpatterns = [
     path('view_issued_books/', views.viewIssuedBooks, name='view_issued_books'),
     path('overdue_books/', views.overdue, name='overdue'),
     path('bookacquire/', views.bookAcquisitionRequest, name='bookacquire'),
+    path('getthisbook/', views.getthisbook, name='getthisbook'),
+    path('status_update/<int:id>', views.questCompleted, name='status_update'),
+    path('bookreturned/<int:id>', views.returnedBook, name='bookreturned'),
+    path('viewreturnedbooks/', views.viewReturnedBooks, name='viewreturnedbooks'),
 ]

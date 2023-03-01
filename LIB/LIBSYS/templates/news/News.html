@@ -1,7 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'dashboard.html' %}
 {% load static %}
 {% block title %}Post News{% endblock %}
-{% block content %}
+{% block task %}
 <link rel="stylesheet" href="{% static 'news.css' %}">
 
         <form class='news-post' method='post' action="{% url 'blog' %}">

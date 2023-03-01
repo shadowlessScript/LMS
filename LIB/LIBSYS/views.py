@@ -6,9 +6,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from PIL import Image
 from .forms import AddBookForm, NewsForm, IssueBookForm, BookAcquisitionRequestForm
-from .models import AddBook,New, Booking, IssueBook
+from .models import AddBook,New, Booking, IssueBook, BookAcquisitionRequest, ReturnedBook
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.mail import send_mail
+from django.conf import settings
 
 # from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
@@ -75,13 +77,15 @@ def deleteBookConfirmation(request, serial_number):
 
 # news form down here
 def index(request):
+    
     News = New.objects.all()
     p = Paginator(New.objects.all(), 3)
     page = request.GET.get('page')
     posts = p.get_page(page)
+    request_status = BookAcquisitionRequest.objects.filter(requester = request.user)
     context = {
         'storys': posts,
-        # 'pages': posts,
+        'request_status': request_status,
     }
     if request.user.is_superuser:
         return render(request,"mainAdmin.html", context)
@@ -145,7 +149,7 @@ def ListOfBooks(request):
             # print(lst)
         return set(lst)
     
-    print(genreList(genre))
+    # print(genreList(genre))
     return render(request, "shelfs/book.html", {
         'Books': books,
         'Genres': genreList(genre),
@@ -157,7 +161,7 @@ def bookView(request, serial_number):
         # this sends a booking request, will be saved in the Booking model
         # Booking model fields 'username' and 'serial_number'
         try:
-            booking = Booking(username=request.user.id, serial_number=serial_number)
+            booking = Booking(username=request.user, serial_number=serial_number)
             booking.save()
             messages.success(request, 'Book request sent')
         except:
@@ -231,6 +235,16 @@ def issueBook(request):
         form = IssueBookForm(request.POST)
         if form.is_valid():
             form.save()
+            patron = form.cleaned_data['username']
+            mails = User.objects.get(username=patron).email
+            print(mails)
+            send_mail(
+                f'{form.cleaned_data["serial_number"]}',
+                f' Hi {patron}, you have been given {form.cleaned_data["serial_number"]}, the due date is {form.cleaned_data["due_date"]}',
+                'settings.EMAIL_HOST_USER',
+                [mails],
+                fail_silently=False
+                )
             messages.success(request, f'{form.cleaned_data["serial_number"]} has been given to {form.cleaned_data["username"]}')
             return redirect('IssueBook')
     else:
@@ -256,14 +270,66 @@ def overdue(request):
 def bookAcquisitionRequest(request):
     if request.method == 'POST':
         form = BookAcquisitionRequestForm(request.POST)
-        if form.is_valid():
-            form.save()
+        
+        if form.is_valid(): 
+            buf = form.save(commit=False)
+            buf.requester = request.user
+            buf.save()
             messages.success(request, 'Request has been sent!')
+            return redirect('bookacquire')
+
         else:
-             messages.success(request, 'Something went wrong!')
+            print(form)
+            messages.success(request, 'Something went wrong!')
+            return redirect('bookacquire')
     else:
         context = {}
         form = BookAcquisitionRequestForm()
         context['form'] = form
     return render(request, 'bookacquire.html', context)
 
+def getthisbook(request):
+    
+    requests = BookAcquisitionRequest.objects.all()
+    return render(request, 'getthisbook.html', {'requests':requests})
+
+
+def questCompleted(request, id):
+    quest = BookAcquisitionRequest.objects.get(id=id)
+    quest.status='Acquired'
+    quest.save()
+    return redirect('getthisbook')
+
+def returnedBook(request, id):
+    # the book's details are moved to return book model and deleted from IssueBook model
+    book = IssueBook.objects.get(id=id)
+
+    returned = ReturnedBook(username=book.username, serial_number=book.serial_number)
+    returned.save()
+    # patron = book.username
+    # mails = User.objects.get(username=patron).email
+    # print(patron,mails)
+    try:
+        patron = book.username
+        mails = User.objects.get(username=patron).email
+        send_mail(
+            f'{book.serial_number}',
+            f' Hi {patron.first_name} {patron.last_name}, you have returned {book.serial_number}, \n on  '
+            f'{returned.return_date}. \n \n served by: {request.user.first_name}  {request.user.last_name}',
+            'settings.EMAIL_HOST_USER',
+            [mails],
+            fail_silently=False
+        )
+
+    except:
+        messages.success(request, 'Confirmation email not sent to patron')
+    messages.success(request, f'{book.serial_number} has been returned')
+
+    return redirect('view_issued_books')
+
+def viewReturnedBooks(request):
+    issuedBooks = ReturnedBook.objects.all()
+
+    return render(request, 'returnedBooks.html',{
+        'issues': issuedBooks,
+    })

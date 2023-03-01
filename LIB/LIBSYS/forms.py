@@ -72,4 +72,5 @@ class BookAcquisitionRequestForm(forms.ModelForm):
         self.fields['book_title'].widget.attrs['class'] = 'form-control'
         self.fields['author'].widget.attrs['class'] = 'form-control'
         self.fields['publisher'].widget.attrs['class'] = 'form-control'
+        #self.fields['requester'].widget.hidden_widget()
         

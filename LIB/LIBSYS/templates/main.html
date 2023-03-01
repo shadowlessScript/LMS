@@ -27,6 +27,50 @@
     </center> 
     <center>
         <section class="news-container">
+            
+            <table class="table caption-top table-bordered">
+                {% for request in request_status %}
+                <caption>
+                    {% if request.length <= 1 %}
+                    Book you requested status
+                    {% else %}
+                    Book you requested status
+                    {%endif%}
+                </caption>
+                {% endfor %}
+                <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">Book's title</th>
+                        <th scope="col">Publisher</th>
+                        <th scope="col">Author</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    {% for request in request_status %}
+                    <tr>
+                        <th scope="row">{{forloop.counter}}</th>
+                        <td>{{request.book_title}}</td>
+                        <td>{{request.publisher}}</td>
+                        <td>{{request.author}}</td>
+                        {% if request.status == "Pending" %}
+                        <td>{{request.status}}</td>
+                        {% else %}
+                        <td>{{request.status}}</td>
+                        {%endif%}
+
+
+                    </tr>
+                    {% endfor %}
+
+
+
+                </tbody>
+            </table>
+            
+
             {% for story in storys %}
             <div class="news" id="news">           
                 <p>{{story.story.html|safe}}</p>
