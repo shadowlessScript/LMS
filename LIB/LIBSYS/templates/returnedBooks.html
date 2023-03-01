@@ -1,8 +1,7 @@
 {% extends 'dashboard.html' %}
 {% block task %}
-    
-    <table class="table caption-top">
-        <caption>Books Issued</caption>
+   <table class="table caption-top">
+        <caption>Books Returned</caption>
         <thead>
             <tr>
                 <th scope="col"></th>
@@ -11,14 +10,14 @@
                 <th scope="col">Username</th>
                 <th scope="col">Book's title</th>
                 <th scope="col">ISBN</th>
-                <th scope="col">Date Issued</th>
-                <th scope="col">Due Date</th>
-                <th scope="col" >Action</th>
+                <th scope="col">Date Returned</th>
+
+
             </tr>
-        </thead>        
+        </thead>
         <tbody>
             {% for issue in issues %}
-           
+
             <tr>
                 <th scope="row">{{forloop.counter}}</th>
                 <td>{{issue.username.first_name}}</td>
@@ -26,18 +25,12 @@
                 <td>{{issue.username}}</td>
                 <td>{{issue.serial_number.title|truncatewords:4}}</td>
                 <td>{{issue.serial_number.serial_number}}</td>
-                <td>{{issue.issuedate}}</td>
-                <td>{{issue.due_date}}</td>
-                <td><a href="{% url 'bookreturned' issue.id %}"><input class="btn btn-secondary" type="submit" value="Returned"></a></td>
-
+                <td>{{issue.return_date}}</td>
             </tr>
-           
+
 
             {% endfor%}
 
         </tbody>
     </table>
-   
-        
-    
 {% endblock %}

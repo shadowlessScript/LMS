@@ -102,9 +102,11 @@ class Fine(models.Model):
 #    def __str__(self):
 #        return f'{self.username.username}'
 class Booking(models.Model):
-    username = models.CharField(max_length=150, blank=False, null=False, default=' ')   
-    serial_number =  models.CharField(max_length=150, blank=False, null=False, default=' ')
-    
+
+    # username = models.CharField(max_length=150, blank=False, null=False, default=' ')
+    username = models.ForeignKey(User, on_delete=models.CASCADE, )
+    serial_number = models.CharField(max_length=150, blank=False, null=False, default=' ')
+
     def __str__(self):
         return f'{self.username}'
 # Adding a model for issuing books
@@ -114,19 +116,28 @@ def expiry():
 
 class IssueBook(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE,)
-    serial_number =  models.ForeignKey(AddBook, on_delete=models.CASCADE,)
+    serial_number = models.ForeignKey(AddBook, on_delete=models.CASCADE,)
     status = models.CharField(max_length=20, choices=STATUS, default=active)
-    issuedate=models.DateField(auto_now=True)
-    due_date=models.DateField(default=expiry)
+    issuedate = models.DateField(auto_now=True)
+    due_date = models.DateField(default=expiry)
 
     
     def __str__(self):
         return f'{self.username.first_name} given {self.serial_number}'
 
+class ReturnedBook(models.Model):
+    username = models.ForeignKey(User, on_delete=models.CASCADE, )
+    serial_number = models.ForeignKey(AddBook, on_delete=models.CASCADE, )
+    return_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.serial_number}'
+
 class BookAcquisitionRequest(models.Model):
-    book_title = models.CharField(max_length=150)
+    book_title = models.CharField(max_length=150, blank=False, null=False)
     author = models.CharField(max_length=150)
-    publisher = models.CharField(max_length=150)
+    publisher = models.CharField(max_length=150, blank=False, null=False)
+    requester = models.CharField(max_length=150, blank=False, null=False, default=' ')
     status = models.CharField(max_length=30, choices=REQUEST_STATUS, default=pending)
 
     def __str__(self):

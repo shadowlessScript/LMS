@@ -4,8 +4,11 @@
     "\\LIB",
     "\\LIB\\LIB",
     "\\LIB\\LIBSYS",
-    "\\LIB\\LIBSYS\\templates",
-    "\\LIB\\LIBSYS\\templates\\shelfs"
+    "\\LIB\\LIBSYS\\templates\\news",
+    "\\LIB\\LIBSYS\\templates\\news\\update",
+    "\\LIB\\LIBSYS\\templates\\shelfs",
+    "\\LIB\\LIBSYS\\templates\\shelfs\\updates",
+    "\\LIB\\members"
   ],
   "SelectedNode": "\\LIB\\LIBSYS\\views.py",
   "PreviewInSolutionExplorer": false
