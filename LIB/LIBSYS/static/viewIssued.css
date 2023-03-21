@@ -1,0 +1,43 @@
+.stepping-stone{
+    position: absolute;
+    top: 0;
+    height: 100vh;
+    width: 80vw;
+    background-color: hsla(1, 1%, 1%, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 2s;
+}
+
+.content{
+    position: relative;
+    padding: 2em;
+    height: 90vh;
+    width: 50%;
+    background-color: white;
+    border-radius: 2em;
+}
+
+.close{
+    position: absolute;
+    right: 20px;
+    top: 5px;
+    border: none;
+    background: transparent;
+    font-size: 1.6em;
+    transition: 0.4s;
+}
+
+.nav-pag{
+    display:flex;
+    flex: no-flex;
+    justify-content: center;
+}
+
+.close:hover{
+    transition: 0.4s;
+    color: coral;
+}
+
+

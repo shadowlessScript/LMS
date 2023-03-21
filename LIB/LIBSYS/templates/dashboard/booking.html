@@ -1,0 +1,43 @@
+{%extends 'dashboard/dashboard.html' %}
+	{%block task%}
+		<h1>Booked Book(s)</h1>		
+
+			<table class="table caption-top">
+        <caption>Reserved Books</caption>
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Username</th>
+                <th scope="col">Book's title</th>
+                <th scope="col">ISBN</th>
+                {% comment %}<th scope="col">Date Issued</th>
+                <th scope="col">Due Date</th>{%endcomment%}
+                <th scope="col" >Action</th>
+            </tr>
+        </thead>        
+        <tbody>
+            {% for req in requests %}
+           
+            <tr>
+                <th scope="row">{{forloop.counter}}</th>
+                <td>{{req.username.first_name}}</td>
+                <td>{{req.username.last_name}}</td>
+                <td>{{req.username}}</td>
+                <td>{{req.isbn.title|truncatewords:4}}</td>
+                <td>{{req.isbn.serial_number}}</td>
+                {% comment %}<td>{{req.issuedate}}</td>
+                <td>{{req.due_date}}</td>{%endcomment%}
+                <td><a href="{% url 'issuebookrequest' req.id req.username  %}"><input class="btn btn-secondary"  value="Issue"></a></td>
+
+            </tr>
+           
+
+            {% endfor%}
+
+        </tbody>
+    </table>
+   
+		
+	{% endblock %}

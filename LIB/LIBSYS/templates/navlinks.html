@@ -15,6 +15,9 @@
                   <a class="nav-link" href="{% url 'books' %}">BOOKS</a>
               </li>
               <li class="nav-item">
+                  <a class="nav-link" href="{% url 'examrepo' %}">Past Papers</a>
+              </li>
+              <li class="nav-item">
                   <a class="nav-link" href="{% url 'bookacquire' %}">Request Book</a>
               </li>
               {% if user.is_anonymous %}
@@ -32,14 +35,16 @@
               <li class="nav-item">
                   <a class="nav-link" href="{% url 'dashboard'%}">Dashboard</a>
               </li>
+              {% comment %} 
               <li class="nav-item">
                   <a class="nav-link" href="{% url 'blog'%}">Post News</a>
               </li>
+              
               <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                       Books
                   </a>
-                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 
                       <li><a class="dropdown-item" href="{% url 'manage'  %}">Update Books</a></li>
 
@@ -49,6 +54,7 @@
                       <li><a class="dropdown-item" href="#">Something else here</a></li>
                   </ul>
               </li>
+              {%endcomment%}
               {%endif%}
               <li>
                   {% if user.profile.profile_pic %}<img src="{{user.profile.profile_pic.url}}" class='prof-pic' />{%else%}

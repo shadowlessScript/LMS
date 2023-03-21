@@ -1,55 +1,91 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}
-    {% for ebook in Book %}
-{{ebook.title}}
-    {% endfor %}
-{% endblock %}
-{% block style %}
-<link rel="stylesheet" href="{% static 'books.css' %}">{% endblock %}
+    {% load static %}
+    {% block title %}
+        {% for ebook in Book %}
+    {{ebook.title}}
+        {% endfor %}
+    {% endblock %}
+    {% block style %}
+    <link rel="stylesheet" href="{% static 'books.css' %}">{% endblock %}
 
-{% block content %}
-{% for ebook in Book %}
-<h2>{{ebook.title}}</h2>
-<div class="book-card">
-    <br />
-    {% if ebook.Cover_image %}
-    <img class="book-cover" src={{ebook.Cover_image.url}} width="200px" />
-    {% else %}
-    <img class="book-cover" src='{% static "images/105093.jpg"%}' width="200px" />
-    {% endif %}
-    <div class="book-info-container">
-        <p>{{ebook.description}}</p><br />
-        <h4>Author: {{ebook.Author}}</h4><br>
-        Catergory: <a class="genre" href="{% url 'filtered_view' ebook.genre %}"> {{ebook.genre}}</a>
+    {% block content %}
+
+    <div class="container">
+        <div class="gcse-search"></div> <!-- Google search bar-->
+        {% for ebook in Book %}
+            <h2>{{ebook.title}}</h2>
+            <div class="book-card">
+                <br />
+                {% if ebook.Cover_image %}
+                <img class="book-cover" src={{ebook.Cover_image.url}} width="200px" />
+                {% else %}
+                <img class="book-cover" src='{% static "images/105093.jpg"%}' width="200px" />
+                {% endif %}
+                <div class="book-info-container">
+                    <p>{{ebook.description}}</p><br />
+                    <h4>Author: {{ebook.Author}}</h4><br>
+                    Catergory: <a class="genre" href="{% url 'filtered_view' ebook.genre %}"> {{ebook.genre}}</a>
+                </div>
+            </div>
+            <hr>
+
+                {% if ebook.state == 'ebook' %}
+                    {% if ebook.ebook %}
+                        <!--Checking whether the ebook has being uploaded -->
+                        <button id='file-links' class="btn btn-secondary"><a href='{{ebook.ebook.url}}' target="_blank"> Read </a></button>
+                    {% else %}
+                    <div class="alert alert-danger"> Book not yet uploaded to the database contact the Librarian.</div>
+                    {% endif %}
+                {% endif %}
+
+                {% if ebook.state == 'physical' %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input value="{{ebook.serial_number}}" type="hidden" name='isbn'>
+                        <input value="{{user}}" type="hidden" name='user'>
+                        <input class="btn btn-secondary" type="submit" value="Book" >
+                    </form>
+                    {{ebook.copies}} Available
+                {% endif %}
+
+                {% if ebook.state == 'physical/ebook' %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input value="{{ebook.serial_number}}" type="hidden" name='isbn'>
+                        <input value="{{user}}" type="hidden" name='user'>
+                        <input class="btn btn-secondary" type="submit" value="Book">
+                    </form>
+                    <button id='file-links' class="btn btn-secondary"><a href='{{ebook.ebook.url}}' target="_blank"> Read </a></button><br>
+                    {{ebook.copies}} Available
+                {% endif %}
+        {% endfor %}
+        {% if pub %}
+            <h2>Books Related to {% for i in Book%}{{i.Author}}{%endfor%}</h2>
+            <div class="related-to-author">
+
+                <div class = 'info'>
+                    <h3>Publications</h3>
+                    {%for a in pub%}
+                    <p>{{a.title}}</p>
+                    {%endfor%}
+                </div>
+
+                <div class = 'info'>
+                    <h3>Cited By</h3>
+                    {%for c in citedby%}
+                         <p> <a href="{{c}}"> Cited By</a></p>
+                    {%endfor%}
+                </div>
+
+                <div class = 'info'>
+                    <h3>Number of Citations</h3>
+                    {%for n in num%}
+                        <p>{{n}}</p>
+                    {%endfor%}
+                </div>
+            </div>
+        {%endif%}
     </div>
-</div>
-<hr>
-
-    {% if ebook.type == 'online' %}
-        {% if ebook.file %}
-<button id='file-links' class="btn btn-secondary"><a href='{{ebook.file.url}}' target="_blank"> Read </a></button>
-            {% else %}
-<div class="alert alert-danger"> Book not yet uploaded to the database contact the Librarian.</div>
-        {% endif %}
-    {% endif %}
-
-    {% if ebook.type == 'physical' %}
-<form method="POST">
-    {% csrf_token %}
-    <input class="btn btn-secondary" type="submit" value="Book">
-</form>
-{{ebook.copies}} Available
-    {% endif %}
-
-    {% if ebook.type == 'physical/online' %}
-<form method="POST">
-    {% csrf_token %}
-    <input class="btn btn-secondary" type="submit" value="Book">
-</form>
-<button id='file-links' class="btn btn-secondary"><a href='{{ebook.file.url}}' target="_blank"> Read </a></button>
-{{ebook.copies}} Available
-    {% endif %}
-{% endfor %}
-
+<script async src="https://cse.google.com/cse.js?cx=f3232ba54e42b456d">
+</script>
 {% endblock %}

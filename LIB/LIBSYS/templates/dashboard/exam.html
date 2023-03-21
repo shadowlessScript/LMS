@@ -1,0 +1,10 @@
+{% extends 'dashboard/dashboard.html' %}
+{%block title%}Add Past papers and CATs{%endblock%}
+{%block task%}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{form.as_p}}
+    <input class="btn btn-secondary" id="liveToastBtn" type="submit" value="Add">
+
+</form>
+{%endblock%}

@@ -1,6 +1,7 @@
 # from dataclasses import fie ld
+from dataclasses import fields
 from django import forms
-from .models import New, AddBook,IssueBook, BookAcquisitionRequest
+from .models import New, AddBook,IssueBook, BookAcquisitionRequest, Exam
 from django_quill.forms import QuillFormField
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -29,7 +30,7 @@ class AddBookForm(forms.ModelForm):
     # genre = forms.CharField(label='Book\'s genre', widget=forms.Select(choices=GENRE))
     class Meta:
         model = AddBook
-        fields =('title', 'Author', 'serial_number', 'type','Cover_image','description','genre', 'file','copies')
+        fields =('title', 'Author', 'serial_number', 'state','Cover_image','description','genre', 'ebook','copies')
         
     def __init__(self, *args, **kwargs):
         super(AddBookForm, self).__init__(*args, **kwargs)
@@ -59,7 +60,7 @@ class IssueBookForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(IssueBookForm, self).__init__(*args, **kwargs)
         self.fields['username'].widget.attrs['class'] = 'form-select'
-        self.fields['serial_number'].widget.attrs['class'] = 'form-select'
+        self.fields['isbn'].widget.attrs['class'] = 'form-select'
         self.fields['due_date'].disabled = True
 
 class BookAcquisitionRequestForm(forms.ModelForm):
@@ -73,4 +74,28 @@ class BookAcquisitionRequestForm(forms.ModelForm):
         self.fields['author'].widget.attrs['class'] = 'form-control'
         self.fields['publisher'].widget.attrs['class'] = 'form-control'
         #self.fields['requester'].widget.hidden_widget()
-        
+
+class ExamForm(forms.ModelForm):
+    class Meta:
+        model = Exam
+        fields = ('unit_name', 'unit_code', 'year','type_of_exam','exam_file')
+
+    def __init__(self, *args, **kwargs):
+        super(ExamForm, self).__init__(*args, **kwargs)
+        self.fields['unit_name'].widget.attrs['class'] = 'form-control'
+        self.fields['unit_code'].widget.attrs['class'] = 'form-control'
+        self.fields['type_of_exam'].widget.attrs['class'] = 'bootstrap-select'
+
+class ExtendBookForm(forms.ModelForm):
+    class Meta:
+        model = IssueBook
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super(ExtendBookForm, self).__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs['class'] = 'form-control'
+        self.fields['isbn'].widget.attrs['class'] = 'form-select'
+        self.fields['username'].disabled = True
+        self.fields['isbn'].disabled = True
+        self.fields['status'].disabled = True
+        self.fields['due_date'].widget.attrs['class'] = '"form-control'

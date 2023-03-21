@@ -1,0 +1,50 @@
+{% extends 'dashboard/dashboard.html' %}
+{% block task %}
+
+    <center style="position: sticky; transition: 0.6s;top:10px"><form  role="search" action='{% url "searchissuedbook" %}' method="post">
+          {% csrf_token %}
+          <input class="search-bar" type="search" placeholder="Enter the book title, serial number, author or username" aria-label="Search" name='search_books' value="{{searched}}" />
+          <button class="btn-search"type="submit"><i class="fa-solid fa-magnifying-glass search-btn"></i></button>
+    </form></center>
+{% if searched %}
+    {% if issues %}
+     <table class="table caption-top">
+        <caption>Books Issued</caption>
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Username</th>
+                <th scope="col">Book's title</th>
+                <th scope="col">ISBN</th>
+                <th scope="col">Date Issued</th>
+                <th scope="col">Due Date</th>
+                <th scope="col" colspan="2" >Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for issue in issues %}
+
+            <tr>
+                <th scope="row">{{forloop.counter}}</th>
+                <td>{{issue.username.first_name}}</td>
+                <td>{{issue.username.last_name}}</td>
+                <td>{{issue.username}}</td>
+                <td>{{issue.isbn.title|truncatewords:4}}</td>
+                <td>{{issue.isbn.serial_number}}</td>
+                <td>{{issue.issuedate}}</td>
+                <td>{{issue.due_date}}</td>
+                <td><a href="{% url 'bookreturned' issue.id %}"><input class="btn btn-secondary" type="submit" value="Returned"></a></td>
+                <td><a href="{% url 'extendBook' issue.id %}"><input class="btn btn-secondary " type="submit" value="Extend"></a></td>
+
+            </tr>
+            {% endfor%}
+        </tbody>
+    </table>
+    {% endif %}
+    {% else %}
+        <h1> Sorry no results for '{{searched}}' found.</h1>
+    {%endif%}
+
+{% endblock %}

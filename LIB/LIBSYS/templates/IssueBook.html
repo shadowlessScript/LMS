@@ -1,8 +1,0 @@
-{% extends 'dashboard.html' %}
-{% block task %}
-    <form method="post">
-        {% csrf_token %}
-        {{form.as_p}}
-        <input class="btn btn-secondary" type="submit" value="Issue">
-    </form>
-{% endblock %}

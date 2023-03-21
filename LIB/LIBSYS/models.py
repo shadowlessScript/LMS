@@ -1,5 +1,3 @@
-from email.policy import default
-from unittest.util import _MAX_LENGTH
 from django.db import models
 from django_quill.fields import QuillField
 from django.utils import timezone
@@ -8,18 +6,18 @@ from datetime import datetime,timedelta
 
 
 #variables
-online = 'online'
+online = 'ebook'
 physical = 'physical'
-both = 'physical/online'
+both = 'physical/ebook'
 
 active = 'active'
 overDue = 'Over Due'
 pending = 'Pending'
 acquired = 'Acquired'
 STATE = [
-        (online, 'online'),
-        (physical,'physical'),
-        (both,'physical/online')
+        (online, online),
+        (physical,physical),
+        (both,both)
     ]
 
 STATUS = [
@@ -51,6 +49,14 @@ GENRE = [
     ('Mathematics','Mathematics'),
 
 ]
+
+main_exam = "Main exam"
+cat = "CAT"
+
+TYPE_OF_EXAM = [
+    (main_exam, main_exam),
+    (cat, cat)
+    ]
 ##### end of variable #####
 
 # Create your models here.
@@ -60,11 +66,12 @@ class AddBook(models.Model):
     Author = models.CharField(max_length=50)
     serial_number = models.CharField(primary_key=True, max_length=100)
     copies = models.IntegerField(default=1)
+    copies_remaining = models.IntegerField(default=1)
     description = models.TextField(default=' ')
     Cover_image = models.ImageField(upload_to="images/books/%y", blank=True, null=True)
-    type = models.CharField(max_length=20, choices=STATE, default='online')
+    state = models.CharField(max_length=20, choices=STATE, default='online')
     genre = models.CharField(max_length=50,choices=GENRE, default='Engineering')
-    file = models.FileField(upload_to='books/%y', blank=True, null=True)
+    ebook = models.FileField(upload_to='books/%y', blank=True, null=True)
 
     def __str__(self):
         return '%s, %s'% (self.title, self.Author)
@@ -79,33 +86,21 @@ class New(models.Model):
         return self.title
 
 
-class BorrowBook(models.Model):
-    name_of_book = models.ForeignKey(AddBook, on_delete=models.CASCADE)
-    date_borrowed = models.DateField(auto_now_add=True)
-    clients_name = models.OneToOneField(User, blank=True,null=True, on_delete=models.CASCADE)
-
-    # add which user borrwed it
-    def __str__(self):
-        return str(self.name_of_book)
 
 class Fine(models.Model):
-    clients_name = models.ForeignKey(BorrowBook,blank=True,null=True, on_delete=models.CASCADE)
-    price = models.IntegerField(blank=True, null=True)
+    username = models.ForeignKey(User, on_delete=models.CASCADE,)
+    serial_number = models.ForeignKey(AddBook, on_delete=models.CASCADE,)    
+    # issuedate = models.DateField(auto_now=True)
+    due_date = models.DateField(auto_now=True)
+    over_due_by = models.IntegerField(default = 10)
+    price = models.IntegerField(default = 10)
 
     def __str__(self):
-        return f'{self.clients_name.clients_name.username}'
+        return f'{self.username}'
 
-#class Booking(models.Model):
-#    username = models.OneToOneField(User, blank=True,null=True, unique=False,on_delete=models.CASCADE)    
-#    serial_number =  models.OneToOneField(AddBook, unique=False,on_delete=models.CASCADE )
-
-#    def __str__(self):
-#        return f'{self.username.username}'
 class Booking(models.Model):
-
-    # username = models.CharField(max_length=150, blank=False, null=False, default=' ')
     username = models.ForeignKey(User, on_delete=models.CASCADE, )
-    serial_number = models.CharField(max_length=150, blank=False, null=False, default=' ')
+    isbn = models.ForeignKey(AddBook, on_delete=models.CASCADE,)
 
     def __str__(self):
         return f'{self.username}'
@@ -116,14 +111,14 @@ def expiry():
 
 class IssueBook(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE,)
-    serial_number = models.ForeignKey(AddBook, on_delete=models.CASCADE,)
+    isbn = models.ForeignKey(AddBook, on_delete=models.CASCADE,)
     status = models.CharField(max_length=20, choices=STATUS, default=active)
-    issuedate = models.DateField(auto_now=True)
+    issuedate = models.DateField(auto_now_add=True)
     due_date = models.DateField(default=expiry)
 
     
     def __str__(self):
-        return f'{self.username.first_name} given {self.serial_number}'
+        return f'{self.username.first_name} given {self.isbn}'
 
 class ReturnedBook(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE, )
@@ -142,3 +137,15 @@ class BookAcquisitionRequest(models.Model):
 
     def __str__(self):
         return f'{self.book_title} requested'
+
+class Exam(models.Model):
+    #exam_title = models.CharField(max_length=150, blank=False, null=False)
+    unit_name =  models.CharField(max_length=150, blank=False, null=False)
+    unit_code =  models.CharField(max_length=150, blank=False, null=False)
+    year = models.IntegerField()
+    type_of_exam =  models.CharField(max_length=150, choices=TYPE_OF_EXAM, default=main_exam)
+    added_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    exam_file = models.FileField(upload_to='exams/%y', blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.unit_name} {self.unit_code}, {self.type_of_exam}, {self.year}"

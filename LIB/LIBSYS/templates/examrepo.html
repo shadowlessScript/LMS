@@ -1,0 +1,15 @@
+{%extends 'base.html'%}
+{% load static %}
+{% block style %}
+<link rel="stylesheet" href="{% static '/examrepo.css'%}">{% endblock %}
+{%block title%}Exam | Assignments | CATS{%endblock%}
+{% block content %}
+<h2>Welcome to exams, Assignment and CATS repository</h2>
+<br />
+<ol>
+    {% for exam in exams %}
+    <li class="past-paper"><a class="past-paper-link" href="{{exam.exam_file.url}}" target="_blank">{{exam.unit_name}}, {{exam.type_of_exam}}, {{exam.year}}. </a></li>
+
+    {% endfor %}
+</ol>
+{% endblock %}

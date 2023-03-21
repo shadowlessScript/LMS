@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{%load static%}
+{% block title %}Dashboard{% endblock %}
+{% block style %}
+	<link rel="stylesheet" href="{% static '/dashboard.css'%}">
+	<link rel="stylesheet" href="{% static '/viewIssued.css'%}">
+{% endblock %}
+{% block dashstyle%}
+{% endblock%}
+{%block content%}
+<div class="dash-container">
+	<nav class="dashboard">
+		<h3 style="color:white"><a style="color:inherit; text-decoration: none;"href="{% url 'dashboard' %}">Welcome, {{user.first_name}}</a></h3>
+		<ul>
+			<h5 style="color: white">Actions</h5>
+			<li><a class="dash-nav-link" href="{% url 'add' %}">Add New Books</a></li>
+			<li><a class="dash-nav-link" href="{% url 'manage'  %}">Update Books</a></li>
+			<li><a class="dash-nav-link" href="{% url 'IssueBook'  %}">Issue Book</a></li>
+			<li><a class="dash-nav-link" href="{% url 'Exams'  %}">Add Exam</a></li>
+			<h5 style="color: white">Info</h5>
+			<li style="color:white"><a class='dash-nav-link' href="{% url 'booking' %}">Booking Requests</a>{% if counter%}({{counter}}){%endif%}</li>
+			<li><a class="dash-nav-link" href="{% url 'view_issued_books' %}">Issued</a></li>
+			<li><a class="dash-nav-link" href="{% url 'getthisbook' %}">Book Acquisition Request</a></li>
+			<li><a class="dash-nav-link" href="{% url 'viewreturnedbooks' %}">Returned Book</a></li>
+			<li><a class="dash-nav-link" href="{% url 'overdue' %}">Not Returned</a></li>
+			<h5 style="color:white">Miscellaneous</h5>
+			<li><a class="dash-nav-link" href="{% url 'blog'%}">Announcements</a></li>
+			<li><a class="dash-nav-link" href="{% url 'books' %}">Repository</a></li>
+		</ul>
+	</nav>
+
+	<div class="view-section">
+		{% block task%}
+		<h1><u>Landing Page</u></h1>
+		<div class="d-flex align-content-start flex-wrap">
+			<a class="landing-page-links" href="{% url 'manage' %}"><div class="summary">
+				
+				<i style="font-size: 2em; margin-bottom: 0.7em;" class="fa-solid fa-book-open"></i>
+				<h4 id='books'> </h4> <hr/>
+				<p>Total Number of books</p>				
+			</div></a>
+
+			<a class="landing-page-links" href="{% url 'view_issued_books' %}"><div class="summary">
+				
+				<i style="font-size: 2em; margin-bottom: 0.7em;" class="fa-sharp fa-solid fa-hand-holding-hand"></i>				
+				<h4 id="issue"></h4>
+				<hr/>
+				<p>Books borrowed this week</p>
+			</div></a>
+
+			<a class="landing-page-links" href="{% url 'getthisbook' %}"><div class="summary">	
+				{% if BAR > 0 %}
+					<div class='tag'></div>
+				{% endif %}			
+				<i style="font-size: 2em; margin-bottom: 0.7em;" class="fa-solid fa-truck-fast"></i>
+				<h4 id="bar"></h4>
+				<hr/>
+				<p>Book Acquisition Requests</p>
+			</div></a>
+
+			<a class="landing-page-links" href="{% url 'overdue' %}"><div class="summary">
+				{% if fines > 0%}
+					<div class='tag'></div>
+				{% endif %}
+				<i style="font-size: 2em; margin-bottom: 0.7em;"class="fa-regular fa-calendar-xmark"></i>				
+				<h4 id="overdue"></h4>
+				<hr/>
+				<p>Over Due Books</p>
+			</div></a>
+
+			<a class="landing-page-links" href="{% url 'booking' %}"><div class="summary">
+				{% if counter > 0 %}
+					<div class='tag'></div>
+				{% endif %}				
+				<i style="font-size: 2em; margin-bottom: 0.7em;" class="fa-solid fa-book-bookmark"></i>				
+				<h4 id="booking"></h4>
+					<hr/>
+				<p>Booking Requests</p>
+			</div></a>
+
+		</div>
+		{% if extendBook %}
+   <div class="stepping-stone">
+        <div class='content'>
+            <button class='close'><i class="fa-solid fa-xmark"></i></button>
+            <form method="post">
+                {% csrf_token %}
+                {{extendBook.as_p}}
+
+                <button type="submit" class="btn btn-primary">Extend</button>
+            </form>
+
+        </div>
+    </div>
+     {% endif %}
+		<script>
+		
+		
+		var books = setInterval(BooksCounter,40);
+		var issued = setInterval(issueCounter,40);
+		var bar = setInterval(barCounter,40);
+		var overDue = setInterval(overDueCounter,40);
+		var bookingRequest = setInterval(bookingCounter,40);
+		let count1 = 0;
+		let count2 = 0;
+		let count3 = 0;
+		let count4 = 0;
+		let count5 = 0;
+
+		function BooksCounter(){
+			count1++;
+			document.querySelector("#books").innerHTML = count1;
+			// stop the interval
+			if (count1 == {{number_of_books}}){
+				clearInterval(books);
+				
+			}
+		}
+		function issueCounter(){
+			count2++;
+			document.querySelector("#issue").innerHTML = count2;
+			// stop the interval
+			if (count2 == {{books_issued}}){
+				clearInterval(issued);
+				
+			}
+		}
+		function barCounter(){
+			count3++;
+			document.querySelector("#bar").innerHTML = count3;
+			// stop the interval
+			if (count3 == {{BAR}}){
+				clearInterval(bar);
+				
+			}
+		}
+		function overDueCounter(){
+			count4++;
+			document.querySelector("#overdue").innerHTML = count4;
+			// stop the interval
+			if (count4 == {{fines}}){
+				clearInterval(overDue);
+				
+			}
+		}
+		function bookingCounter(){
+			count5++;
+			document.querySelector("#booking").innerHTML = count5;
+			// stop the interval
+			if (count5 == {{counter}}){
+				clearInterval(bookingRequest);
+				
+			}
+		}
+	</script>
+		{%endblock%}
+	</div>
+
+</div>
+
+{%endblock%}
+{% block script %}
+	<script src="{% static 'JS/viewIssued.js' %}"></script>
+	
+{%endblock%}

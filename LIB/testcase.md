@@ -26,3 +26,18 @@
 ### Solution
 make sure the link paths are unique i.e if one link is /booking/1/be other should not be /booking/1/see_book here assuming 'booking' is like the parent i.e path('booking/<int:id>/<str:serial>/')
 
+## TemplateDoesNotExist - Exception Value: django_quill/widget.html
+- Add django_quill to INSTALLED_APPS
+
+
+## filter attribute __range not working
+Case: I was trying to find the number of books borrowed within a week by `IssueBook.objects.filter(issuedate__range=(start_date, end_date)` produced an empyt queryset; where start_date --> current date and end_date --> current_date - 7.
+- I swaped the position of the end_date and start_date thus `IssueBook.objects.filter(issuedate__range=(end_date, start_date)`
+
+## Bootstrap Dropdown not working
+Case: The dropdown was not working completely until I added `boostrap.bundle.js` and `boostrap.bundle.min.js` and `bootstrap.js`
+- Adding `boostrap.bundle.min.js` alone is enough 
+
+## Related Field got invalid lookup: contains
+case: `books = IssueBook.objects.filter(Q(username__contains=searched_books))`
+- use `books = IssueBook.objects.filter(Q(username__username__icontains=searched_books))`

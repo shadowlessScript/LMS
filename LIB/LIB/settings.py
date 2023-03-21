@@ -44,12 +44,13 @@ INSTALLED_APPS = [
     # other tools
     'django_cron',
     'django_extensions',
+    'django_quill'
 
 ]
 
 # adding cron Jobs
 CRON_CLASSES = [
-    "LIBSYS.cron.OverDueDetection"
+    "LIBSYS.cron.OverDueDetection",
 ]
 
 MIDDLEWARE = [
