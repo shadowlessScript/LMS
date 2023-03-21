@@ -1,0 +1,35 @@
+{% extends 'dashboard/dashboard.html' %}
+{% block task %}
+	<table class="table caption-top">
+        <caption>Over Due Books</caption>
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Username</th>
+                <th scope="col">Book's title</th>
+                <th scope="col">ISBN</th>
+                <th scope="col">Date Issued</th>
+                <th scope="col">Due Date</th>
+                <th scope="col" >Action</th>
+            </tr>
+        </thead>        
+        <tbody>
+            {% for issue in issues %}
+            <tr>
+                <th scope="row">{{forloop.counter}}</th>
+                <td>{{issue.username.first_name}}</td>
+                <td>{{issue.username.last_name}}</td>
+                <td>{{issue.username}}</td>
+                <td>{{issue.isbn.title|truncatewords:4}}</td>
+                <td>{{issue.isbn.serial_number}}</td>
+                <td>{{issue.issuedate}}</td>
+                <td>{{issue.due_date}}</td>
+                <td><input class="btn btn-secondary" type="submit" value="Returned"></td>
+            </tr>
+            {% endfor%}
+            
+        </tbody>
+    </table>
+{% endblock %}

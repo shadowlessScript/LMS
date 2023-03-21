@@ -1,0 +1,16 @@
+.past-paper-link{
+    text-decoration: none;
+    color: black;
+    transition: 0.6s;    
+    border-bottom: 2px black dashed;
+}
+
+.past-paper-link:hover {
+    color: slategrey;
+    border-bottom: 2px orange dashed;
+    transition: 0.6s;
+}
+
+.past-paper {
+    margin: 1em;
+}

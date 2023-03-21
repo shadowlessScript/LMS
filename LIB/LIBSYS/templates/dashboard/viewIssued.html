@@ -1,0 +1,76 @@
+{% extends 'dashboard/dashboard.html' %}
+{% load static %}
+
+{% block task %}
+
+    <center style="position: sticky; transition: 0.6s;top:10px"><form  role="search" action='{% url "searchissuedbook" %}' method="post">
+          {% csrf_token %}
+          <input class="search-bar" type="search" placeholder="Enter username" aria-label="Search" name='search_books' />
+          <button class="btn-search"type="submit"><i class="fa-solid fa-magnifying-glass search-btn"></i></button>
+    </form></center>
+    <table class="table caption-top">
+        <caption>Books Issued</caption>
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Username</th>
+                <th scope="col">Book's title</th>
+                <th scope="col">ISBN</th>
+                <th scope="col">Date Issued</th>
+                <th scope="col">Due Date</th>
+                <th scope="col" colspan="2" >Action</th>
+            </tr>
+        </thead>        
+        <tbody>
+            {% for issue in issues %}
+           
+            <tr>
+                <th scope="row">{{forloop.counter}}</th>
+                <td>{{issue.username.first_name}}</td>
+                <td>{{issue.username.last_name}}</td>
+                <td>{{issue.username}}</td>
+                <td>{{issue.isbn.title|truncatewords:4}}</td>
+                <td>{{issue.isbn.serial_number}}</td>
+                <td>{{issue.issuedate}}</td>
+                <td>{{issue.due_date}}</td>
+                <td><a href="{% url 'bookreturned' issue.id %}"><input class="btn btn-secondary" type="submit" value="Returned"></a></td>
+                <td><a href="{% url 'extendBook' issue.id %}"><input class="btn btn-secondary " type="submit" value="Extend"></a></td>
+
+            </tr>
+
+            {% endfor%}
+
+        </tbody>
+    </table>
+
+    <nav aria-label="Page navigation example" class="nav-pag">
+            <ul class="pagination">
+                {% if issues.has_previous %}
+                    <li class="page-item"><a href="?page=1 #news" class="page-link">&laquo First</a></li>
+                    <li class="page-item"><a href="?page={{issues.previous_page_number}} #news" class="page-link">{{issues.previous_page_number}}</a></li>
+                {% endif %}
+                <li class="page-item active"><a class="page-link" href="#">{{issues.number}}</a></li>
+                {% if issues.has_next %}
+                    <li class="page-item"><a href="?page={{issues.next_page_number}} #news" class="page-link">{{issues.next_page_number}}</a></li>
+                    <li class="page-item"><a href="?page={{issues.paginator.num_pages}} #news" class="page-link">&raquo</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+
+     {% if extendBook %}
+       <div class="stepping-stone">
+            <div class='content'>
+                <button class='close'><i class="fa-solid fa-xmark"></i></button>
+                <form method="post">
+                    {% csrf_token %}
+                    {{extendBook.as_p}}
+
+                    <button type="submit" class="btn btn-primary">Extend</button>
+                </form>
+
+            </div>
+        </div>
+         {% endif %}
+{% endblock %}

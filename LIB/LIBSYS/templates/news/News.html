@@ -1,4 +1,4 @@
-{% extends 'dashboard.html' %}
+{% extends 'dashboard/dashboard.html' %}
 {% load static %}
 {% block title %}Post News{% endblock %}
 {% block task %}
@@ -7,13 +7,12 @@
         <form class='news-post' method='post' action="{% url 'blog' %}">
             {% csrf_token %}
             
-            
             {{blog.media}}
             {{blog.as_p}}
           
             <button type='submit'>Submit</button> 
         </form>
-         <script src="{% static 'JS/News.js' %}"></script>
+<!--         <script src="{% static 'JS/News.js' %}"></script>-->
         <script src="{% static 'JS/App.js' %}"></script>
 
 {% endblock %}

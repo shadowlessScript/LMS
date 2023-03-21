@@ -4,12 +4,12 @@
     "\\LIB",
     "\\LIB\\LIB",
     "\\LIB\\LIBSYS",
+    "\\LIB\\LIBSYS\\static",
+    "\\LIB\\LIBSYS\\templates",
     "\\LIB\\LIBSYS\\templates\\news",
-    "\\LIB\\LIBSYS\\templates\\news\\update",
     "\\LIB\\LIBSYS\\templates\\shelfs",
-    "\\LIB\\LIBSYS\\templates\\shelfs\\updates",
-    "\\LIB\\members"
+    "\\LIB\\media"
   ],
-  "SelectedNode": "\\LIB\\LIBSYS\\views.py",
+  "SelectedNode": "\\LIB\\LIBSYS\\templates\\base.html",
   "PreviewInSolutionExplorer": false
 }
