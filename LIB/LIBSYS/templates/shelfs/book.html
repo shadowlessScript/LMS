@@ -18,6 +18,29 @@
 	</div>
 </div>
 <center>
+<div class="container">
+	<h2>Books recommended for you</h2>
+	{% for checkout in recommendedbooks %}
+		{% for book in checkout %}
+	<div class="book">
+		{% if book.Cover_image %}
+			<img class="book-cover" src = {{book.Cover_image.url}}/>
+		{% else %}
+			<img class="book-cover" src = '{% static "images/105093.jpg"%}'>
+		{% endif %}
+
+		<div class='book-info'>
+			<h5><a class="book-link" href="{% url 'bookview' book.serial_number%}">{{book.title|truncatewords:4}}</a></h5>
+			<p class="author">By: {{book.Author}}</p>
+			 <span class="tooltiptext">{{book.description|truncatewords:50}}</span>
+		</div>
+		<div class='tag'>{{book.state}}</div>
+	</div>
+	{% endfor %}
+
+	{% endfor %}
+
+</div><hr>
 <div class="d-flex align-content-start flex-wrap ">
 	{% for book in Books %}
 	<div class="book">	
@@ -37,6 +60,7 @@
 	{% endfor %}
 
 </div>
+	<hr>
 </center>
 
 	<nav aria-label="Page navigation example" class="nav-pag">

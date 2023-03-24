@@ -145,6 +145,11 @@ def NewsUpdate(request, id):
 
 @login_required
 def ListOfBooks(request):
+    # Data processing
+    import pandas as pd
+    import numpy as np
+    import scipy.stats
+    from sklearn.metrics.pairwise import cosine_similarity
     books = AddBook.objects.all()
     p = Paginator(books.order_by('title'), 10)
     page = request.GET.get('page')
@@ -157,11 +162,91 @@ def ListOfBooks(request):
             lst.append(x.genre)
             # print(lst)
         return set(lst)
-    
+    # Recommender system algo
+    # Convert the data model to a dataframe
+    ratings = pd.DataFrame(list(Rating.objects.all().values()))
+    # renaming the columns of the ratings model to match with the key columns of the Addbook model
+    ratings.rename(columns={"username_id":"username", "serial_number_id":"serial_number"},inplace=True)
+    books_repo = pd.DataFrame(list(AddBook.objects.all().values()))
+    df = pd.merge(ratings, books_repo, on='serial_number', how='inner')
+    agg_ratings = df.groupby('serial_number').agg(mean_rating = ('rate', 'mean'),
+                                                  number_of_rating=('rate', 'count')).reset_index()
+    matrix = df.pivot_table(index='username', columns='serial_number', values='rate')
+    # Normalize user-item matrix
+    matrix_norm = matrix.subtract(matrix.mean(axis=1), axis='rows')
+    # User similarity matrix using Pearson correlation
+    user_similarity = matrix_norm.T.corr()
+    # Pick a user ID
+    picked_userid = request.user.id
+
+    # Remove picked user ID from the candidate list
+    user_similarity.drop(index=picked_userid, inplace=True)
+
+    # Take a look at the data
+    print(picked_userid)
+    # Number of similar users
+    n = 1
+
+    # User similarity threashold
+    user_similarity_threshold = 0.1
+
+    # Get top n similar users
+    similar_users = user_similarity[user_similarity[picked_userid] >= user_similarity_threshold][
+                        picked_userid].sort_values(ascending=False)[:n]
+    # Books that the target user has read
+    picked_userid_read = matrix_norm[matrix_norm.index == picked_userid].dropna(axis=1, how='all')
+
+    # Print out top n similar users
+    # print(f'The similar users for user {picked_userid} are', similar_users)
+    # Books that similar users read. Remove books that none of the similar users have read
+    similar_user_books = matrix_norm[matrix_norm.index.isin(similar_users.index)].dropna(axis=1, how='all')
+    # Remove the read books from the book lists
+    similar_user_books.drop(picked_userid_read.columns, axis=1, inplace=True, errors='ignore')
+    # A dictionary to store item scores
+    item_score = {}
+
+    # Loop through items
+    for i in similar_user_books.columns:
+        # Get the ratings for movie i
+        movie_rating = similar_user_books[i]
+        # Create a variable to store the score
+        total = 0
+        # Create a variable to store the number of scores
+        count = 0
+        # Loop through similar users
+        for u in similar_users.index:
+            # If the movie has rating
+            if pd.isna(movie_rating[u]) == False:
+                # Score is the sum of user similarity score multiply by the movie rating
+                score = similar_users[u] * movie_rating[u]
+                # Add the score to the total score for the movie so far
+                total += score
+                # Add 1 to the count
+                count += 1
+        # Get the average score for the item
+        item_score[i] = total / count
+
+    # Convert dictionary to pandas dataframe
+    item_score = pd.DataFrame(item_score.items(), columns=['book', 'book_score'])
+
+    # Sort the movies by score
+    ranked_item_score = item_score.sort_values(by='book_score', ascending=False)
+
+    # Select top m movies
+    m = 10
+    ranked_item_score.head(m)
+    ranked_item_score.drop(['book_score'],axis=1, inplace=True, errors='ignore')
+    recommended_list = []
+    for k in ranked_item_score['book']:
+        if k != 1:
+            recommended_list.append(AddBook.objects.filter(serial_number=k))
+    print(recommended_list)
+    # End of recommender
     # print(genreList(genre))
     return render(request, "shelfs/book.html", {
         'Books': b,
         'Genres': genreList(genre),
+        'recommendedbooks':recommended_list,
         })
 
 @login_required
@@ -498,13 +583,13 @@ def rate(request, username, serial_number):
     whichbook = AddBook.objects.filter(serial_number=serial_number)
     if request.method == 'POST':
         try:
-            t = Rating.objects.get(book=serial_number, username=request.user.id)
+            t = Rating.objects.get(serial_number=serial_number, username=request.user.id)
             # update the existing rating of the patron
             form = RatingForm(request.POST, instance=t)
             if form.is_valid():
                 buf = form.save(commit=False)
                 buf.username = request.user
-                buf.book_id = serial_number
+                buf.serial_number_id = serial_number
                 buf.save()
                 return redirect('bookview', serial_number)
         except:
@@ -512,12 +597,12 @@ def rate(request, username, serial_number):
             if form.is_valid():
                 buf = form.save(commit=False)
                 buf.username = request.user
-                buf.book_id = serial_number
+                buf.serial_number_id = serial_number
                 buf.save()
                 return redirect('bookview', serial_number)
     try:
         # will be used check if patron has already rated this book
-        t = Rating.objects.get(book=serial_number, username=request.user.id)
+        t = Rating.objects.get(serial_number=serial_number, username=request.user.id)
         form = RatingForm(instance=t)
         return render(request, 'shelfs/bookview.html', {'form': form, 'Book': whichbook})
     except:
