@@ -17,7 +17,7 @@
             <div class="book-card">
                 <br />
                 {% if ebook.Cover_image %}
-                <img class="book-cover" src={{ebook.Cover_image.url}} width="200px" />
+                <img class="book-cover" src={{ebook.Cover_image.url}} width="200px" alt="{{ebook.title}}"/>
                 {% else %}
                 <img class="book-cover" src='{% static "images/105093.jpg"%}' width="200px" />
                 {% endif %}
@@ -25,6 +25,28 @@
                     <p>{{ebook.description}}</p><br />
                     <h4>Author: {{ebook.Author}}</h4><br>
                     Catergory: <a class="genre" href="{% url 'filtered_view' ebook.genre %}"> {{ebook.genre}}</a>
+                    <div style="margin-top: 1em;">
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                    </div>
+                    <a href="{% url 'rate' user  ebook.serial_number %}"><button type="submit" class="btn btn-primary  mt-3" id="rate-book">Rate</button></a>
+                    {% if form %}
+                    <div class="rate mt-3">
+                        <a class="close-rate" href="{% url 'bookview'  ebook.serial_number %}"><i class="fa-solid fa-xmark"></i></a>
+                        <form method="post">
+                            {% csrf_token %}
+                             <h3>Rate {{ebook.title|truncatewords:4}}</h3>
+                            <input type="hidden" name="username" value="{{user}}">
+                            <input type="hidden" name="book" value="{{ebook.serial_number}}">
+                            {{form.as_p}}
+                           <button type="submit" class="btn btn-primary  mt-3">Submit</button>
+                        </form>
+
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             <hr>
@@ -86,6 +108,10 @@
             </div>
         {%endif%}
     </div>
+
 <script async src="https://cse.google.com/cse.js?cx=f3232ba54e42b456d">
 </script>
+{% endblock %}
+{% block script %}
+
 {% endblock %}

@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from PIL import Image
-from .forms import AddBookForm, NewsForm, IssueBookForm, BookAcquisitionRequestForm, ExamForm, ExtendBookForm
-from .models import AddBook,New, Booking, IssueBook, BookAcquisitionRequest, ReturnedBook, Exam, Fine
+from .forms import AddBookForm, NewsForm, IssueBookForm, BookAcquisitionRequestForm, ExamForm, ExtendBookForm, RatingForm
+from .models import AddBook,New, Booking, IssueBook, BookAcquisitionRequest, ReturnedBook, Exam, Fine, Rating
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.mail import send_mail
@@ -179,7 +179,7 @@ def bookView(request, serial_number):
 
     whichbook = AddBook.objects.filter(serial_number=serial_number)
     # print(whichbook[0].Author)
-    context = {'Book': whichbook}
+    context = {'Book': whichbook,}
     try:
         search_query = scholarly.search_author(f'{whichbook[0].Author}')
         author = scholarly.fill(next(search_query))
@@ -207,6 +207,7 @@ def bookView(request, serial_number):
         context['pub'] = pub
         context['citedby'] = citedby
         context['num'] = num
+
         # print(save_dict)
     except:
         pass
@@ -482,7 +483,7 @@ def extendBook(request, id):
 
     return render(request, 'dashboard/viewIssued.html', {'extendBook': bookIssued,'issues': issuedBooks,})
 
-
+@staff_member_required
 def searchissuedbooks(request):
     if request.method == 'POST':
         searched_books = request.POST['search_books']
@@ -490,3 +491,63 @@ def searchissuedbooks(request):
         return render(request, 'dashboard/searchIssuedBook.html', {'searched': searched_books, 'issues': books})
     elif request.method == 'GET':
         return redirect('view_issued_books')
+
+@login_required
+def rate(request, username, serial_number):
+    # populate like the bookview page the patron was in
+    whichbook = AddBook.objects.filter(serial_number=serial_number)
+    if request.method == 'POST':
+        try:
+            t = Rating.objects.get(book=serial_number, username=request.user.id)
+            # update the existing rating of the patron
+            form = RatingForm(request.POST, instance=t)
+            if form.is_valid():
+                buf = form.save(commit=False)
+                buf.username = request.user
+                buf.book_id = serial_number
+                buf.save()
+                return redirect('bookview', serial_number)
+        except:
+            form = RatingForm(request.POST)
+            if form.is_valid():
+                buf = form.save(commit=False)
+                buf.username = request.user
+                buf.book_id = serial_number
+                buf.save()
+                return redirect('bookview', serial_number)
+    try:
+        # will be used check if patron has already rated this book
+        t = Rating.objects.get(book=serial_number, username=request.user.id)
+        form = RatingForm(instance=t)
+        return render(request, 'shelfs/bookview.html', {'form': form, 'Book': whichbook})
+    except:
+        # first time rating it
+        return render(request, 'shelfs/bookview.html', {'form': RatingForm(), 'Book': whichbook})
+    # if request.method == 'GET':
+    #     # check if patron has already rated this book
+    #     if t != '':
+    #         # this will prevent duplicates
+    #         form = RatingForm(instance=t)
+    #         return render(request, 'shelfs/bookview.html', {'form': form, 'Book': whichbook})
+    #     else:
+    #         # first time rating it
+    #         return render(request, 'shelfs/bookview.html', {'form': RatingForm(), 'Book': whichbook})
+    # if request.method == 'POST':
+    #     if t != '':
+    #         # update the existing rating of the patron
+    #         form = RatingForm(request.POST, instance=t)
+    #         if form.is_valid():
+    #             buf = form.save(commit=False)
+    #             buf.username = request.user
+    #             buf.book_id = serial_number
+    #             buf.save()
+    #             return redirect('bookview', serial_number)
+    #         else:
+    #             form = RatingForm(request.POST)
+    #             if form.is_valid():
+    #                 buf = form.save(commit=False)
+    #                 buf.username = request.user
+    #                 buf.book_id = serial_number
+    #                 buf.save()
+    #                 return redirect('bookview', serial_number)
+

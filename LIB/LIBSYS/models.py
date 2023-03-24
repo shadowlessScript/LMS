@@ -3,6 +3,7 @@ from django_quill.fields import QuillField
 from django.utils import timezone
 from django.contrib.auth.models import User
 from datetime import datetime,timedelta
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 #variables
@@ -149,3 +150,11 @@ class Exam(models.Model):
 
     def __str__(self):
         return f"{self.unit_name} {self.unit_code}, {self.type_of_exam}, {self.year}"
+
+class Rating(models.Model):
+    username = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey(AddBook, on_delete=models.CASCADE)
+    rate = models.FloatField(default=0, validators=[ MaxValueValidator(5), MinValueValidator(0)])
+
+    def __str__(self):
+        return "%s, %s, %s" % (self.username, self.book.title, self.rate)

@@ -31,4 +31,5 @@ urlpatterns = [
     path('search_book_RUD', views.search_book_RUD, name="search_book_RUD"),
     path('extendBook/<int:id>', views.extendBook, name='extendBook'),
     path('searchissuedbook/', views.searchissuedbooks, name='searchissuedbook'),
+    path('rate/<str:username>/<str:serial_number>/', views.rate, name='rate'),
 ]
