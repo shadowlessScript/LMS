@@ -29,7 +29,7 @@
 		</ul>
 	</nav>
 
-	<div class="view-section">
+	<div class="view-section container">
 		{% block task%}
 		<h1><u>Landing Page</u></h1>
 		<div class="d-flex align-content-start flex-wrap">
@@ -80,18 +80,18 @@
 
 		</div>
 		{% if extendBook %}
-   <div class="stepping-stone">
-        <div class='content'>
-            <button class='close'><i class="fa-solid fa-xmark"></i></button>
-            <form method="post">
-                {% csrf_token %}
-                {{extendBook.as_p}}
+	   <div class="stepping-stone">
+			<div class='content'>
+				<button class='close'><i class="fa-solid fa-xmark"></i></button>
+				<form method="post">
+					{% csrf_token %}
+					{{extendBook.as_p}}
 
-                <button type="submit" class="btn btn-primary">Extend</button>
-            </form>
+					<button type="submit" class="btn btn-primary">Extend</button>
+				</form>
 
-        </div>
-    </div>
+			</div>
+		</div>
      {% endif %}
 		<script>
 		

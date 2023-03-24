@@ -17,3 +17,9 @@ When button is clicked the request is sent to the librarians waiting approval.
 
 ## At 11:43 18/03/2023, implemented Method Two
 Added a pop up style view where the librarian will choose the date for themselves. However, it does have a datepicker, may implement later.
+
+# Rating sys
+I need to add a rating system this will possibly help when making a recommender system.
+## Method
+form-select on the bookview page
+Show the avg rating of the book
