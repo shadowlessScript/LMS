@@ -40,7 +40,7 @@
                             {% csrf_token %}
                              <h3>Rate {{ebook.title|truncatewords:4}}</h3>
                             <input type="hidden" name="username" value="{{user}}">
-                            <input type="hidden" name="book" value="{{ebook.serial_number}}">
+                            <input type="hidden" name="serial_number" value="{{ebook.serial_number}}">
                             {{form.as_p}}
                            <button type="submit" class="btn btn-primary  mt-3">Submit</button>
                         </form>

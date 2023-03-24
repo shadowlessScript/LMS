@@ -153,8 +153,8 @@ class Exam(models.Model):
 
 class Rating(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE)
-    book = models.ForeignKey(AddBook, on_delete=models.CASCADE)
+    serial_number = models.ForeignKey(AddBook, on_delete=models.CASCADE)
     rate = models.FloatField(default=0, validators=[ MaxValueValidator(5), MinValueValidator(0)])
 
     def __str__(self):
-        return "%s, %s, %s" % (self.username, self.book.title, self.rate)
+        return "%s, %s, %s" % (self.username, self.serial_number.title, self.rate)
