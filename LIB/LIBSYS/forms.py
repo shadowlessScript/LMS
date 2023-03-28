@@ -31,7 +31,8 @@ class AddBookForm(forms.ModelForm):
     # genre = forms.CharField(label='Book\'s genre', widget=forms.Select(choices=GENRE))
     class Meta:
         model = AddBook
-        fields =('title', 'Author', 'serial_number', 'state','Cover_image','description','genre', 'ebook','copies')
+        # fields =('title', 'Author', 'serial_number', 'state','Cover_image','description','genre', 'ebook','copies')
+        fields = '__all__'
         
     def __init__(self, *args, **kwargs):
         super(AddBookForm, self).__init__(*args, **kwargs)
@@ -39,9 +40,13 @@ class AddBookForm(forms.ModelForm):
         self.fields['Author'].widget.attrs['class'] = 'form-control'
         self.fields['serial_number'].widget.attrs['class'] = 'form-control'
         self.fields['description'].widget.attrs['class'] = 'form-control'
-        # self.fields['genre'].widget.attrs['class'] = 'btn-check'
-        # self.fields['genre'].widget.attrs['id'] = 'btn-check'
-        # self.fields['genre'].widget.attrs['type'] = 'radio'
+        self.fields['state'].widget.attrs['class'] = 'form-select'
+        self.fields['genre'].widget.attrs['class'] = 'form-select'
+        self.fields['pages'].widget.attrs['class'] = 'form-control'
+        self.fields['edition'].widget.attrs['class'] = 'form-control'
+        self.fields['publisher'].widget.attrs['class'] = 'form-control'
+        self.fields['co_authors'].widget.attrs['class'] = 'form-control'
+        self.fields['year'].widget.attrs['class'] = 'form-control'
 
 
 class NewsForm(forms.ModelForm):

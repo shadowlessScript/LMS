@@ -1,4 +1,3 @@
-from multiprocessing import context
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
@@ -6,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from PIL import Image
 from .forms import AddBookForm, NewsForm, IssueBookForm, BookAcquisitionRequestForm, ExamForm, ExtendBookForm, RatingForm
-from .models import AddBook,New, Booking, IssueBook, BookAcquisitionRequest, ReturnedBook, Exam, Fine, Rating
+from .models import AddBook,New, Booking, IssueBook, BookAcquisitionRequest, ReturnedBook, Exam, Fine, Rating, Bookmark
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.mail import send_mail
@@ -14,7 +13,7 @@ from django.conf import settings
 from datetime import date, timedelta
 from django.db.models import Q
 from scholarly import scholarly, ProxyGenerator
-
+from django_daraja.mpesa.core import MpesaClient
 # from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
 
@@ -87,10 +86,9 @@ def index(request):
     p = Paginator(New.objects.all().order_by('created'), 3)
     page = request.GET.get('page')
     posts = p.get_page(page)
-    request_status = BookAcquisitionRequest.objects.filter(requester = request.user)
+
     context = {
         'storys': posts,
-        'request_status': request_status,
     }
     if request.user.is_superuser:
         return render(request,"mainAdmin.html", context)
@@ -150,6 +148,7 @@ def ListOfBooks(request):
     import numpy as np
     import scipy.stats
     from sklearn.metrics.pairwise import cosine_similarity
+
     books = AddBook.objects.all()
     p = Paginator(books.order_by('title'), 10)
     page = request.GET.get('page')
@@ -212,19 +211,19 @@ def ListOfBooks(request):
 
         # Loop through items
         for i in similar_user_books.columns:
-            # Get the ratings for movie i
-            movie_rating = similar_user_books[i]
+            # Get the ratings for book i
+            book_rating = similar_user_books[i]
             # Create a variable to store the score
             total = 0
             # Create a variable to store the number of scores
             count = 0
             # Loop through similar users
             for u in similar_users.index:
-                # If the movie has rating
-                if pd.isna(movie_rating[u]) == False:
-                    # Score is the sum of user similarity score multiply by the movie rating
-                    score = similar_users[u] * movie_rating[u]
-                    # Add the score to the total score for the movie so far
+                # If the book has rating
+                if pd.isna(book_rating[u]) == False:
+                    # Score is the sum of user similarity score multiply by the book rating
+                    score = similar_users[u] * book_rating[u]
+                    # Add the score to the total score for the book so far
                     total += score
                     # Add 1 to the count
                     count += 1
@@ -234,10 +233,10 @@ def ListOfBooks(request):
         # Convert dictionary to pandas dataframe
         item_score = pd.DataFrame(item_score.items(), columns=['book', 'book_score'])
 
-        # Sort the movies by score
+        # Sort the books by score
         ranked_item_score = item_score.sort_values(by='book_score', ascending=False)
 
-        # Select top m movies
+        # Select top m books
         m = 10
         ranked_item_score.head(m)
         ranked_item_score.drop(['book_score'],axis=1, inplace=True, errors='ignore')
@@ -273,8 +272,9 @@ def bookView(request, serial_number):
             messages.success(request, 'Something went wrong ;(')
 
     whichbook = AddBook.objects.filter(serial_number=serial_number)
+    patron_bookmark = Bookmark.objects.filter(username=request.user, book=serial_number)
     # print(whichbook[0].Author)
-    context = {'Book': whichbook,}
+    context = {'Book': whichbook, 'bookmark': patron_bookmark}
     try:
         search_query = scholarly.search_author(f'{whichbook[0].Author}')
         author = scholarly.fill(next(search_query))
@@ -353,11 +353,12 @@ def dashboard(request):
     number_of_books = 0
     for x in book:
         number_of_books += int(x.copies)
+    print(IssueBook.objects.filter(issuedate__range=(end_date, start_date)).count())
     return render(request, 'dashboard/dashboard.html', {
         'counter':request_counter,
         'number_of_books': number_of_books,
         'fines': Fine.objects.count(),
-        'BAR': BookAcquisitionRequest.objects.count(), # BAR --> BookAcquisitionRequest
+        'BAR': BookAcquisitionRequest.objects.filter(status='Pending').count(), # BAR --> BookAcquisitionRequest
         'books_issued': IssueBook.objects.filter(issuedate__range=(end_date, start_date)).count(),
 
         })
@@ -411,10 +412,10 @@ def issueBook(request):
         form = IssueBookForm(request.POST)        
         if form.is_valid():
             buf = form.save(commit=False) # hold from saving the posted info
-            if buf.serial_number.copies > 0:
+            if buf.isbn.copies > 0:
                 # condition for checking number of copies and decrementing
                 
-                book = AddBook.objects.filter(serial_number=form.cleaned_data['serial_number'].serial_number)
+                book = AddBook.objects.filter(serial_number=form.cleaned_data['isbn'].serial_number)
                 for x in book:
                     x.copies -=  1
                     x.save()
@@ -424,13 +425,13 @@ def issueBook(request):
                 mails = User.objects.get(username=patron).email
                 print(mails)
                 send_mail(
-                    f'{form.cleaned_data["serial_number"]}',
-                    f' Hi {patron}, you have been given {form.cleaned_data["serial_number"]}, the due date is {form.cleaned_data["due_date"]}',
+                    f'{form.cleaned_data["isbn"]}',
+                    f' Hi {patron}, you have been given {form.cleaned_data["isbn"]}, the due date is {form.cleaned_data["due_date"]}',
                     'settings.EMAIL_HOST_USER',
                     [mails],
                     fail_silently=False
                     )
-                messages.success(request, f'{form.cleaned_data["serial_number"]} has been given to {form.cleaned_data["username"]}')
+                messages.success(request, f'{form.cleaned_data["isbn"]} has been given to {form.cleaned_data["username"]}')
             else:
                 messages.success(request, "No more books are available in the DB how is this possible")
             
@@ -455,7 +456,7 @@ def viewIssuedBooks(request):
 
 @staff_member_required
 def overdue(request):
-   issuedBooks = IssueBook.objects.filter(status = 'Over Due')
+   issuedBooks = Fine.objects.all()
    context = {
        'issues':issuedBooks,
        }
@@ -501,7 +502,7 @@ def returnedBook(request, id):
     # the book's details are moved to return book model and deleted from IssueBook model
     book = IssueBook.objects.get(id=id)
 
-    returned = ReturnedBook(username=book.username, serial_number=book.serial_number)
+    returned = ReturnedBook(username=book.username, serial_number=book.isbn)
     returned.save()
     # patron = book.username
     # mails = User.objects.get(username=patron).email
@@ -510,8 +511,8 @@ def returnedBook(request, id):
         patron = book.username
         mails = User.objects.get(username=patron).email
         send_mail(
-            f'{book.serial_number}',
-            f' Hi {patron.first_name} {patron.last_name}, you have returned {book.serial_number}, \n on  '
+            f'{book.isbn.title}',
+            f' Hi {patron.first_name} {patron.last_name}, you have returned {book.isbn.title}, \n on  '
             f'{returned.return_date}. \n \n served by: {request.user.first_name}  {request.user.last_name}',
             'settings.EMAIL_HOST_USER',
             [mails],
@@ -520,13 +521,13 @@ def returnedBook(request, id):
 
     except:
         messages.success(request, 'Confirmation email not sent to patron')
-    messages.success(request, f'{book.serial_number} has been returned')
+    messages.success(request, f'{book.isbn} has been returned')
     book.delete()
     return redirect('view_issued_books')
 
 @staff_member_required
 def viewReturnedBooks(request):
-    issuedBooks = ReturnedBook.objects.all()
+    issuedBooks = ReturnedBook.objects.all().order_by('-return_date') # starts with the latest book returned
 
     return render(request, 'dashboard/returnedBooks.html',{
         'issues': issuedBooks,
@@ -618,31 +619,55 @@ def rate(request, username, serial_number):
     except:
         # first time rating it
         return render(request, 'shelfs/bookview.html', {'form': RatingForm(), 'Book': whichbook})
-    # if request.method == 'GET':
-    #     # check if patron has already rated this book
-    #     if t != '':
-    #         # this will prevent duplicates
-    #         form = RatingForm(instance=t)
-    #         return render(request, 'shelfs/bookview.html', {'form': form, 'Book': whichbook})
-    #     else:
-    #         # first time rating it
-    #         return render(request, 'shelfs/bookview.html', {'form': RatingForm(), 'Book': whichbook})
-    # if request.method == 'POST':
-    #     if t != '':
-    #         # update the existing rating of the patron
-    #         form = RatingForm(request.POST, instance=t)
-    #         if form.is_valid():
-    #             buf = form.save(commit=False)
-    #             buf.username = request.user
-    #             buf.book_id = serial_number
-    #             buf.save()
-    #             return redirect('bookview', serial_number)
-    #         else:
-    #             form = RatingForm(request.POST)
-    #             if form.is_valid():
-    #                 buf = form.save(commit=False)
-    #                 buf.username = request.user
-    #                 buf.book_id = serial_number
-    #                 buf.save()
-    #                 return redirect('bookview', serial_number)
 
+@login_required
+def patronpage(request):
+    request_status = BookAcquisitionRequest.objects.filter(requester=request.user)
+    books_borrowed = IssueBook.objects.filter(username=request.user)
+    returned = ReturnedBook.objects.filter(username=request.user)
+    overdueBooks = Fine.objects.filter(username=request.user)
+    patron_bookmark = Bookmark.objects.filter(username=request.user)
+    for x in patron_bookmark:
+        print(x.book.Cover_image)
+    return render(request, 'patronpage.html', {
+        'request_status': request_status,
+        'borrowed': books_borrowed,
+        'returned': returned,
+        'overdueBooks': overdueBooks,
+        'bookmark': patron_bookmark,
+    })
+
+
+#     cl = MpesaClient()
+#     # Use a Safaricom phone number that you have access to, for you to be able to view the prompt.
+#     phone_number = U
+#     amount = 1
+#     account_reference = 'reference'
+#     transaction_desc = 'Description'
+#     callback_url = 'https://darajambili.herokuapp.com/express-payment'
+#     response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
+#     return HttpResponse(response)
+#
+#
+# def stk_push_callback(request):
+#     data = request.body
+#
+#     return HttpResponse("STK Push in Django👋")
+
+@staff_member_required
+def finepaid(request, id):
+    fine = Fine.objects.get(id=id)
+    fine.status = 'Paid'
+    fine.save()
+    return redirect('overdue')
+
+@login_required
+def bookmark(request, book):
+    book1 = AddBook.objects.get(serial_number=book)
+    patron_bookmark = Bookmark(username=request.user, book=book1)
+    if Bookmark.objects.filter(username=request.user, book=book1).exists():
+        messages.success(request, f'You have already bookmarked {patron_bookmark.book.title}')
+        return redirect('bookview', book)
+    else:
+        patron_bookmark.save()
+        return redirect('bookview', book)

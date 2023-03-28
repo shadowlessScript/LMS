@@ -4,15 +4,18 @@
         <caption>Over Due Books</caption>
         <thead>
             <tr>
+                {% comment %} <th scope="col"></th> {% endcomment %}
                 <th scope="col"></th>
                 <th scope="col">First Name</th>
                 <th scope="col">Last Name</th>
                 <th scope="col">Username</th>
                 <th scope="col">Book's title</th>
                 <th scope="col">ISBN</th>
-                <th scope="col">Date Issued</th>
+                {% comment %} <th scope="col">Date Issued</th> {% endcomment %}
                 <th scope="col">Due Date</th>
-                <th scope="col" >Action</th>
+                <th scope='col'>Fine incurred</th>
+                <th scope='col'>Over Due By</th>
+                <th scope="col" colspan="3">Action</th>
             </tr>
         </thead>        
         <tbody>
@@ -22,14 +25,34 @@
                 <td>{{issue.username.first_name}}</td>
                 <td>{{issue.username.last_name}}</td>
                 <td>{{issue.username}}</td>
-                <td>{{issue.isbn.title|truncatewords:4}}</td>
-                <td>{{issue.isbn.serial_number}}</td>
-                <td>{{issue.issuedate}}</td>
+                <td>{{issue.serial_number.title|truncatewords:4}}</td>
+                <td>{{issue.serial_number.serial_number}}</td>
+                {% comment %} <td>{{issue.issuedate}}</td> {% endcomment %}
                 <td>{{issue.due_date}}</td>
+                <td>{{issue.price}}</td>
+                <td>{{issue.over_due_by}} days</td>                
                 <td><input class="btn btn-secondary" type="submit" value="Returned"></td>
+                <td> 
+                    {% if issue.status == 'Unpaid' %}
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-danger">Unpaid</button>
+                        <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'finepaid' issue.id %}">Paid</a></li>                            
+                        </ul>
+                    </div>
+                    {% else %}
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary">{{issue.status}}</button>                        
+                        </div>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor%}
             
         </tbody>
     </table>
+    
 {% endblock %}

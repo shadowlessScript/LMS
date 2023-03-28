@@ -6,6 +6,8 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .forms import UserForm,ProfileForm,RegisterUserForm
 from django.contrib.auth.models import User
 from .models import Profile
+from django.contrib.auth.decorators import login_required
+from django_daraja.mpesa.core import MpesaClient
 
 # Create your views here.
 def login_user(request):
@@ -81,3 +83,28 @@ def profile(request):
         'form': form,
         'p_form': p_form,
         })
+
+@login_required
+def payfine(request):
+    x = Profile.objects.filter(user=request.user)
+    for c in x:
+        phonenumber = c.number
+    cl = MpesaClient()
+    # Use a Safaricom phone number that you have access to, for you to be able to view the prompt.
+    phone_number = phonenumber
+    amount = 1
+    account_reference = 'reference'
+    transaction_desc = 'Pay your fine!'
+    callback_url = 'https://darajambili.herokuapp.com/express-payment'
+    response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
+    # return HttpResponse(response)
+    data = request.body
+
+    return HttpResponse(response)
+
+
+def stk_push_callback(request):
+    data = request.body
+
+    return HttpResponse("STK Push in Django👋")
+
