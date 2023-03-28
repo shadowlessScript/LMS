@@ -32,4 +32,10 @@ urlpatterns = [
     path('extendBook/<int:id>', views.extendBook, name='extendBook'),
     path('searchissuedbook/', views.searchissuedbooks, name='searchissuedbook'),
     path('rate/<str:username>/<str:serial_number>/', views.rate, name='rate'),
+    path('mypage/', views.patronpage, name='mypage'),
+    path('finepaid/<int:id>/', views.finepaid, name='finepaid'),
+    path('bookmark/<str:book>/', views.bookmark, name='bookmark'),
+    # mpesa push
+    # path('mpesa/stk_push/', views.stk_push_callback, name='stk_push_callback'),
+
 ]

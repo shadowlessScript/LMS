@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} {{user}}'s Page {% endblock %}
+{% block style %}
+    <link rel="stylesheet" href="{% static 'patronpage.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <h2>Welcome to your page {{user}}</h2>
+        <h4>Bookmarked Books</h4>
+        {% if bookmark %}
+            <div>
+                {% for bookmark in bookmark %}
+                {% if bookmark.book.Cover_image %}
+                    <div class="mb-3">
+                        <img src={{bookmark.book.Cover_image.url}} width="50px" height="50px" style="border-radius:50%;" /> 
+                        <a href="{% url 'bookview' bookmark.book.serial_number %}" class="book-link" >{{bookmark.book.title}} <i class="fa-sharp fa-regular fa-up-right-from-square"></i></a>
+                    </div>
+                {% else %}
+                    <div class="mb-3">
+                        <img src='{% static "images/105093.jpg"%}'  width="50px" height="50px" style="border-radius:50%;" />
+                        <a href="{% url 'bookview' bookmark.book.serial_number %}"  class="book-link" >{{bookmark.book.title}} <i class="fa-sharp fa-regular fa-up-right-from-square"></i></a><br>
+                    </div>
+                {% endif %}
+                {% endfor %}
+            <div>
+            {% else %}
+            <p>You have not bookmarked anything</p> 
+        {% endif %}
+        
+        {% if request_status|length > 0 %}
+        <table class="table caption-top table-bordered">
+
+            <caption>
+                {% if request_status|length <= 1 %}
+                Book you requested status
+                {% else %}
+                Books you requested status
+                {%endif%}
+            </caption>
+
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Book's title</th>
+                    <th scope="col">Publisher</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for req in request_status %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{req.book_title}}</td>
+                    <td>{{req.publisher}}</td>
+                    <td>{{req.author}}</td>
+                    {% if req.status == "Pending" %}
+                    <td style="color: red">{{req.status}}</td>
+                    <td style="text-align:center;"><i style="color:black;" class="fa-sharp fa-solid fa-trash"></i></td>
+                    {% else %}
+                    <td style="color: forestgreen">{{req.status}}</td>
+                    <td style="text-align:center;"><a href="#"><i style="color:red;" class="fa-sharp fa-solid fa-trash"></i></a></td>
+                    {%endif%}
+
+
+                </tr>
+                {% endfor %}
+
+
+            </tbody>
+        </table>
+        
+        {%endif%}
+         <h4>Books Borrowed</h4>
+        {% if borrowed %}       
+         <table class="table caption-top table-bordered">
+
+            <caption>
+                {% if borrowed|length <= 1 %}
+                Book you Borrowed
+                {% else %}
+                Books you Borrowed
+                {%endif%}
+            </caption>
+
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Book's title</th>
+                    <th scope="col">ISBN</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Date Issued</th>
+                    <th scope="col">Due Date</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for req in borrowed %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{req.isbn.title}}</td>
+                    <td>{{req.isbn.serial_number}}</td>
+                    <td>{{req.isbn.Author}}</td>
+                    <td >{{req.issuedate}}</td>
+                    <td >{{req.due_date}}</td>
+                </tr>
+                {% endfor %}
+
+
+            </tbody>
+        </table>
+        {% else%}
+            <h5>No books borrowed</h5>
+        {% endif %}
+        <h4>Returned Books</h4>
+        {% if returned %}
+         <table class="table caption-top table-bordered">
+
+            <caption>
+                {% if returned|length <= 1 %}
+                Returned Book
+                {% else %}
+                Returned Books
+                {%endif%}
+            </caption>
+
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Book's title</th>
+                    <th scope="col">ISBN</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Return Date</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for req in returned %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{req.serial_number.title}}</td>
+                    <td>{{req.serial_number.serial_number}}</td>
+                    <td>{{req.serial_number.Author}}</td>
+                    <td>{{req.return_date}}</td>
+                </tr>
+                {% endfor %}
+
+
+            </tbody>
+        </table>
+        {% else %}
+        <h3>No book returned</h3>
+        {% endif %}
+        <h4>Over Due Books</h4>
+        <table class="table caption-top table-bordered">
+
+            <caption>
+                {% if overdueBooks|length <= 1 %}
+                Over Due Book
+                {% else %}
+                Over Due Books
+                {%endif%}
+            </caption>
+
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Book's title</th>
+                    <th scope="col">ISBN</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Due Date</th>
+                    <th scope="col">Over Due By</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for req in overdueBooks %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{req.serial_number.title}}</td>
+                    <td>{{req.serial_number.serial_number}}</td>
+                    <td>{{req.serial_number.Author}}</td>
+                    <td >{{req.due_date}}</td>
+                    <td >{{req.over_due_by}}</td>
+                    <td >{{req.price}}</td>
+                    <td><a href="{% url 'payfine' %}"><button type="button" class="btn btn-info">Pay ?</button></a></td>
+                </tr>
+                {% endfor %}
+
+
+            </tbody>
+        </table>
+    </div>
+
+
+{% endblock %}

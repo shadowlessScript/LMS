@@ -12,19 +12,62 @@
 
     <div class="container">
         <div class="gcse-search"></div> <!-- Google search bar-->
-        {% for ebook in Book %}
+        {% for ebook in Book %} 
             <h2>{{ebook.title}}</h2>
             <div class="book-card">
                 <br />
                 {% if ebook.Cover_image %}
-                <img class="book-cover" src={{ebook.Cover_image.url}} width="200px" alt="{{ebook.title}}"/>
+                <div class="book-img">
+                    <img class="book-cover" src={{ebook.Cover_image.url}} width="200px" alt="{{ebook.title}}"/>
+
+                    {%if bookmark%}
+                        <a href=""><i class="fa-regular fa-bookmark mark" style="color: coral;"></i></a>
+                        <span class="tooltiptext">Bookmark</span>
+                    {% else %}
+                        <a href="{% url 'bookmark' ebook.serial_number  %}"><i class="fa-regular fa-bookmark mark"></i></a>
+                        <span class="tooltiptext">Bookmark</span>
+                    {% endif %}
+
+                </div>
                 {% else %}
-                <img class="book-cover" src='{% static "images/105093.jpg"%}' width="200px" />
-                {% endif %}
+                <div class="book-img">
+                    <img class="book-cover" src='{% static "images/105093.jpg"%}' width="200px" />
+                    {% if bookmark %}
+                    <a href=""><i class="fa-regular fa-bookmark mark" style="color: coral;"></i></a>
+                    {%else%}
+                    <a href="{% url 'bookmark' ebook.serial_number  %}"><i class="fa-regular fa-bookmark mark"></i></a>
+                    {%endif%}
+                </div>
+                    {% endif %}
                 <div class="book-info-container">
                     <p>{{ebook.description}}</p><br />
-                    <h4>Author: {{ebook.Author}}</h4><br>
-                    Catergory: <a class="genre" href="{% url 'filtered_view' ebook.genre %}"> {{ebook.genre}}</a>
+                    <h4>Author: {{ebook.Author}}</h4>
+                    {% if ebook.co_author %}<h4>Co-Authors: {{ebook.co_author}}</h4>{% endif %}
+                    <h6>Pages: {{ebook.pages}}</h6>
+                    <h6>Publisher: {{ebook.publisher}}</h6>
+                    <h6>Year: {{ebook.year}}</h6><br>
+                    Catergory: <a class="genre mt-5" href="{% url 'filtered_view' ebook.genre %}"> {{ebook.genre}}</a>
+                    <div>
+                    
+                    <button type="submit" class="btn btn-primary  mt-3" id="cite-book"><i class="fa-regular fa-quote-left"></i> Cite</button>
+                    <div class="cite-container">
+                        <div class="cites">
+                            <i class="fa-solid fa-xmark close-icon" style="font-size: 1.5em; cursor: pointer;"></i><br><br>
+                            <div>
+                                <p>APA: {{ebook.Author}}({{ebook.year}}). {{ebook.title}}.{{ebook.publisher}}</p>
+                            </div>
+                             <div>
+                                <p>MLA: {{ebook.Author}}. {{ebook.title}}.{{ebook.publisher}}, {{ebook.year}}</p>
+                            </div>
+                             <div>
+                                <p>Chicago: {{ebook.Author}}. {{ebook.title}}.{{ebook.publisher}}, {{ebook.year}}</p>
+                            </div>
+                             <div>
+                                <p>Harvard: {{ebook.Author}}, {{ebook.year}}. {{ebook.title}}.{{ebook.publisher}}.</p>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
                     <div style="margin-top: 1em;">
                         <span class="fa fa-star checked"></span>
                         <span class="fa fa-star checked"></span>
@@ -113,5 +156,5 @@
 </script>
 {% endblock %}
 {% block script %}
-
+<script src="{% static 'JS/cite.js' %}"></script>
 {% endblock %}

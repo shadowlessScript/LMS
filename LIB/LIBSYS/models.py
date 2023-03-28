@@ -50,6 +50,10 @@ GENRE = [
     ('Mathematics','Mathematics'),
 
 ]
+FINESTATUS = [
+    ('Unpaid', 'Unpaid'),
+    ('Paid', 'Paid')
+]
 
 main_exam = "Main exam"
 cat = "CAT"
@@ -73,6 +77,11 @@ class AddBook(models.Model):
     state = models.CharField(max_length=20, choices=STATE, default='online')
     genre = models.CharField(max_length=50,choices=GENRE, default='Engineering')
     ebook = models.FileField(upload_to='books/%y', blank=True, null=True)
+    pages = models.IntegerField() 
+    edition = models.CharField(max_length=50, default='first edition', blank=False, null=False)
+    publisher = models.CharField(max_length=150, default='Nami printers', blank=False, null=False)
+    co_authors = models.CharField(max_length=240, blank=True, null=True)
+    year = models.CharField(max_length=150, default='2010')
 
     def __str__(self):
         return '%s, %s'% (self.title, self.Author)
@@ -92,7 +101,8 @@ class Fine(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE,)
     serial_number = models.ForeignKey(AddBook, on_delete=models.CASCADE,)    
     # issuedate = models.DateField(auto_now=True)
-    due_date = models.DateField(auto_now=True)
+    status = models.CharField(max_length=10, choices=FINESTATUS, default='Unpaid')
+    due_date = models.DateField(auto_now_add=True)
     over_due_by = models.IntegerField(default = 10)
     price = models.IntegerField(default = 10)
 
@@ -158,3 +168,7 @@ class Rating(models.Model):
 
     def __str__(self):
         return "%s, %s, %s" % (self.username, self.serial_number.title, self.rate)
+
+class Bookmark(models.Model):
+    username = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey(AddBook, on_delete=models.CASCADE)

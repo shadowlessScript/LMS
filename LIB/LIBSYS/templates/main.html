@@ -28,52 +28,6 @@
 </center>
 <center>
     <section class="news-container">
-        {% if request_status|length > 0 %}
-        <table class="table caption-top table-bordered">
-
-            <caption>
-                {% if request_status|length <= 1 %}
-                Book you requested status
-                {% else %}
-                Books you requested status
-                {%endif%}
-            </caption>
-
-            <thead>
-                <tr>
-                    <th scope="col"></th>
-                    <th scope="col">Book's title</th>
-                    <th scope="col">Publisher</th>
-                    <th scope="col">Author</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-
-                {% for req in request_status %}
-                <tr>
-                    <th scope="row">{{forloop.counter}}</th>
-                    <td>{{req.book_title}}</td>
-                    <td>{{req.publisher}}</td>
-                    <td>{{req.author}}</td>
-                    {% if req.status == "Pending" %}
-                    <td style="color: red">{{req.status}}</td>
-                    <td style="text-align:center;"><i style="color:black;" class="fa-sharp fa-solid fa-trash"></i></td>
-                    {% else %}
-                    <td style="color: forestgreen">{{req.status}}</td>
-                    <td style="text-align:center;"><a href="#"><i style="color:red;" class="fa-sharp fa-solid fa-trash"></i></a></td>
-                    {%endif%}
-
-
-                </tr>
-                {% endfor %}
-
-
-
-            </tbody>
-        </table>
-        {%endif%}
 
 
         {% for story in storys %}
