@@ -24,6 +24,19 @@
                 {% endif %}
                 {% endfor %}
             <div>
+            <nav aria-label="Page navigation example" class="nav-pag">
+                <ul class="pagination">
+                    {% if bookmark.has_previous %}
+                        <li class="page-item"><a href="?page=1 #news" class="page-link">&laquo First</a></li>
+                        <li class="page-item"><a href="?page={{bookmark.previous_page_number}} " class="page-link">{{bookmark.previous_page_number}}</a></li>
+                    {% endif %}
+                    <li class="page-item active"><a class="page-link" href="#">{{bookmark.number}}</a></li>
+                    {% if bookmark.has_next %}
+                        <li class="page-item"><a href="?page={{bookmark.next_page_number}}" class="page-link">{{bookmark.next_page_number}}</a></li>
+                        <li class="page-item"><a href="?page={{bookmark.paginator.num_pages}}" class="page-link">&raquo</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
             {% else %}
             <p>You have not bookmarked anything</p> 
         {% endif %}

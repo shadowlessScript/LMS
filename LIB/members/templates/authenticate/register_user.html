@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% block title %}Registration Page{%endblock%}
 {%block content%}
-
+    <div class="container">
         {% if form.errors %}
 
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -15,7 +16,7 @@
                 
                 {{form.as_p}}
                 
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">Register</button>
         </form>
-
+      </div>
 {% endblock %}

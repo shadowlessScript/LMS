@@ -19,10 +19,12 @@
         <div id="welcome-txt">
             WELCOME TO ZERONINE <br>ONLINE  LIBRARY MANAGEMENT SYSTEM.
             Where knowlegde is shared.
+            {% if user.is_anonymous %}
             <div>
-                <a href="">Sign in</a>
-                <a href="">Sign up</a>
+                <a href="{% url 'login' %}">Sign in</a>
+                <a href="{% url 'register' %}">Sign up</a>
             </div>
+            {% endif %}
         </div>
     </div>
 </center>

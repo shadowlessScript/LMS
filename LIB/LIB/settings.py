@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_quill',
     'django_daraja',
+    'django_apscheduler', # trying to replace cron job
 
 ]
 
@@ -191,3 +192,6 @@ MPESA_INITIATOR_USERNAME = 'testapi'
 # Plaintext password for initiator (to be used in B2C, B2B, AccountBalance and TransactionStatusQuery Transactions)
 
 MPESA_INITIATOR_SECURITY_CREDENTIAL = 'Safaricom999!*!'
+
+# APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+# APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds

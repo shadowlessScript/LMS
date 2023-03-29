@@ -35,6 +35,7 @@ urlpatterns = [
     path('mypage/', views.patronpage, name='mypage'),
     path('finepaid/<int:id>/', views.finepaid, name='finepaid'),
     path('bookmark/<str:book>/', views.bookmark, name='bookmark'),
+    path('finedbookreturned/<int:id>/', views.returnfinedbook, name='finedbookreturned')
     # mpesa push
     # path('mpesa/stk_push/', views.stk_push_callback, name='stk_push_callback'),
 

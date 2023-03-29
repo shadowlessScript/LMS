@@ -31,7 +31,7 @@
                 <td>{{issue.due_date}}</td>
                 <td>{{issue.price}}</td>
                 <td>{{issue.over_due_by}} days</td>                
-                <td><input class="btn btn-secondary" type="submit" value="Returned"></td>
+                <td><a href="{% url 'finedbookreturned' issue.id %}"><input class="btn btn-secondary" type="submit" value="Returned"></a></td>
                 <td> 
                     {% if issue.status == 'Unpaid' %}
                     <div class="btn-group">
