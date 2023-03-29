@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
-
+from django.contrib.messages import get_messages
 from LIBSYS import models
 from LIBSYS import views
 
@@ -64,6 +64,35 @@ class TestViews(TestCase):
         })# client sending a post request of the book added to the lib DB
         self.assertEquals(response.status_code, 302) # 302 means there is a redirect
         self.assertEquals(models.AddBook.objects.all().first().title, 'One Piece')
+        storage = get_messages(response.wsgi_request)
+        messages = [msg.message for msg in storage]
+        self.assertEqual(messages, ['Book added successfully!'])
+
+    def test_addBookstoShelf_POST_failure(self):
+        #testing whether no book is added when fields are invalid
+        response = self.client.post(reverse('add'), {
+           ' title':12, # invalid
+            'Author':'Eichiro Oda',
+            'serial_number':'OP101',
+            'copies':12,
+            'copies_remaining':"yes", # invalid
+            'description':'A boy named Monkey D. Luffy wants to be the pirate king',
+            'Cover_image':'',
+            'state':'ebook',
+            'genre':'Novel',
+            'ebook':'',
+            'pages':23,
+            'edition':'second',
+            'publisher':'shounen jump',
+            'co_authors':'none',
+            'year':'1998',
+
+        })
+        self.assertEquals(response.status_code, 302) # 302 means there is a redirect
+        self.assertEquals(models.AddBook.objects.all().count(), 0)
+        storage = get_messages(response.wsgi_request) # messsage is shown upon each CRUD op.
+        messages = [msg.message for msg in storage]
+        self.assertEqual(messages, ['Something went wrong, please try again!'])
     
     def test_managebook_GET(self):
         response = self.client.get(reverse('manage'))
@@ -71,3 +100,16 @@ class TestViews(TestCase):
         self.assertTemplateUsed(response, 'shelfs/manage.html')
 
     
+    def test_deletebook_GET(self):
+        response = self.client.get(reverse('deletebook', args=['ew212']))
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, 'shelfs/updates/confirm_delete.html')
+    
+    def test_deletebook_GET(self):
+        response = self.client.get(reverse('deletebook_confirm', args=['ew212']))
+        self.assertEquals(response.status_code, 302)
+        # self.assertTemplateUsed(response, 'shelfs/updates/confirm_delete.html')
+        
+    def test_returnfinedbook_GET(self):
+        response = self.client.get(reverse('finedbookreturned', args=[37]))
+        self.assertEquals(response.status_code, 302)
