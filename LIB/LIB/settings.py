@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 from decouple import config  #used to hide sensitive data i.e email, email_password, secret key etc.
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -159,8 +160,8 @@ MPESA_ENVIRONMENT = 'sandbox'
 
 # Credentials for the daraja app
 
-MPESA_CONSUMER_KEY = 'Y11YuLEyJDbfqvdktoRstRALTjLXx11s'
-MPESA_CONSUMER_SECRET = 'gsCMU7sv6AA0uhPM'
+MPESA_CONSUMER_KEY = '4Sr4SB3f8NOvSqpuuki9dAYDc2Xrq3Em'
+MPESA_CONSUMER_SECRET = 'SiBXNERjzJq6v9qS'
 
 #Shortcode to use for transactions. For sandbox  use the Shortcode 1 provided on test credentials page
 

@@ -63,7 +63,7 @@ def profile(request):
         if form.is_valid() and p_form.is_valid():
             form.save()
             p_form.save()
-            messages.success(request, 'Updates')
+            messages.success(request, 'Profile Update successful!')
             return redirect('profile')
         else:
             messages.success(request, 'Did not update ;(')
@@ -95,12 +95,15 @@ def payfine(request):
     amount = 1
     account_reference = 'reference'
     transaction_desc = 'Pay your fine!'
-    callback_url = 'https://darajambili.herokuapp.com/express-payment'
+    callback_url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
+    r = 'https://sandbox.safaricom.co.ke/mpesa/transactionstatus/v1/query' 
     response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
+    result = cl.stk_push(phone_number, amount, account_reference, transaction_desc, r)
+    print([x for x in response])
     # return HttpResponse(response)
     data = request.body
 
-    return HttpResponse(response)
+    return HttpResponse(response, result)
 
 
 def stk_push_callback(request):

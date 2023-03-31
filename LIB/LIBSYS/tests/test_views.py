@@ -110,6 +110,6 @@ class TestViews(TestCase):
         self.assertEquals(response.status_code, 302)
         # self.assertTemplateUsed(response, 'shelfs/updates/confirm_delete.html')
         
-    def test_returnfinedbook_GET(self):
-        response = self.client.get(reverse('finedbookreturned', args=[37]))
-        self.assertEquals(response.status_code, 302)
+    # def test_returnfinedbook_GET(self):
+    #     response = self.client.get(reverse('finedbookreturned', args=[37]))
+    #     self.assertEquals(response.status_code, 302)

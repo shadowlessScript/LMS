@@ -246,17 +246,17 @@ def ListOfBooks(request):
             for k in ranked_item_score['book']:
                 if k != 1:
                     recommended_list.append(AddBook.objects.filter(serial_number=k))
-        print(recommended_list)
-        return render(request, "shelfs/book.html", {
-            'Books': b,
-            'Genres': genreList(genre),
-            'recommendedbooks': recommended_list,
-        })
-    else:
-        return render(request, "shelfs/book.html", {
-            'Books': b,
-            'Genres': genreList(genre),
-        })
+            print(recommended_list)
+            return render(request, "shelfs/book.html", {
+                'Books': b,
+                'Genres': genreList(genre),
+                'recommendedbooks': recommended_list,
+            })
+        else:
+            return render(request, "shelfs/book.html", {
+                'Books': b,
+                'Genres': genreList(genre),
+            })
 
 
 
