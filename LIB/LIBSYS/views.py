@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from PIL import Image
 from .forms import AddBookForm, NewsForm, IssueBookForm, BookAcquisitionRequestForm, ExamForm, ExtendBookForm, RatingForm
-from .models import AddBook,New, Booking, IssueBook, BookAcquisitionRequest, ReturnedBook, Exam, Fine, Rating, Bookmark
+from .models import AddBook,New, Booking, IssueBook, BookAcquisitionRequest, ReturnedBook, Exam, Fine, Rating, Bookmark, History
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.mail import send_mail
@@ -86,14 +86,19 @@ def index(request):
     p = Paginator(New.objects.all().order_by('created'), 3)
     page = request.GET.get('page')
     posts = p.get_page(page)
-
     context = {
-        'storys': posts,
+    'storys': posts,    
     }
+   
+    if not request.user.is_anonymous:
+        patron_history = History.objects.filter(username=request.user).order_by('checked_at')
+        context['history'] = patron_history[:6]
+
     if request.user.is_superuser:
         return render(request,"mainAdmin.html", context)
     else:
         return render(request,"main.html", context)
+   
 
 @staff_member_required
 def indexuserview(request):
@@ -275,6 +280,10 @@ def bookView(request, serial_number):
 
     whichbook = AddBook.objects.filter(serial_number=serial_number)
     patron_bookmark = Bookmark.objects.filter(username=request.user, book=serial_number)
+    has_history = History.objects.filter(username=request.user, serial_number=serial_number).exists()
+    if not has_history:
+        create_history = History.objects.create(username=request.user, serial_number_id=serial_number)
+        create_history.save()
     # print(whichbook[0].Author)
     context = {'Book': whichbook, 'bookmark': patron_bookmark}
     try:
@@ -691,3 +700,4 @@ def bookmark(request, book):
     else:
         patron_bookmark.save()
         return redirect('bookview', book)
+

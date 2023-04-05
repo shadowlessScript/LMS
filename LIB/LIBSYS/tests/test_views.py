@@ -11,24 +11,7 @@ class TestViews(TestCase):
         self.staff_user = User.objects.create_user(
             username='staffuser', password='testpassword', is_staff=True)# create library staff
         self.client.login(username='staffuser', password='testpassword') # librarian login
-        # creating a book's instance
-        # self.booktest = models.AddBook.objects.create(
-        #     title = 'One Piece',
-        #     Author = 'Eichiro Oda',
-        #     serial_number = 'OP101',
-        #     copies=12,
-        #     copies_remaining=12,
-        #     description='A boy named Monkey D. Luffy wants to be the pirate king',
-        #     Cover_image='',
-        #     state='ebook',
-        #     genre='Novel',
-        #     ebook='',
-        #     pages=23,
-        #     edition='second',
-        #     publisher='shounen jump',
-        #     co_authors='none',
-        #     year='1998'
-        # )
+        
     def test_notfound_get(self):
       
         response = self.client.get(reverse('404')) # client sending a get request
@@ -110,6 +93,23 @@ class TestViews(TestCase):
         self.assertEquals(response.status_code, 302)
         # self.assertTemplateUsed(response, 'shelfs/updates/confirm_delete.html')
         
-    # def test_returnfinedbook_GET(self):
-    #     response = self.client.get(reverse('finedbookreturned', args=[37]))
-    #     self.assertEquals(response.status_code, 302)
+    def test_bookview_GET(self):
+        booktest = models.AddBook.objects.create(
+            title = 'One Piece',
+            Author = 'Eichiro Oda',
+            serial_number = 'OP101',
+            copies=12,
+            copies_remaining=12,
+            description='A boy named Monkey D. Luffy wants to be the pirate king',
+            Cover_image='',
+            state='ebook',
+            genre='Novel',
+            ebook='',
+            pages=23,
+            edition='second',
+            publisher='shounen jump',
+            co_authors='none',
+            year='1998'
+        )
+        response = self.client.get(reverse('bookview', args=['OP101']))
+        self.assertEquals(response.status_code, 200)

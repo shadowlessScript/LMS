@@ -8,8 +8,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 #variables
 online = 'ebook'
-physical = 'physical'
-both = 'physical/ebook'
+physical = 'print'
+both = 'print/ebook'
 
 active = 'active'
 overDue = 'Over Due'
@@ -172,3 +172,8 @@ class Rating(models.Model):
 class Bookmark(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(AddBook, on_delete=models.CASCADE)
+
+class History(models.Model):
+    username = models.ForeignKey(User, on_delete=models.CASCADE)
+    serial_number = models.ForeignKey(AddBook, on_delete=models.CASCADE)
+    checked_at = models.DateField(auto_now=True)
