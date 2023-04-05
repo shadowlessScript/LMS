@@ -28,3 +28,6 @@ Show the avg rating of the book
 Patron can bookmark a book they like or want to remember down the line.
 I will need a bookmark model, with username, and book
 I want two icons one showing a book that is bookmark by patron and vice versa.
+
+# Patron history
+Patron history can be used and possibly displayed to them. This can maybe help in building the content based recommendation sys.

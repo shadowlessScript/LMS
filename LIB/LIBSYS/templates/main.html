@@ -30,14 +30,23 @@
 </center>
 <center>
     <section class="news-container">
-
-
-        {% for story in storys %}
-        <div class="news" id="news">
-            <p>{{story.story.html|safe}}</p>
-            <span style="color: blue;">Created on: {{story.created}}</span>
+        {% if history %}
+        <h3>Your recent activity</h3>
+        <div class="history">
+            {% for history in history %}                
+                <a class="book-link" href="{% url 'bookview' history.serial_number.serial_number%}">
+                    {{history.serial_number.title}} </a><i class="fa-sharp fa-regular fa-up-right-from-square"></i><br><br>
+            {%endfor%}
         </div>
-        {%endfor%}
+        {% endif %}
+        <div class="d-flex align-content-start flex-wrap">
+            {% for story in storys %}
+                <div class="news" id="news">
+                    <p>{{story.story.html|safe}}</p>
+                    <span style="color: blue;">Created on: {{story.created}}</span>
+                </div>
+            {%endfor%}
+        </div>
         <!-- <Button class="more" >more..</Button> -->
         <!-- <center class="page-link-container"> -->
         {% if storys.has_previous %}

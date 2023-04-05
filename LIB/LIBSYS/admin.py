@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import AddBook, New, Fine, Booking, IssueBook, BookAcquisitionRequest, ReturnedBook, Exam, Rating, Bookmark
+from .models import AddBook, New, Fine, Booking, IssueBook, BookAcquisitionRequest, ReturnedBook, Exam, Rating, Bookmark, History
 # Register your models here.
 # admin.site.register(BorrowBook)
 admin.site.register(New)
@@ -12,3 +12,4 @@ admin.site.register(ReturnedBook)
 admin.site.register(Exam)
 admin.site.register(Rating)
 admin.site.register(Bookmark)
+admin.site.register(History)

@@ -103,7 +103,7 @@
                     {% endif %}
                 {% endif %}
 
-                {% if ebook.state == 'physical' %}
+                {% if ebook.state == 'print' %}
                     <form method="POST">
                         {% csrf_token %}
                         <input value="{{ebook.serial_number}}" type="hidden" name='isbn'>
@@ -113,14 +113,16 @@
                     {{ebook.copies}} Available
                 {% endif %}
 
-                {% if ebook.state == 'physical/ebook' %}
+                {% if ebook.state == 'print/ebook' %}
                     <form method="POST">
                         {% csrf_token %}
                         <input value="{{ebook.serial_number}}" type="hidden" name='isbn'>
                         <input value="{{user}}" type="hidden" name='user'>
                         <input class="btn btn-secondary" type="submit" value="Book">
                     </form>
+                    {% if ebook.ebook %}
                     <button id='file-links' class="btn btn-secondary"><a href='{{ebook.ebook.url}}' target="_blank"> Read </a></button><br>
+                    {% endif %}
                     {{ebook.copies}} Available
                 {% endif %}
         {% endfor %}

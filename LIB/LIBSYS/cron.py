@@ -93,7 +93,7 @@ class FineCalculation(CronJobBase):
                              send_mail(
                                 f'{x.serial_number.title}',
                                 f' Hi {x.username.first_name} {x.username.last_name}, this is to remind you that you have an overdue book: {x.serial_number.title}, \n it over due by  '
-                                f'{int(d.day) - getduedate.day} days. \n \n do not reply to this email.',
+                                f'{int(d.day) - getduedate.day} days. \n \n do not reply to this email, from cron job.',
                                 'settings.EMAIL_HOST_USER',
                                 [x.username.email],
                                 fail_silently=False
