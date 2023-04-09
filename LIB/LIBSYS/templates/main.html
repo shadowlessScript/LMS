@@ -32,10 +32,26 @@
     <section class="news-container">
         {% if history %}
         <h3>Your recent activity</h3>
-        <div class="history">
-            {% for history in history %}                
-                <a class="book-link" href="{% url 'bookview' history.serial_number.serial_number%}">
-                    {{history.serial_number.title}} </a><i class="fa-sharp fa-regular fa-up-right-from-square"></i><br><br>
+        <div class="history mb-3 ">
+            {% for history in history %}
+                {% if history.serial_number.Cover_image %}
+                    <div class="mb-3">
+                        <img src={{ history.serial_number.Cover_image.url}} width="50px" height="50px" style="border-radius:50%;" /> 
+                        <a class="history-link" href="{% url 'bookview' history.serial_number.serial_number%}">
+                            {{history.serial_number.title}}  <i class="fa-solid fa-link"></i>
+                        </a>
+                        
+                    </div>
+                {% else %}
+                    <div class="mb-3">
+                        <img src='{% static "images/105093.jpg"%}'  width="50px" height="50px" style="border-radius:50%;" />
+                        <a class="history-link" href="{% url 'bookview' history.serial_number.serial_number%}">
+                            {{history.serial_number.title}}  <i class="fa-solid fa-link"></i>
+                        </a>
+                        
+                    </div>
+                {% endif %}                
+                
             {%endfor%}
         </div>
         {% endif %}
@@ -49,16 +65,20 @@
         </div>
         <!-- <Button class="more" >more..</Button> -->
         <!-- <center class="page-link-container"> -->
-        {% if storys.has_previous %}
-        <a href="?page=1 #news" class="page-link">&laquo First</a>
-        <a href="?page={{storys.previous_page_number}} #news" class="page-link">{{storys.previous_page_number}}</a>
-        {% endif %}
-        {{storys.number}}
-        {% if storys.has_next %}
+        <nav aria-label="Page navigation example" class="nav-pag">
+            <ul class="pagination">
+                {% if storys.has_previous %}
+                    <li class="page-items"> <a href="?page=1 #news" class="page-link">&laquo First</a></li>
+                    <li class="page-items"> <a href="?page={{storys.previous_page_number}} #news" class="page-link">{{storys.previous_page_number}}</a></li>
+                {% endif %}
+                   <li class="page-item active"><a class="page-link" href="#"> {{storys.number}} </a></li>
+                {% if storys.has_next %}
 
-        <a href="?page={{storys.next_page_number}} #news" class="page-link">{{storys.next_page_number}}</a>
-        <a href="?page={{storys.paginator.num_pages}} #news" class="page-link">&raquo</a>
-        {% endif %}
+                    <li class="page-items"> <a href="?page={{storys.next_page_number}} #news" class="page-link">{{storys.next_page_number}}</a></li>
+                    <li class="page-items"> <a href="?page={{storys.paginator.num_pages}} #news" class="page-link">&raquo</a></li>
+                {% endif %}
+            </ul>
+        </nav>
         <!-- </center> -->
     </section>
 </center>

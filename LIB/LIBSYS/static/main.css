@@ -103,8 +103,24 @@ main{
     color: black;
     transition: 0.4s;
 }
+.history{
+    text-align: justify; 
+    border: 1px dashed black;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+   
+}
+.history-link{
+    text-decoration: none;
+    color: black;
+    /* transition: 0.6s; */
+}
 
-
+.history-link:hover{
+    color: blue;
+    text-decoration: underline;
+    /* transition: 0.6s; */
+}
 /*Adding keyframes*/
 @keyframes mytext{
     0%{

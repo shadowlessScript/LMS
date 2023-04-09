@@ -31,3 +31,6 @@ I want two icons one showing a book that is bookmark by patron and vice versa.
 
 # Patron history
 Patron history can be used and possibly displayed to them. This can maybe help in building the content based recommendation sys.
+
+# comment section/review section
+Patrons can give a review about the book etc. and update or delete that post, also displaying the username which also functions as a link to their profile.

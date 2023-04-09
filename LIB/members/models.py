@@ -6,7 +6,7 @@ from PIL import Image
 
 class Profile(models.Model):
 	user = models.OneToOneField(User, blank=True, null=True,on_delete=models.CASCADE)
-	profile_pic = models.ImageField(upload_to="images/profile_pic/%y", default='default.jpg', blank=True, null=True)
+	profile_pic = models.ImageField(upload_to="images/profile_pic/%y", default='images/profile_pic/22/default.jpg', blank=True, null=True)
 	number = models.CharField(max_length=10,blank=True, null=True)
 	bio = models.TextField(blank=True, null=True)
 
@@ -15,7 +15,7 @@ class Profile(models.Model):
 
 class AdminProfile(models.Model):
 	user = models.OneToOneField(User, blank=True, null=True,on_delete=models.CASCADE)
-	profile_pic = models.ImageField(upload_to="images/profile_pic/%y", default='default.jpg', blank=True, null=True)
+	profile_pic = models.ImageField(upload_to="images/profile_pic/%y", default='images/22/default.jpg', blank=True, null=True)
 	number = models.CharField(max_length=10,blank=True, null=True)
 	bio = models.TextField(blank=True, null=True)
 
