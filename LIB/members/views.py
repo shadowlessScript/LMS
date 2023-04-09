@@ -8,7 +8,8 @@ from django.contrib.auth.models import User
 from .models import Profile
 from django.contrib.auth.decorators import login_required
 from django_daraja.mpesa.core import MpesaClient
-
+import requests
+import json
 # Create your views here.
 def login_user(request):
     if request.method == 'POST':
@@ -89,25 +90,48 @@ def payfine(request):
     x = Profile.objects.filter(user=request.user)
     for c in x:
         phonenumber = c.number
-    cl = MpesaClient()
-    # Use a Safaricom phone number that you have access to, for you to be able to view the prompt.
-    phone_number = phonenumber
-    amount = 1
-    account_reference = 'reference'
-    transaction_desc = 'Pay your fine!'
-    callback_url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
-    r = 'https://sandbox.safaricom.co.ke/mpesa/transactionstatus/v1/query' 
-    response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
-    result = cl.stk_push(phone_number, amount, account_reference, transaction_desc, r)
-    print([x for x in response])
-    # return HttpResponse(response)
-    data = request.body
+    # cl = MpesaClient()
+    # # Use a Safaricom phone number that you have access to, for you to be able to view the prompt.
+    # phone_number = phonenumber
+    # amount = 1
+    # account_reference = 'reference'
+    # transaction_desc = 'Pay your fine!'
+    # callback_url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
+    # r = 'https://sandbox.safaricom.co.ke/mpesa/transactionstatus/v1/query' 
+    # response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
+    # result = cl.stk_push(phone_number, amount, account_reference, transaction_desc, r)
+    # print([x for x in response])
+    # # return HttpResponse(response)
+    # data = request.body
 
-    return HttpResponse(response, result)
+    # return HttpResponse(response, result)
+
+    # initiate transcation using tinypesa
+    url = "https://tinypesa.com/api/v1/express/initialize" # API endpoint for tinypesa
+    
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "ApiKey": "4OzXOaySC7S"
+    }
+
+    payload = {
+        'amount': 1,
+        'msisdn': phonenumber,
+        "callback_url": "https://your-callback-url.com" 
+        
+    }
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    if response.status_code == 201:  # check if the request was successful
+        data = response.json()  # get the JSON response data
+        return HttpResponse(data)  # print the response data
+    else:
+        return HttpResponse(f"Error: {response.status_code}")  # print the error code if the request was unsuccessful
 
 
-def stk_push_callback(request):
-    data = request.body
 
-    return HttpResponse("STK Push in Django👋")
-
+@login_required
+def patronlookup(request, username):
+    patron = User.objects.get(username=username)
+    patron_profile = Profile.objects.filter(id=patron.profile.id)
+    # print(patron.profile.id)
+    return render(request, 'profile/patronlookup.html', {'patron':patron_profile})

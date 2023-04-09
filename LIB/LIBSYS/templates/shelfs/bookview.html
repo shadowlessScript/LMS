@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
     {% load static %}
+    {% load humanize %}
     {% block title %}
         {% for ebook in Book %}
     {{ebook.title}}
@@ -21,11 +22,12 @@
                     <img class="book-cover" src={{ebook.Cover_image.url}} width="200px" alt="{{ebook.title}}"/>
 
                     {%if bookmark%}
-                        <a href=""><i class="fa-regular fa-bookmark mark" style="color: coral;"></i></a>
-                        <span class="tooltiptext">Bookmark</span>
+                        {% for b in bookmark %}
+                        <a href="{% url 'removebmrk' b.id %}"><i class="fa-regular fa-bookmark mark" style="color: coral;"></i></a>
+                        {%endfor%}
                     {% else %}
                         <a href="{% url 'bookmark' ebook.serial_number  %}"><i class="fa-regular fa-bookmark mark"></i></a>
-                        <span class="tooltiptext">Bookmark</span>
+                        {% comment %} <span class="tooltiptext">Bookmark</span> {% endcomment %}
                     {% endif %}
 
                 </div>
@@ -33,7 +35,9 @@
                 <div class="book-img">
                     <img class="book-cover" src='{% static "images/105093.jpg"%}' width="200px" />
                     {% if bookmark %}
-                    <a href=""><i class="fa-regular fa-bookmark mark" style="color: coral;"></i></a>
+                    {% for b in bookmark %}
+                        <a href="{% url 'removebmrk' b.id  %}"><i class="fa-regular fa-bookmark mark" style="color: coral;"></i></a>
+                        {%endfor%}
                     {%else%}
                     <a href="{% url 'bookmark' ebook.serial_number  %}"><i class="fa-regular fa-bookmark mark"></i></a>
                     {%endif%}
@@ -152,8 +156,35 @@
                 </div>
             </div>
         {%endif%}
+        <div class="reviews mt-5">
+            {% for b in Book%}
+            <h3>Reviews <a href="{% url 'reviewbook' b.serial_number  %}"><i class="fa-solid fa-comment-medical" style="color: #365996;"></i></a></h3>
+            
+            {%if reviewform %}
+            <div class="add-review-container">
+                <a class="close-rate" href="{% url 'bookview'  b.serial_number %}"><i class="fa-solid fa-xmark"></i></a>
+                <form class="add-review" method="post">
+                    {% csrf_token %}
+                        {{reviewform.media}}
+                        {{reviewform.as_p}}
+                    <input class="btn btn-secondary" type="submit" value="Post">
+                </form>
+            </div>
+            {% endif %}
+            {%endfor%}
+            {% if not reviews %}
+                No reviews
+            {% else %}
+            {%for review in reviews%}
+            <div class="patron-review">
+                <i><a href="{% url 'patronlookup' review.username %}">{{review.username}}</a> - {{review.created|naturalday}}</i>
+                <p>{{review.review.html|safe}}</p>
+            </div>
+            {%endfor%}
+        {%endif%}
     </div>
-
+    </div>
+    
 <script async src="https://cse.google.com/cse.js?cx=f3232ba54e42b456d">
 </script>
 {% endblock %}

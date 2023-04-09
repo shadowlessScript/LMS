@@ -14,8 +14,8 @@ def start():
         max_instances=1,
         replace_existing=True, 
         )    
-    scheduler.start()
-    scheduler.shutdown()
+    # scheduler.start()
+    # scheduler.shutdown()
     scheduler.add_job(
         FineCalculation, 
         trigger=CronTrigger(minute="*/30"),
@@ -23,8 +23,8 @@ def start():
         max_instances=1,
         replace_existing=True, 
         )
-    scheduler.start()
-    scheduler.shutdown()
+    # scheduler.start()
+    # scheduler.shutdown()
     scheduler.add_job(
         SendReminder, 
        trigger=CronTrigger(minute="*/40"),
@@ -33,5 +33,5 @@ def start():
         replace_existing=True, 
         )
     scheduler.start()
-    scheduler.shutdown()
+    # scheduler.shutdown()
     # scheduler.shut    down()

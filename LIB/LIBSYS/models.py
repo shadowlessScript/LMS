@@ -4,7 +4,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from datetime import datetime,timedelta
 from django.core.validators import MaxValueValidator, MinValueValidator
-
+from django.contrib.auth.admin import UserAdmin
+# from django.contrib.auth.models import User
 
 #variables
 online = 'ebook'
@@ -66,6 +67,16 @@ TYPE_OF_EXAM = [
 
 # Create your models here.
 # model for adding books
+# class CustomUserAdmin(User):
+#     # def formfield_for_foreignkey(self, db_field, request, **kwargs):
+#     #     if db_field.name == "user_permissions":
+#     #         return None
+#     #     return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+#     def get_queryset(self, request):
+#         qs = super().get_queryset(request)
+#         # Exclude the superuser from the dropdown menu
+#         return qs.exclude(is_superuser=True)
 class AddBook(models.Model): 
     title = models.CharField(max_length=90) 
     Author = models.CharField(max_length=50)
@@ -119,6 +130,9 @@ class Booking(models.Model):
 def expiry():
     '''This function sets the expiry date for a book'''
     return datetime.today() + timedelta(days=15)
+
+def filter_out_admin():
+    return User.objects.filter(staff_status=False)
 
 class IssueBook(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE,)
@@ -176,4 +190,10 @@ class Bookmark(models.Model):
 class History(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE)
     serial_number = models.ForeignKey(AddBook, on_delete=models.CASCADE)
-    checked_at = models.DateField(auto_now=True)
+    checked_at = models.DateTimeField(auto_now=True)
+
+class BookReview(models.Model):
+    book = models.ForeignKey(AddBook, related_name='reviews',on_delete=models.CASCADE)
+    username = models.ForeignKey(User, on_delete=models.CASCADE)
+    review = QuillField()
+    created = models.DateTimeField(auto_now_add=True)

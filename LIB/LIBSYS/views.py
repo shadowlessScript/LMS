@@ -4,13 +4,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from PIL import Image
-from .forms import AddBookForm, NewsForm, IssueBookForm, BookAcquisitionRequestForm, ExamForm, ExtendBookForm, RatingForm
-from .models import AddBook,New, Booking, IssueBook, BookAcquisitionRequest, ReturnedBook, Exam, Fine, Rating, Bookmark, History
+from .forms import AddBookForm, NewsForm, IssueBookForm, BookAcquisitionRequestForm, ExamForm, ExtendBookForm, RatingForm, BookReviewForm
+from .models import AddBook,New, Booking, IssueBook, BookAcquisitionRequest, ReturnedBook, Exam, Fine, Rating, Bookmark, History, BookReview
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.mail import send_mail
 from django.conf import settings
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from django.db.models import Q
 from scholarly import scholarly, ProxyGenerator
 from django_daraja.mpesa.core import MpesaClient
@@ -91,8 +91,8 @@ def index(request):
     }
    
     if not request.user.is_anonymous:
-        patron_history = History.objects.filter(username=request.user).order_by('checked_at')
-        context['history'] = patron_history[:6]
+        patron_history = History.objects.filter(username=request.user).order_by('-checked_at')
+        context['history'] = patron_history[:5]
 
     if request.user.is_superuser:
         return render(request,"mainAdmin.html", context)
@@ -280,12 +280,17 @@ def bookView(request, serial_number):
 
     whichbook = AddBook.objects.filter(serial_number=serial_number)
     patron_bookmark = Bookmark.objects.filter(username=request.user, book=serial_number)
+    reviews = BookReview.objects.filter(book=serial_number)
     has_history = History.objects.filter(username=request.user, serial_number=serial_number).exists()
     if not has_history:
         create_history = History.objects.create(username=request.user, serial_number_id=serial_number)
         create_history.save()
+    else:
+        for i in History.objects.filter(username=request.user, serial_number=serial_number):
+            i.checked_at = datetime.now()
+            i.save()
     # print(whichbook[0].Author)
-    context = {'Book': whichbook, 'bookmark': patron_bookmark}
+    context = {'Book': whichbook, 'bookmark': patron_bookmark, 'reviews': reviews}
     try:
         search_query = scholarly.search_author(f'{whichbook[0].Author}')
         author = scholarly.fill(next(search_query))
@@ -425,24 +430,33 @@ def issueBook(request):
             buf = form.save(commit=False) # hold from saving the posted info
             if buf.isbn.copies > 0:
                 # condition for checking number of copies and decrementing
-                
-                book = AddBook.objects.filter(serial_number=form.cleaned_data['isbn'].serial_number)
-                for x in book:
-                    x.copies -=  1
-                    x.save()
-                    #print(x.copies)
-                buf.save()
                 patron = form.cleaned_data['username']
-                mails = User.objects.get(username=patron).email
-                print(mails)
-                send_mail(
-                    f'{form.cleaned_data["isbn"]}',
-                    f' Hi {patron}, you have been given {form.cleaned_data["isbn"]}, the due date is {form.cleaned_data["due_date"]}',
-                    'settings.EMAIL_HOST_USER',
-                    [mails],
-                    fail_silently=False
-                    )
-                messages.success(request, f'{form.cleaned_data["isbn"]} has been given to {form.cleaned_data["username"]}')
+                book = form.cleaned_data['isbn'].serial_number
+                check_patron = IssueBook.objects.filter(username=patron, isbn=book).exists()
+                if not check_patron:
+                    patron_borrowed_books = IssueBook.objects.filter(username=patron)
+                    
+                    if len(patron_borrowed_books) < 3: 
+                        book = AddBook.objects.filter(serial_number=form.cleaned_data['isbn'].serial_number)
+                        for x in book:
+                            x.copies -=  1
+                            x.save()
+                            #print(x.copies)
+                        buf.save()                
+                        mails = User.objects.get(username=patron).email
+                        print(mails)
+                        send_mail(
+                            f'{form.cleaned_data["isbn"]}',
+                            f' Hi {patron}, you have been given {form.cleaned_data["isbn"]}, the due date is {form.cleaned_data["due_date"]}',
+                            'settings.EMAIL_HOST_USER',
+                            [mails],
+                            fail_silently=False
+                            )
+                        messages.success(request, f'{form.cleaned_data["isbn"]} has been given to {form.cleaned_data["username"]}')
+                    else:
+                        messages.success(request, f'{form.cleaned_data["username"]} has reached the maximum number of books borrowed!')
+                else:
+                    messages.success(request, f'{form.cleaned_data["username"]} already has {form.cleaned_data["isbn"].title}')
             else:
                 messages.success(request, "No more books are available in the DB how is this possible")
             
@@ -701,3 +715,50 @@ def bookmark(request, book):
         patron_bookmark.save()
         return redirect('bookview', book)
 
+@login_required
+def removebookmark(request, id):
+    book = Bookmark.objects.get(id=id)
+    serial_number = book.book.serial_number
+    print(f'/removebookmark/{book.id}/')
+    # if _path == f'/mypage/':
+    if request.path == f"/removebookmark/{book.id}/":  
+        messages.success(request, f'{book.book.title} has been removed from your bookmark list')
+        book.delete()
+        return redirect('mypage')
+    elif request.path == f"/removebmk/{book.id}/":
+        messages.success(request, f'{book.book.title} has been removed from your bookmark list')
+        book.delete()
+        return redirect('bookview', serial_number)
+    # return redirect('mypage')
+
+@login_required
+def reviewbook(request, serial_number):
+    # populate like the bookview page the patron was in
+    whichbook = AddBook.objects.filter(serial_number=serial_number)
+    if request.method == 'POST':
+        try:
+            t = BookReview.objects.get(book=serial_number, username=request.user.id)
+            # update the existing rating of the patron
+            form = BookReviewForm(request.POST, instance=t)
+            if form.is_valid():
+                buf = form.save(commit=False)
+                buf.username = request.user
+                buf.book_id = serial_number
+                buf.save()
+                return redirect('bookview', serial_number)
+        except:
+            form = BookReviewForm(request.POST)
+            if form.is_valid():
+                buf = form.save(commit=False)
+                buf.username = request.user
+                buf.book_id = serial_number
+                buf.save()
+                return redirect('bookview', serial_number)
+    try:
+        # will be used check if patron has already reviewed this book
+        t = BookReview.objects.get(book=serial_number, username=request.user.id)
+        form = BookReviewForm(instance=t)
+        return render(request, 'shelfs/bookview.html', {'reviewform': form, 'Book': whichbook})
+    except:
+        # first time reviewing/commenting it
+        return render(request, 'shelfs/bookview.html', {'reviewform': BookReviewForm(), 'Book': whichbook})

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %} patron profile's {%endblock%}
+{% block content %}
+    <div class='container'>
+        {% for patron in patron %}
+            {% if patron.profile_pic %}<img src="{{patron.profile_pic.url}}" width='120px' height='120px'>{%endif%}
+            {{patron.user.username}}
+            {{patron.bio}}
+        {% endfor %}
+    </div>
+{% endblock %}

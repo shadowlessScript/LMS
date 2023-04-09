@@ -1,7 +1,7 @@
 # from dataclasses import fie ld
 from dataclasses import fields
 from django import forms
-from .models import New, AddBook,IssueBook, BookAcquisitionRequest, Exam, Rating
+from .models import New, AddBook,IssueBook, BookAcquisitionRequest, Exam, Rating, BookReview
 from django_quill.forms import QuillFormField
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -20,6 +20,25 @@ from .models import GENRE
 
 
 # from django.forms import ModelForm
+class UserDropdownField(forms.ModelChoiceField):
+    # this removes the admin and staff from the list of users.
+    def label_from_instance(self, user):
+        return f"{user.get_full_name()} ({user.username})"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        queryset = User.objects.filter(is_superuser=False, is_staff=False)
+        self.queryset = queryset.order_by('username')
+
+class PhysicalBookDropdownField(forms.ModelChoiceField):
+    # this removes ebooks from the list of books that can be issued.
+    def label_from_instance(self, book):
+        return f"{book.title}"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        queryset = AddBook.objects.filter(state__contains='print')
+        self.queryset = queryset.order_by('title')
 
 class CreateUserForm(UserCreationForm):
     class Meta:
@@ -61,20 +80,26 @@ class NewsForm(forms.ModelForm):
 
 
 class IssueBookForm(forms.ModelForm):
+    username = UserDropdownField(queryset=User.objects.all())
     class Meta:
         model = IssueBook
         fields = "__all__"
+    # isbn = forms.ModelChoiceField(queryset=AddBook.objects.all(), widget=forms.Select(attrs={'class': 'form-select'}))
+    # due_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}))
+    isbn = PhysicalBookDropdownField(queryset=AddBook.objects.all(), widget=forms.Select(attrs={'class': 'form-select'}))
+    username = UserDropdownField(queryset=User.objects.all(), widget=forms.Select(attrs={'class': 'form-select'}))
 
     def __init__(self, *args, **kwargs):
         super(IssueBookForm, self).__init__(*args, **kwargs)
-        self.fields['username'].widget.attrs['class'] = 'form-select'
-        self.fields['isbn'].widget.attrs['class'] = 'form-select'
+        # self.fields['username'].disabled = True
+        # self.fields['isbn'].widget.attrs['class'] = 'form-select'
         self.fields['due_date'].disabled = True
 
 class BookAcquisitionRequestForm(forms.ModelForm):
     class Meta:
         model = BookAcquisitionRequest
         fields = ('book_title', 'author', 'publisher')
+    
 
     def __init__(self, *args, **kwargs):
         super(BookAcquisitionRequestForm, self).__init__(*args, **kwargs)
@@ -118,3 +143,10 @@ class RatingForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(RatingForm, self).__init__(*args, **kwargs)
+
+class BookReviewForm(forms.ModelForm):
+    class Meta:
+        model = BookReview
+        fields = ['review']
+
+    

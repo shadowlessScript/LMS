@@ -8,5 +8,6 @@ urlpatterns = [
    path('profile/', views.profile, name='profile'),
    path('password/', auth_view.PasswordChangeView.as_view(template_name="authenticate/change-password.html")),
    path('payfine/', views.payfine, name='payfine'),
+   path('@/<str:username>', views.patronlookup, name='patronlookup'),
    # path('mpesa/stk_push/', views.stk_push_callback, name='stk_push_callback'),
 ]

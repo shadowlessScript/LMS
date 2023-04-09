@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django_quill',
     'django_daraja',
     'django_apscheduler', # trying to replace cron job
+    'django.contrib.humanize',
 
 ]
 

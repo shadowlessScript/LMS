@@ -58,7 +58,7 @@
               {%endif%}
               <li>
                   {% if user.profile.profile_pic %}<img src="{{user.profile.profile_pic.url}}" class='prof-pic' />{%else%}
-                  <img src="../media/images/profile_pic/22/default.jpg" class='prof-pic' />{% endif %}
+                  <img src="{% static 'images/cool.png' %}" class='prof-pic' />{% endif %}
               <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                       {{user}}
