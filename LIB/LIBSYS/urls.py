@@ -39,6 +39,10 @@ urlpatterns = [
     path('removebookmark/<int:id>/', views.removebookmark, name='removebmk'),
     path('removebmk/<int:id>/', views.removebookmark, name='removebmrk'),
     path('reviewbook/<str:serial_number>/', views.reviewbook, name="reviewbook"),
+    path('manageexamrepo', views.examrepomanage, name='manageexamrepo'),
+    path('updateexam/<int:id>', views.updateexam, name='updateexam'),
+    path('deleteexam/<int:id>', views.deleteexam, name='deleteexam'),
+    path('deletebookquest/<int:id>', views.deletebookquest, name='deletequest')
     # mpesa push
     # path('mpesa/stk_push/', views.stk_push_callback, name='stk_push_callback'),
 

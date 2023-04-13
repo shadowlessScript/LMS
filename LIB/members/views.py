@@ -16,7 +16,9 @@ def login_user(request):
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
-        if user is not None:            
+        if user is not None:   
+            print('post request')
+
             login(request, user)
             # Redirect to a success page.  
             return redirect('home')         
@@ -90,42 +92,42 @@ def payfine(request):
     x = Profile.objects.filter(user=request.user)
     for c in x:
         phonenumber = c.number
-    # cl = MpesaClient()
-    # # Use a Safaricom phone number that you have access to, for you to be able to view the prompt.
-    # phone_number = phonenumber
-    # amount = 1
-    # account_reference = 'reference'
-    # transaction_desc = 'Pay your fine!'
-    # callback_url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
+    cl = MpesaClient()
+    # Use a Safaricom phone number that you have access to, for you to be able to view the prompt.
+    phone_number = phonenumber
+    amount = 1
+    account_reference = 'reference'
+    transaction_desc = 'Pay your fine!'
+    callback_url = 'https://api.darajambili.com/express-payment'
     # r = 'https://sandbox.safaricom.co.ke/mpesa/transactionstatus/v1/query' 
-    # response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
+    response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
     # result = cl.stk_push(phone_number, amount, account_reference, transaction_desc, r)
-    # print([x for x in response])
-    # # return HttpResponse(response)
-    # data = request.body
+    print([x for x in response])
+    return HttpResponse(response)
+    data = request.body
 
     # return HttpResponse(response, result)
 
     # initiate transcation using tinypesa
-    url = "https://tinypesa.com/api/v1/express/initialize" # API endpoint for tinypesa
+    # url = "https://tinypesa.com/api/v1/express/initialize" # API endpoint for tinypesa
     
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "ApiKey": "4OzXOaySC7S"
-    }
+    # headers = {
+    #     "Content-Type": "application/x-www-form-urlencoded",
+    #     "ApiKey": "4OzXOaySC7S"
+    # }
 
-    payload = {
-        'amount': 1,
-        'msisdn': phonenumber,
-        "callback_url": "https://your-callback-url.com" 
+    # payload = {
+    #     'amount': 1,
+    #     'msisdn': phonenumber,
+    #     "callback_url": "https://your-callback-url.com" 
         
-    }
-    response = requests.post(url, headers=headers, data=json.dumps(payload))
-    if response.status_code == 201:  # check if the request was successful
-        data = response.json()  # get the JSON response data
-        return HttpResponse(data)  # print the response data
-    else:
-        return HttpResponse(f"Error: {response.status_code}")  # print the error code if the request was unsuccessful
+    # }
+    # response = requests.post(url, headers=headers, data=json.dumps(payload))
+    # if response.status_code == 201:  # check if the request was successful
+    #     data = response.json()  # get the JSON response data
+    #     return HttpResponse(data)  # print the response data
+    # else:
+    #     return HttpResponse(f"Error: {response.status_code}")  # print the error code if the request was unsuccessful
 
 
 

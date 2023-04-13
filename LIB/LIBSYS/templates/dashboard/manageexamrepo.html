@@ -1,0 +1,8 @@
+{%extends 'dashboard/dashboard.html'%}
+{%block task%}
+<ol>
+{%for exam in exams%}
+    <li><strong>{{exam.unit_name}}, {{exam.unit_code}}, {{exam.year}}</strong><a href='{% url "updateexam" exam.id %}'>update</a> <a href='{% url "deleteexam" exam.id %}'>delete</a></li>
+{%endfor%}
+</ol>
+{%endblock%}

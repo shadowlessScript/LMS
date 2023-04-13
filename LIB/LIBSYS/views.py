@@ -90,7 +90,7 @@ def index(request):
     'storys': posts,    
     }
    
-    if not request.user.is_anonymous:
+    if not request.user.is_anonymous:        
         patron_history = History.objects.filter(username=request.user).order_by('-checked_at')
         context['history'] = patron_history[:5]
 
@@ -181,7 +181,7 @@ def ListOfBooks(request):
         # Normalize user-item matrix
         matrix_norm = matrix.subtract(matrix.mean(axis=1), axis='rows')
         # User similarity matrix using Pearson correlation
-        user_similarity = matrix_norm.T.corr(method='kendall', min_periods=1)
+        user_similarity = matrix_norm.T.corr(method='pearson', min_periods=1)
         print(user_similarity)
         # Pick a user ID
         # check if user has rated any book
@@ -199,7 +199,7 @@ def ListOfBooks(request):
             n = 10
 
             # User similarity threashold
-            user_similarity_threshold = 0.0
+            user_similarity_threshold = 0.5
 
             # Get top n similar users
             similar_users = user_similarity[user_similarity[picked_userid] >= user_similarity_threshold][
@@ -251,16 +251,31 @@ def ListOfBooks(request):
             for k in ranked_item_score['book']:
                 if k != 1:
                     recommended_list.append(AddBook.objects.filter(serial_number=k))
-            print(recommended_list)
-            return render(request, "shelfs/book.html", {
-                'Books': b,
-                'Genres': genreList(genre),
-                'recommendedbooks': recommended_list,
-            })
+            if recommended_list != []:
+                return render(request, "shelfs/book.html", {
+                    'Books': b,
+                    'Genres': genreList(genre),
+                    'recommendedbooks': recommended_list,
+                })
+            
         else:
-            return render(request, "shelfs/book.html", {
-                'Books': b,
-                'Genres': genreList(genre),
+            r = content_based_recommender_sys(request)
+            content_based_list = []
+            print(r)
+            for title in r[1]:
+                content_based_list.append(AddBook.objects.filter(title=title))
+            print(content_based_list)
+            if content_based_list:
+                return render(request, "shelfs/book.html", {
+                    'Books': b,
+                    'Genres': genreList(genre),
+                    'recommendedbooks': content_based_list,
+                    'rectitle': r[0],
+                })
+            else:
+                return render(request, "shelfs/book.html", {
+                    'Books': b,
+                    'Genres': genreList(genre),
             })
 
 
@@ -353,7 +368,7 @@ def Filter(request, genre):
 def search_book(request):
     if request.method == 'POST':
         searched_books = request.POST['searched_books']  
-        books = AddBook.objects.filter(title__contains=searched_books) 
+        books = AddBook.objects.filter(Q(title__contains=searched_books)|Q(Author__contains=searched_books)|Q(serial_number__contains=searched_books)) 
         if books == []:
             print(books)     
         return render(request, 'search_books.html',{'searched': searched_books, 'Books': books})
@@ -526,7 +541,9 @@ def questCompleted(request, id):
 def returnedBook(request, id):
     # the book's details are moved to return book model and deleted from IssueBook model
     book = IssueBook.objects.get(id=id)
-
+    hydrate = AddBook.objects.get(pk=book.isbn.serial_number)
+    hydrate.copies += 1
+    hydrate.save()
     returned = ReturnedBook(username=book.username, serial_number=book.isbn)
     returned.save()
     # patron = book.username
@@ -692,6 +709,7 @@ def finepaid(request, id):
 @staff_member_required
 def returnfinedbook(request, id):
     fined_book = Fine.objects.get(id=id)
+    patron_mail = fined_book.username.email
     # check if fine has been paid
     if fined_book.status == 'Paid':
         returned = ReturnedBook(username=fined_book.username, serial_number=fined_book.serial_number)
@@ -699,8 +717,16 @@ def returnfinedbook(request, id):
         print(fined_book)
         messages.success(request, f'{fined_book.username.first_name} {fined_book.username.last_name} has returned their book.')
         fined_book.delete()
-
+        send_mail(
+            f'{fined_book.serial_number.title}',
+            f' Hi {fined_book.username.first_name} {fined_book.username.last_name}, you have returned your over due book: {fined_book.serial_number.title}, \n on  '
+            f'{datetime.today()}. \n \n served by: {request.user.first_name}  {request.user.last_name}',
+            'settings.EMAIL_HOST_USER',
+            [patron_mail],
+            fail_silently=False
+        )
     else:
+        print(patron_mail)
         messages.success(request, f'{fined_book.username.first_name} {fined_book.username.last_name} has not paid their fine.')
     return redirect('overdue')
 
@@ -762,3 +788,89 @@ def reviewbook(request, serial_number):
     except:
         # first time reviewing/commenting it
         return render(request, 'shelfs/bookview.html', {'reviewform': BookReviewForm(), 'Book': whichbook})
+@staff_member_required
+def examrepomanage(request):
+    exams = Exam.objects.all()
+    print(exams)
+    return render(request, 'dashboard/manageexamrepo.html', {'exams': exams})
+@staff_member_required
+def updateexam(request,id):
+    exams = Exam.objects.get(id=id)
+    if request.method == 'POST':
+        exams = Exam.objects.get(id=id)
+        form = ExamForm(request.POST, request.FILES, instance=exams)
+        if form.is_valid():
+            buf = form.save(commit=False)
+            buf.added_by = request.user
+            buf.save()
+            messages.success(request, 'Exam has been updated!')
+            return redirect('manageexamrepo')
+
+    form = ExamForm(instance=exams)
+    
+    return render(request, 'dashboard/updateexam.html', {'form': form })
+@staff_member_required
+def deleteexam(request,id):
+    exam = Exam.objects.get(id=id)
+    exam.delete()
+    messages.success(request, 'Exam has been deleted!')
+    return redirect('manageexamrepo')
+@login_required
+def deletebookquest(request, id):
+    quest = BookAcquisitionRequest.objects.get(id=id)
+    quest.delete()
+    messages.success(request, 'Book request deleted!')
+    return redirect('mypage')
+
+def content_based_recommender_sys(req):
+    import pandas as pd
+    import numpy
+    from sklearn.feature_extraction.text import TfidfVectorizer as Tfidf
+    from sklearn.metrics.pairwise import linear_kernel
+
+    books_repo = pd.DataFrame(list(AddBook.objects.all().values()))   
+    patron_history = History.objects.filter(username=req.user).exists()
+    patron_circulation = ReturnedBook.objects.filter(username=req.user).exists()
+    patron_borrowed_books = IssueBook.objects.filter(username=req.user).exists()
+    patrons_bookmarks = Bookmark.objects.filter(username=req.user).exists()
+    if patrons_bookmarks:
+        patrons_bookmarks = Bookmark.obejcts.filter(username=req.user)
+        get_title = patrons_bookmarks[len(patrons_bookmarks)-1].book.title
+        msg = f'Recommendation based on your bookmarks'
+    elif patron_history:
+        patron_history = History.objects.filter(username=req.user)
+        get_title = patron_history[len(patron_history)-1].serial_number.title
+        msg = f'Because you viewed {get_title}'
+    elif patron_circulation:
+        patron_circulation = ReturnedBook.objects.filter(username=req.user)
+        get_title = patron_circulation[len(patron_circulation)-1].serial_number.title
+        msg = f'Based on recent return history "{get_title}"'
+    elif patron_borrowed_books:
+        patron_borrowed_books = IssueBook.objects.filter(username=req.user)
+        get_title = patron_borrowed_books[len(patron_borrowed_books)-1].isbn.title
+        msg = f'Because you borrowed {get_title}'
+    
+    
+    tfidf = Tfidf(stop_words='english')
+    books_repo['description'] = books_repo['description'].fillna('')
+    description = books_repo['description']
+    tfidf_matrix = tfidf.fit_transform(description)
+    # cosine sim
+    cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
+    indices = pd.Series(books_repo.index, index=books_repo['title']).drop_duplicates()
+
+    # print(indices['EFFECTS OF PRACTICAL WORK ON STUDENTS’ ACHIEVEMENT'])
+    def get_recommendations(title, cosine_sim=cosine_sim):
+        ind = indices[title]
+        sm_list = [msg]        
+        sim_score = enumerate(cosine_sim[ind])
+        sim_score = sorted(sim_score, key=lambda x:x[1], reverse=True)
+        sim_score = sim_score[1:11] # this will show the top ten books similar to target, while not having the target in the list
+        cleaned_sim_score = [x for x in sim_score if x[1] >= 0.05]
+        for i in sim_score:
+            print(i[1])
+        sim_index = [i[0] for i in cleaned_sim_score]
+        rec_list = books_repo['title'].iloc[sim_index]
+        sm_list.append(rec_list)
+        return sm_list
+    return get_recommendations(get_title)

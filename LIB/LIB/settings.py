@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'django_daraja',
     'django_apscheduler', # trying to replace cron job
     'django.contrib.humanize',
-
+    'crispy_forms',
 ]
 
 # adding cron Jobs
@@ -161,8 +161,8 @@ MPESA_ENVIRONMENT = 'sandbox'
 
 # Credentials for the daraja app
 
-MPESA_CONSUMER_KEY = '4Sr4SB3f8NOvSqpuuki9dAYDc2Xrq3Em'
-MPESA_CONSUMER_SECRET = 'SiBXNERjzJq6v9qS'
+MPESA_CONSUMER_KEY = 'lGhzONEj1MEjBnZyn2wZ21jvfPZ6O22n'
+MPESA_CONSUMER_SECRET = ' KRAEnt8gJgBc3dbX'
 
 #Shortcode to use for transactions. For sandbox  use the Shortcode 1 provided on test credentials page
 
@@ -197,3 +197,8 @@ MPESA_INITIATOR_SECURITY_CREDENTIAL = 'Safaricom999!*!'
 
 # APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 # APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
+
+# CSRF_COOKIE_SECURE = True
+# # SESSION_COOKIE_SECURE = True
+# SESSION_COOKIE_SAMESITE = 'None'
+# CSRF_COOKIE_SAMESITE = 'None'

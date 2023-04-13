@@ -65,18 +65,7 @@ TYPE_OF_EXAM = [
     ]
 ##### end of variable #####
 
-# Create your models here.
-# model for adding books
-# class CustomUserAdmin(User):
-#     # def formfield_for_foreignkey(self, db_field, request, **kwargs):
-#     #     if db_field.name == "user_permissions":
-#     #         return None
-#     #     return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-#     def get_queryset(self, request):
-#         qs = super().get_queryset(request)
-#         # Exclude the superuser from the dropdown menu
-#         return qs.exclude(is_superuser=True)
+# ----------------- models ----------------------
 class AddBook(models.Model): 
     title = models.CharField(max_length=90) 
     Author = models.CharField(max_length=50)
@@ -93,7 +82,7 @@ class AddBook(models.Model):
     publisher = models.CharField(max_length=150, default='Nami printers', blank=False, null=False)
     co_authors = models.CharField(max_length=240, blank=True, null=True)
     year = models.CharField(max_length=150, default='2010')
-
+    call_number = models.CharField(max_length=150, default="PR 6302 C6 R56")
     def __str__(self):
         return '%s, %s'% (self.title, self.Author)
 

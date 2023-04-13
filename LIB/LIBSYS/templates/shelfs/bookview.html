@@ -51,6 +51,7 @@
                     <h6>Publisher: {{ebook.publisher}}</h6>
                     <h6>Year: {{ebook.year}}</h6><br>
                     Catergory: <a class="genre mt-5" href="{% url 'filtered_view' ebook.genre %}"> {{ebook.genre}}</a>
+                    <p class="mt-4">Call Number: <strong>{{ebook.call_number}}</strong></p>
                     <div>
                     
                     <button type="submit" class="btn btn-primary  mt-3" id="cite-book"><i class="fa-regular fa-quote-left"></i> Cite</button>
@@ -176,7 +177,7 @@
                 No reviews
             {% else %}
             {%for review in reviews%}
-            <div class="patron-review">
+            <div class="patron-review m-2">
                 <i><a href="{% url 'patronlookup' review.username %}">{{review.username}}</a> - {{review.created|naturalday}}</i>
                 <p>{{review.review.html|safe}}</p>
             </div>
