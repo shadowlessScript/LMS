@@ -50,7 +50,7 @@
 
 .book-info-container{
 	margin: 10px;
-	width: 30vw;
+	width: 50vw;
 }
 
 .genre{
@@ -118,7 +118,7 @@
   /* Position the tooltip */
   position: absolute;
   top: 10px;
-  left: 100px;
+  left: 150px;
   z-index: 1;
 
 }
@@ -224,4 +224,10 @@
 	background: white;
 	padding: 2em;
 	height: 500px;
+}
+
+.patron-review{
+	border-radius: 0.3em;
+	border: 1px solid black;
+	padding: 2em;
 }

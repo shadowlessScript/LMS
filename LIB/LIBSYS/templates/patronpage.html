@@ -77,7 +77,7 @@
                     <td style="text-align:center;"><i style="color:black;" class="fa-sharp fa-solid fa-trash"></i></td>
                     {% else %}
                     <td style="color: forestgreen">{{req.status}}</td>
-                    <td style="text-align:center;"><a href="#"><i style="color:red;" class="fa-sharp fa-solid fa-trash"></i></a></td>
+                    <td style="text-align:center;"><a href="{% url 'deletequest' req.id %}"><i style="color:red;" class="fa-sharp fa-solid fa-trash"></i></a></td>
                     {%endif%}
 
 

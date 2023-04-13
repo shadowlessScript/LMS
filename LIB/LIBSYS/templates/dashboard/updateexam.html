@@ -1,0 +1,9 @@
+{% extends 'dashboard/dashboard.html' %}
+{% block task %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{form.as_p}}
+    <input class="btn btn-secondary" id="liveToastBtn" type="submit" value="update">
+</form>
+
+{% endblock %}

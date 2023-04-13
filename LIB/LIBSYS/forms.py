@@ -50,8 +50,8 @@ class AddBookForm(forms.ModelForm):
     # genre = forms.CharField(label='Book\'s genre', widget=forms.Select(choices=GENRE))
     class Meta:
         model = AddBook
-        # fields =('title', 'Author', 'serial_number', 'state','Cover_image','description','genre', 'ebook','copies')
-        fields = '__all__'
+        fields =('title', 'Author', 'serial_number', 'state','Cover_image','description','genre', 'ebook','copies','pages', 'edition', 'publisher', 'co_authors', 'year', 'call_number' )
+        # fields = '__all__'
         
     def __init__(self, *args, **kwargs):
         super(AddBookForm, self).__init__(*args, **kwargs)
@@ -66,6 +66,10 @@ class AddBookForm(forms.ModelForm):
         self.fields['publisher'].widget.attrs['class'] = 'form-control'
         self.fields['co_authors'].widget.attrs['class'] = 'form-control'
         self.fields['year'].widget.attrs['class'] = 'form-control'
+        self.fields['copies'].widget.attrs['class'] = 'form-control'
+        self.fields['call_number'].widget.attrs['class'] = 'form-control'
+        # self.fields['copies_remaining'].widget.hidden()
+
 
 
 class NewsForm(forms.ModelForm):

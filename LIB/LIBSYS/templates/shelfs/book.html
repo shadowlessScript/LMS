@@ -20,7 +20,11 @@
 <center>
 {% if recommendedbooks %}
 <div class="container">
+	{% if rectitle %}
+		<h2>{{rectitle}}</h2>
+	{%else%}
 	<h2>Books recommended for you</h2>
+	{%endif%}
 	{% for checkout in recommendedbooks %}
 		{% for book in checkout %}
 	<div class="book">
