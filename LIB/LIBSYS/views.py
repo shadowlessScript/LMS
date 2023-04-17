@@ -16,7 +16,9 @@ from scholarly import scholarly, ProxyGenerator
 from django_daraja.mpesa.core import MpesaClient
 # from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
-
+from django.forms import inlineformset_factory
+from .recommenders import user_user_collab_filtering, content_based_recommender_sys
+from .helpers import genreList
 # Create your views here.
 def Notfound(request):
     return render(request, '404.html')
@@ -148,135 +150,43 @@ def NewsUpdate(request, id):
 
 @login_required
 def ListOfBooks(request):
-    # Data processing
-    import pandas as pd
-    import numpy as np
-    import scipy.stats
-    from sklearn.metrics.pairwise import cosine_similarity
-
+    
     books = AddBook.objects.all()
     p = Paginator(books.order_by('title'), 10)
     page = request.GET.get('page')
     b = p.get_page(page)
     # genre = AddBook.objects.all()
-    genre = []
-    def genreList(lst):        
-        lst = []
-        for x in books:
-            lst.append(x.genre)
-            # print(lst)
-        return set(lst)
-    if Rating.objects.all().count() != 0:
-        """ Recommender system algo """
-
-        # Convert the data model to a dataframe
-        ratings = pd.DataFrame(list(Rating.objects.all().values()))
-        # renaming the columns of the ratings model to match with the key columns of the Addbook model
-        ratings.rename(columns={"username_id":"username", "serial_number_id":"serial_number"},inplace=True)
-        books_repo = pd.DataFrame(list(AddBook.objects.all().values()))
-        df = pd.merge(ratings, books_repo, on='serial_number', how='inner')
-        agg_ratings = df.groupby('serial_number').agg(mean_rating = ('rate', 'mean'),
-                                                    number_of_rating=('rate', 'count')).reset_index()
-        matrix = df.pivot_table(index='username', columns='serial_number', values='rate')
-        # Normalize user-item matrix
-        matrix_norm = matrix.subtract(matrix.mean(axis=1), axis='rows')
-        # User similarity matrix using Pearson correlation
-        user_similarity = matrix_norm.T.corr(method='pearson', min_periods=1)
-        print(user_similarity)
-        # Pick a user ID
-        # check if user has rated any book
-        print('Hi', request.user)
-        print(Rating.objects.filter(username_id=request.user.id).exists())
-        if Rating.objects.filter(username_id=request.user.id).exists():
-            picked_userid = request.user.id
-
-            # Remove picked user ID from the candidate list
-            user_similarity.drop(index=picked_userid, inplace=True)
-
-            # Take a look at the data
-            print(picked_userid)
-            # Number of similar users
-            n = 10
-
-            # User similarity threashold
-            user_similarity_threshold = 0.5
-
-            # Get top n similar users
-            similar_users = user_similarity[user_similarity[picked_userid] >= user_similarity_threshold][
-                                picked_userid].sort_values(ascending=False)[:n]
-            # Books that the target user has read
-            picked_userid_read = matrix_norm[matrix_norm.index == picked_userid].dropna(axis=1, how='all')
-
-            # Print out top n similar users
-            # print(f'The similar users for user {picked_userid} are', similar_users)
-            # Books that similar users read. Remove books that none of the similar users have read
-            similar_user_books = matrix_norm[matrix_norm.index.isin(similar_users.index)].dropna(axis=1, how='all')
-            # Remove the read books from the book lists
-            similar_user_books.drop(picked_userid_read.columns, axis=1, inplace=True, errors='ignore')
-            # A dictionary to store item scores
-            item_score = {}
-
-            # Loop through items
-            for i in similar_user_books.columns:
-                # Get the ratings for book i
-                book_rating = similar_user_books[i]
-                # Create a variable to store the score
-                total = 0
-                # Create a variable to store the number of scores
-                count = 0
-                # Loop through similar users
-                for u in similar_users.index:
-                    # If the book has rating
-                    if pd.isna(book_rating[u]) == False:
-                        # Score is the sum of user similarity score multiply by the book rating
-                        score = similar_users[u] * book_rating[u]
-                        # Add the score to the total score for the book so far
-                        total += score
-                        # Add 1 to the count
-                        count += 1
-                # Get the average score for the item
-                item_score[i] = total / count
-
-            # Convert dictionary to pandas dataframe
-            item_score = pd.DataFrame(item_score.items(), columns=['book', 'book_score'])
-
-            # Sort the books by score
-            ranked_item_score = item_score.sort_values(by='book_score', ascending=False)
-
-            # Select top m books
-            m = 10
-            ranked_item_score.head(m)
-            ranked_item_score.drop(['book_score'],axis=1, inplace=True, errors='ignore')
-            recommended_list = []
-            for k in ranked_item_score['book']:
-                if k != 1:
-                    recommended_list.append(AddBook.objects.filter(serial_number=k))
-            if recommended_list != []:
-                return render(request, "shelfs/book.html", {
-                    'Books': b,
-                    'Genres': genreList(genre),
-                    'recommendedbooks': recommended_list,
-                })
-            
-        else:
-            r = content_based_recommender_sys(request)
-            content_based_list = []
-            print(r)
-            for title in r[1]:
-                content_based_list.append(AddBook.objects.filter(title=title))
-            print(content_based_list)
-            if content_based_list:
-                return render(request, "shelfs/book.html", {
-                    'Books': b,
-                    'Genres': genreList(genre),
-                    'recommendedbooks': content_based_list,
-                    'rectitle': r[0],
-                })
-            else:
-                return render(request, "shelfs/book.html", {
-                    'Books': b,
-                    'Genres': genreList(genre),
+    
+    recommended_list = user_user_collab_filtering(request)
+    print(recommended_list)
+    if recommended_list:
+        print('tooo')
+        return render(request, "shelfs/book.html", {
+            'Books': b,
+            'Genres': genreList(),
+            'recommendedbooks': recommended_list,
+        })
+        
+    else:
+        r = content_based_recommender_sys(request)
+        content_based_list = []
+        if r:
+            content_based_list = [AddBook.objects.filter(title=title) for title in r[1]]
+        
+        print(content_based_list)
+        if content_based_list:
+            return render(request, "shelfs/book.html", {
+                'Books': b,
+                'Genres': genreList(),
+                'recommendedbooks': content_based_list,
+                'rectitle': r[0],
             })
+        else:
+            
+            return render(request, "shelfs/book.html", {
+                'Books': b,
+                'Genres': genreList(),
+        })
 
 
 
@@ -309,7 +219,7 @@ def bookView(request, serial_number):
     try:
         search_query = scholarly.search_author(f'{whichbook[0].Author}')
         author = scholarly.fill(next(search_query))
-        strip_author = author['publications']
+        strip_author = author['publications'] # seleting dict with publications
         # print(strip_author)
         counter = 0
         pub = []
@@ -346,20 +256,10 @@ def bookView(request, serial_number):
 # creating a filter functionality
 @login_required
 def Filter(request, genre):
-    book_filtered = AddBook.objects.filter(genre = genre)
-    books = AddBook.objects.all()
-    genre = []
-
-    def genreList(lst):
-
-        lst = []
-        for x in books:
-            lst.append(x.genre)
-            # print(lst)
-        return set(lst)
+    book_filtered = AddBook.objects.filter(genre = genre)    
     context = {
         'Book': book_filtered,
-        'Genres': genreList(genre),
+        'Genres': genreList(),
     }
     return render(request, 'shelfs/filter.html', context)
 # end of filter function
@@ -370,7 +270,9 @@ def search_book(request):
         searched_books = request.POST['searched_books']  
         books = AddBook.objects.filter(Q(title__contains=searched_books)|Q(Author__contains=searched_books)|Q(serial_number__contains=searched_books)) 
         if books == []:
-            print(books)     
+            print(books)
+            # BY: BEN MUNYASIA BCSC01/0018/2018
+     
         return render(request, 'search_books.html',{'searched': searched_books, 'Books': books})
     else:
         return render(request, 'search_books.html',{})
@@ -413,7 +315,8 @@ def issuebookrequest(request, id, isbn):
         if form.is_valid():           
             buf = form.save(commit=False) # hold from saving the posted info
             if buf.isbn.copies > 0:
-                # condition for checking number of copies and decrementing
+                # condition for checking number of copies and decrementing. # BY: BEN MUNYASIA BCSC01/0018/2018
+
                 
                 book = AddBook.objects.filter(serial_number=form.cleaned_data['isbn'].serial_number)
                 for x in book:
@@ -478,6 +381,7 @@ def issueBook(request):
             
             return redirect('IssueBook')
     else:
+        # issueset = inlineformset_factory(AddBook, IssueBook, fields=('__all__'))
         form = IssueBookForm()
     context = {}
     context['form'] = form
@@ -490,7 +394,8 @@ def viewIssuedBooks(request):
    page = request.GET.get('page')
    b = p.get_page(page)
    context = {
-       'issues': b,
+       'issues': b, # BY: BEN MUNYASIA BCSC01/0018/2018
+
        }
    return render(request, 'dashboard/viewIssued.html', context)
 
@@ -788,11 +693,13 @@ def reviewbook(request, serial_number):
     except:
         # first time reviewing/commenting it
         return render(request, 'shelfs/bookview.html', {'reviewform': BookReviewForm(), 'Book': whichbook})
+    
 @staff_member_required
 def examrepomanage(request):
     exams = Exam.objects.all()
     print(exams)
     return render(request, 'dashboard/manageexamrepo.html', {'exams': exams})
+
 @staff_member_required
 def updateexam(request,id):
     exams = Exam.objects.get(id=id)
@@ -822,55 +729,10 @@ def deletebookquest(request, id):
     messages.success(request, 'Book request deleted!')
     return redirect('mypage')
 
-def content_based_recommender_sys(req):
-    import pandas as pd
-    import numpy
-    from sklearn.feature_extraction.text import TfidfVectorizer as Tfidf
-    from sklearn.metrics.pairwise import linear_kernel
+@login_required
+def filter_by_author(request, author):
+    get_author_book = AddBook.objects.filter(Author=author) 
+    return render(request, 'shelfs/filter.html', {
+        'Genres': genreList()
+        ,'Book': get_author_book})
 
-    books_repo = pd.DataFrame(list(AddBook.objects.all().values()))   
-    patron_history = History.objects.filter(username=req.user).exists()
-    patron_circulation = ReturnedBook.objects.filter(username=req.user).exists()
-    patron_borrowed_books = IssueBook.objects.filter(username=req.user).exists()
-    patrons_bookmarks = Bookmark.objects.filter(username=req.user).exists()
-    if patrons_bookmarks:
-        patrons_bookmarks = Bookmark.obejcts.filter(username=req.user)
-        get_title = patrons_bookmarks[len(patrons_bookmarks)-1].book.title
-        msg = f'Recommendation based on your bookmarks'
-    elif patron_history:
-        patron_history = History.objects.filter(username=req.user)
-        get_title = patron_history[len(patron_history)-1].serial_number.title
-        msg = f'Because you viewed {get_title}'
-    elif patron_circulation:
-        patron_circulation = ReturnedBook.objects.filter(username=req.user)
-        get_title = patron_circulation[len(patron_circulation)-1].serial_number.title
-        msg = f'Based on recent return history "{get_title}"'
-    elif patron_borrowed_books:
-        patron_borrowed_books = IssueBook.objects.filter(username=req.user)
-        get_title = patron_borrowed_books[len(patron_borrowed_books)-1].isbn.title
-        msg = f'Because you borrowed {get_title}'
-    
-    
-    tfidf = Tfidf(stop_words='english')
-    books_repo['description'] = books_repo['description'].fillna('')
-    description = books_repo['description']
-    tfidf_matrix = tfidf.fit_transform(description)
-    # cosine sim
-    cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
-    indices = pd.Series(books_repo.index, index=books_repo['title']).drop_duplicates()
-
-    # print(indices['EFFECTS OF PRACTICAL WORK ON STUDENTS’ ACHIEVEMENT'])
-    def get_recommendations(title, cosine_sim=cosine_sim):
-        ind = indices[title]
-        sm_list = [msg]        
-        sim_score = enumerate(cosine_sim[ind])
-        sim_score = sorted(sim_score, key=lambda x:x[1], reverse=True)
-        sim_score = sim_score[1:11] # this will show the top ten books similar to target, while not having the target in the list
-        cleaned_sim_score = [x for x in sim_score if x[1] >= 0.05]
-        for i in sim_score:
-            print(i[1])
-        sim_index = [i[0] for i in cleaned_sim_score]
-        rec_list = books_repo['title'].iloc[sim_index]
-        sm_list.append(rec_list)
-        return sm_list
-    return get_recommendations(get_title)

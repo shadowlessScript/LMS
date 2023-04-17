@@ -84,10 +84,10 @@ class NewsForm(forms.ModelForm):
 
 
 class IssueBookForm(forms.ModelForm):
-    username = UserDropdownField(queryset=User.objects.all())
+    # username = UserDropdownField(queryset=User.objects.all())
     class Meta:
         model = IssueBook
-        fields = "__all__"
+        fields = ("username","isbn",'due_date')
     # isbn = forms.ModelChoiceField(queryset=AddBook.objects.all(), widget=forms.Select(attrs={'class': 'form-select'}))
     # due_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}))
     isbn = PhysicalBookDropdownField(queryset=AddBook.objects.all(), widget=forms.Select(attrs={'class': 'form-select'}))

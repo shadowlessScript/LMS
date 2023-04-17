@@ -13,7 +13,8 @@ class TestViews(TestCase):
         self.client.login(username='staffuser', password='testpassword') # librarian login
         
     def test_notfound_get(self):
-      
+        # BY: BEN MUNYASIA BCSC01/0018/2018
+
         response = self.client.get(reverse('404')) # client sending a get request
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, '404.html')
@@ -43,6 +44,7 @@ class TestViews(TestCase):
             'publisher':'shounen jump',
             'co_authors':'none',
             'year':'1998',
+            'call_number':'CR 123 SDE 23',
 
         })# client sending a post request of the book added to the lib DB
         self.assertEquals(response.status_code, 302) # 302 means there is a redirect
@@ -113,3 +115,32 @@ class TestViews(TestCase):
         )
         response = self.client.get(reverse('bookview', args=['OP101']))
         self.assertEquals(response.status_code, 200)
+    def test_ListOfBooks(self):
+        booktest = models.AddBook.objects.create(
+            title = 'One Piece',
+            Author = 'Eichiro Oda',
+            serial_number = 'OP101',
+            copies=12,
+            copies_remaining=12,
+            description='A boy named Monkey D. Luffy wants to be the pirate king',
+            Cover_image='',
+            state='ebook',
+            genre='Novel',
+            ebook='',
+            pages=23,
+            edition='second',
+            publisher='shounen jump',
+            co_authors='none',
+            year='1998',
+            call_number='PR 56 UIW 1'
+        )
+        # patron_circulation_sim = models.History.objects.create(
+        #     username=self.staff_user,
+        #     serial_number=models.AddBook.objects.filter(title__contains='Java')[0].serial_number,            
+        # )
+        response = self.client.get(reverse('books'))
+        self.assertEquals(response.status_code, 200)
+    def test_filter_by_author(self):
+        response = self.client.get(reverse('authorsbooks', args=['Eichiro Oda']))
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, 'shelfs/filter.html')

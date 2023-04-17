@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
 {%load static%}
 {% block style %}<link rel="stylesheet" href="{% static 'books.css' %}">{% endblock %}
-
+{%block title%} 
+	{% for x in Book%}
+		{% if forloop.first %}
+			{{x.Author}} books
+		{%endif%}
+	{%endfor%}
+{%endblock%}
 {% block content %}
 {% url 'filtered_view' as filter_view %}
 
@@ -17,9 +23,11 @@
 		</div>
 	
 	</div>
-
+	
 	<div class="books-container">
 		{% for book in Book %}
+		{% comment %} # BY: BEN MUNYASIA BCSC01/0018/2018 {% endcomment %}
+
 		<div class="book">	
 			{% if book.Cover_image %}
 				<img class="book-cover" src = {{book.Cover_image.url}}/>

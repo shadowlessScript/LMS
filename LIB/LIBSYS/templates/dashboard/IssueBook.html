@@ -2,6 +2,8 @@
 {% block task %}
     <form method="post">
         {% csrf_token %}
+        {{usernames.as_p}}
+        <hr>
         {{form.as_p}}
         <input class="btn btn-secondary" type="submit" value="Issue">
     </form>

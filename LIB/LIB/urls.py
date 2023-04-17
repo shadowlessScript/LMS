@@ -27,3 +27,4 @@ urlpatterns = [
 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# BY: BEN MUNYASIA BCSC01/0018/2018

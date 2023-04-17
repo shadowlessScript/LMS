@@ -45,7 +45,7 @@
                     {% endif %}
                 <div class="book-info-container">
                     <p>{{ebook.description}}</p><br />
-                    <h4>Author: {{ebook.Author}}</h4>
+                    <h4>Author:<a href="{% url 'authorsbooks' ebook.Author %}"> {{ebook.Author}}</a></h4>
                     {% if ebook.co_author %}<h4>Co-Authors: {{ebook.co_author}}</h4>{% endif %}
                     <h6>Pages: {{ebook.pages}}</h6>
                     <h6>Publisher: {{ebook.publisher}}</h6>
