@@ -21,7 +21,7 @@ STATE = [
         (physical,physical),
         (both,both)
     ]
-
+# BY: BEN MUNYASIA BCSC01/0018/2018
 STATUS = [
         (active, 'Active'),
         (overDue, 'Over Due')
@@ -102,7 +102,7 @@ class Fine(models.Model):
     serial_number = models.ForeignKey(AddBook, on_delete=models.CASCADE,)    
     # issuedate = models.DateField(auto_now=True)
     status = models.CharField(max_length=10, choices=FINESTATUS, default='Unpaid')
-    due_date = models.DateField(auto_now_add=True)
+    due_date = models.DateField(default=datetime.today())
     over_due_by = models.IntegerField(default = 10)
     price = models.IntegerField(default = 10)
 
