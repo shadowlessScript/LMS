@@ -7,7 +7,7 @@ from .forms import UserForm,ProfileForm,RegisterUserForm
 from django.contrib.auth.models import User
 from .models import Profile
 from django.contrib.auth.decorators import login_required
-from django_daraja.mpesa.core import MpesaClient
+from django_daraja.mpesa.core import MpesaClient # experiment
 import requests
 import json
 # Create your views here.

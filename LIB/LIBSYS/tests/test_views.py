@@ -140,7 +140,13 @@ class TestViews(TestCase):
         # )
         response = self.client.get(reverse('books'))
         self.assertEquals(response.status_code, 200)
+
     def test_filter_by_author(self):
         response = self.client.get(reverse('authorsbooks', args=['Eichiro Oda']))
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, 'shelfs/filter.html')
+        
+    def test_books_location_GET(self):
+        response = self.client.get(reverse('location'))
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, 'location.html')

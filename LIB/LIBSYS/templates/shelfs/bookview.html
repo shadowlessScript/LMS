@@ -8,9 +8,9 @@
     {% endblock %}
     {% block style %}
     <link rel="stylesheet" href="{% static 'books.css' %}">{% endblock %}
-
+    
     {% block content %}
-
+   
     <div class="container">
         <div class="gcse-search"></div> <!-- Google search bar-->
         {% for ebook in Book %} 
@@ -26,7 +26,7 @@
                         <a href="{% url 'removebmrk' b.id %}"><i class="fa-regular fa-bookmark mark" style="color: coral;"></i></a>
                         {%endfor%}
                     {% else %}
-                        <a href="{% url 'bookmark' ebook.serial_number  %}"><i class="fa-regular fa-bookmark mark"></i></a>
+                        <a href="{% url 'bookmark' ebook.serial_number  %}"><i class="fa-regular fa-bookmark mark fa-bounce"></i></a>
                         {% comment %} <span class="tooltiptext">Bookmark</span> {% endcomment %}
                     {% endif %}
 
@@ -52,6 +52,12 @@
                     <h6>Year: {{ebook.year}}</h6><br>
                     Catergory: <a class="genre mt-5" href="{% url 'filtered_view' ebook.genre %}"> {{ebook.genre}}</a>
                     <p class="mt-4">Call Number: <strong>{{ebook.call_number}}</strong></p>
+                    {% if ebook.state == 'print' %}                    
+                        <h6 class='num-copies'>Copies Available: {{ebook.copies}}</h6>
+                    {% endif %}
+                    {% if ebook.state == 'print/ebook' %}                    
+                    <h6 class='num-copies'>Copies Available: {{ebook.copies}}</h6>
+                    {% endif %}
                     <div>
                     
                     <button type="submit" class="btn btn-primary  mt-3" id="cite-book"><i class="fa-regular fa-quote-left"></i> Cite</button>
@@ -79,6 +85,7 @@
                         <span class="fa fa-star checked"></span>
                         <span class="fa fa-star"></span>
                         <span class="fa fa-star"></span>
+                        <h7>Average rating: {{avg_rate}}</h7>
                     </div>
                     <a href="{% url 'rate' user  ebook.serial_number %}"><button type="submit" class="btn btn-primary  mt-3" id="rate-book">Rate</button></a>
                     {% if form %}
@@ -115,7 +122,7 @@
                         <input value="{{user}}" type="hidden" name='user'>
                         <input class="btn btn-secondary" type="submit" value="Book" >
                     </form>
-                    {{ebook.copies}} Available
+                    
                 {% endif %}
 
                 {% if ebook.state == 'print/ebook' %}
@@ -126,36 +133,27 @@
                         <input class="btn btn-secondary" type="submit" value="Book">
                     </form>
                     {% if ebook.ebook %}
-                    <button id='file-links' class="btn btn-secondary"><a href='{{ebook.ebook.url}}' target="_blank"> Read </a></button><br>
+                    <button id='file-links' class="btn btn-secondary"><a href='{{ebook.ebook.url}}' target="_blank"> Read </a></button>
+                    {% else %}
+                        <div class="alert alert-danger"> Book not yet uploaded to the database contact the Librarian.</div>
                     {% endif %}
-                    {{ebook.copies}} Available
+                    
                 {% endif %}
         {% endfor %}
         {% if pub %}
             <h2>Books Related to {% for i in Book%}{{i.Author}}{%endfor%}</h2>
             <div class="related-to-author">
-
-                <div class = 'info'>
-                    <h3>Publications</h3>
-                    {%for a in pub%}
-                    <p>{{a.title}}</p>
-                    {%endfor%}
-                </div>
-
-                <div class = 'info'>
-                    <h3>Cited By</h3>
-                    {%for c in citedby%}
-                         <p> <a href="{{c}}"> Cited By</a></p>
-                    {%endfor%}
-                </div>
-
-                <div class = 'info'>
-                    <h3>Number of Citations</h3>
-                    {%for n in num%}
-                        <p>{{n}}</p>
-                    {%endfor%}
-                </div>
+                    <div class="spinner container text-center">
+                    <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <div class="spinner-grow" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>                
             </div>
+        {%else%}
+            <h5>{{author404}}</h5>
         {%endif%}
         <div class="reviews mt-5">
             {% for b in Book%}
@@ -191,4 +189,46 @@
 {% endblock %}
 {% block script %}
 <script src="{% static 'JS/cite.js' %}"></script>
+<script>
+    const spinner = document.querySelector('.spinner');
+    const authorsRelatedBooks = document.querySelector('.related-to-author');
+    $(document).ready(async function(){
+        $.ajax({
+        type: 'GET',
+        url: 'http://127.0.0.1:8000/view/{{serial}}/',
+        success: function(res){
+            setTimeout(()=>{
+                spinner.classList.add('no-display');
+                console.log('success')
+                console.log('{{serial}}')
+                authorsRelatedBooks.innerHTML += `<div class = 'info'>
+                    <h3>Publications</h3>
+                    {%for a in pub%}
+                    <p>{{a.title}}</p>
+                    {%endfor%}
+                </div>
+
+                <div class = 'info'>
+                    <h3>Cited By</h3>
+                    {%for c in citedby%}
+                         <p> <a href="{{c}}"> Cited By</a></p>
+                    {%endfor%}
+                </div>
+
+                <div class = 'info'>
+                    <h3>Number of Citations</h3>
+                    {%for n in num%}
+                        <p>{{n}}</p>
+                    {%endfor%}
+                </div>`
+            },300)
+           
+        },
+        error:function(er){
+            console.log("error")
+        }
+    });
+    });
+    
+</script>
 {% endblock %}

@@ -48,7 +48,7 @@
 </div><hr style="border: 2px dashed black;">
 {% endif %}
 <div class="container">
-<div class="d-flex align-content-start flex-wrap ">
+<div class="d-flex align-content-start flex-wrap " id="repo">
 	{% for book in Books %}
 	<div class="book">	
 		{% if book.Cover_image %}
@@ -73,13 +73,13 @@
 	<nav aria-label="Page navigation example" class="nav-pag">
   		<ul class="pagination">
 			{% if Books.has_previous %}
-				<li class="page-item"><a href="?page=1 #news" class="page-link">&laquo First</a></li>
-				<li class="page-item"><a href="?page={{Books.previous_page_number}} #news" class="page-link">{{Books.previous_page_number}}</a></li>
+				<li class="page-item"><a href="?page=1 #repo" class="page-link">&laquo First</a></li>
+				<li class="page-item"><a href="?page={{Books.previous_page_number}} #repo" class="page-link">{{Books.previous_page_number}}</a></li>
 			{% endif %}
-			<li class="page-item"><a class="page-link" href="#">{{Books.number}}</a></li>
+			<li class="page-item active"><a class="page-link" href="#repo">{{Books.number}}</a></li>
 			{% if Books.has_next %}
-				<li class="page-item"><a href="?page={{Books.next_page_number}} #news" class="page-link">{{Books.next_page_number}}</a></li>
-				<li class="page-item"><a href="?page={{Books.paginator.num_pages}} #news" class="page-link">&raquo</a></li>
+				<li class="page-item"><a href="?page={{Books.next_page_number}} #repo" class="page-link">{{Books.next_page_number}}</a></li>
+				<li class="page-item"><a href="?page={{Books.paginator.num_pages}} #repo" class="page-link">&raquo</a></li>
         	{% endif %}
   		</ul>
 	</nav>

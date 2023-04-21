@@ -1,3 +1,6 @@
+*{
+	scroll-behavior: smooth;
+}
 .main-container{
 	margin-top: 20px;
 	width: 70vw;
@@ -118,7 +121,7 @@
   /* Position the tooltip */
   position: absolute;
   top: 10px;
-  left: 150px;
+  left: 210px;
   z-index: 1;
 
 }
@@ -230,4 +233,16 @@
 	border-radius: 0.3em;
 	border: 1px solid black;
 	padding: 2em;
+}
+
+.no-display{
+		display: none;
+}
+
+.num-copies{
+	background-color: bisque;
+	padding: 0.6em;
+	border-radius: 1em;
+	box-shadow: 2px 4px 10px 2px rgba(0, 0, 0, 0.5);
+	width:max-content;
 }
