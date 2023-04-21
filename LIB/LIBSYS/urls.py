@@ -43,7 +43,9 @@ urlpatterns = [
     path('updateexam/<int:id>', views.updateexam, name='updateexam'),
     path('deleteexam/<int:id>', views.deleteexam, name='deleteexam'),
     path('deletebookquest/<int:id>', views.deletebookquest, name='deletequest'),
-    path('authorfilter/<str:author>/', views.filter_by_author, name='authorsbooks')
+    path('authorfilter/<str:author>/', views.filter_by_author, name='authorsbooks'),
+    path('location/', views.books_location, name='location'),
+    path('filterloc/<str:sym>/', views.filterloc, name='filterloc')
     # mpesa push
     # path('mpesa/stk_push/', views.stk_push_callback, name='stk_push_callback'),
 

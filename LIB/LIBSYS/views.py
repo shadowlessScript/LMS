@@ -12,13 +12,40 @@ from django.core.mail import send_mail
 from django.conf import settings
 from datetime import date, datetime, timedelta
 from django.db.models import Q
-from scholarly import scholarly, ProxyGenerator
 from django_daraja.mpesa.core import MpesaClient
 # from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
 from django.forms import inlineformset_factory
 from .recommenders import user_user_collab_filtering, content_based_recommender_sys
-from .helpers import genreList
+from .helpers import genreList, grab_author_details
+import asyncio
+from asgiref.sync import sync_to_async, async_to_sync
+library_of_congress = {
+    'A': 'General Works (encyclopedias, dictionaries, etc.)',
+    'B': 'Philosophy',
+    'BF': 'Psychology',
+    'BL-BX': 'Religion',
+    'C': 'Genealogy, Biography',
+    'D': 'History-General & Eastern Hemispheres',
+    'E-F': 'History--Americas',
+    'G': 'Geography, Anthropology, Recreation',
+    'HB-HJ': 'Business & Economics',
+    'HM-HQ': "Sociology, Family, Women's Studies",
+    'J': 'Political Sciences',
+    'K': 'Law',
+    'L': 'Education',
+    'M': 'Music and books on Music',
+    'N': 'Fine Arts',
+    'P': 'Language & Literature',
+    'Q-QD': 'Math, Physics, Chemistry',
+    'QE': 'Geology',
+    'QH-QK': 'Biology, Botany',
+    'QL-QR': 'Zoology, Physiology, Microbiology',
+    'TA-TK': 'Engineering, Computing',
+    'U': 'Military Science',
+    'V': 'Naval Science',
+    'Z': 'History of Books & Printing, Library Science, Bibliography'
+}
 # Create your views here.
 def Notfound(request):
     return render(request, '404.html')
@@ -158,7 +185,7 @@ def ListOfBooks(request):
     # genre = AddBook.objects.all()
     
     recommended_list = user_user_collab_filtering(request)
-    print(recommended_list)
+    # print(recommended_list)
     if recommended_list:
         print('tooo')
         return render(request, "shelfs/book.html", {
@@ -189,9 +216,11 @@ def ListOfBooks(request):
         })
 
 
-
+# @sync_to_async
 @login_required
+# @async_to_sync
 def bookView(request, serial_number):
+    from statistics import mean
     if request.method == 'POST':
         # this sends a booking request, will be saved in the Booking model
 
@@ -204,6 +233,11 @@ def bookView(request, serial_number):
             messages.success(request, 'Something went wrong ;(')
 
     whichbook = AddBook.objects.filter(serial_number=serial_number)
+    if Rating.objects.filter(serial_number=serial_number).exists():
+        book_rating = Rating.objects.filter(serial_number_id=serial_number)
+        avg_rating = mean([i.rate for i in book_rating])
+    else:
+        avg_rating = 0
     patron_bookmark = Bookmark.objects.filter(username=request.user, book=serial_number)
     reviews = BookReview.objects.filter(book=serial_number)
     has_history = History.objects.filter(username=request.user, serial_number=serial_number).exists()
@@ -215,42 +249,17 @@ def bookView(request, serial_number):
             i.checked_at = datetime.now()
             i.save()
     # print(whichbook[0].Author)
-    context = {'Book': whichbook, 'bookmark': patron_bookmark, 'reviews': reviews}
-    try:
-        search_query = scholarly.search_author(f'{whichbook[0].Author}')
-        author = scholarly.fill(next(search_query))
-        strip_author = author['publications'] # seleting dict with publications
-        # print(strip_author)
-        counter = 0
-        pub = []
-        citedby = []
-        num = []
-
-        for k in strip_author:
-            if counter < 4:
-                for v in k:
-                    if v == 'bib':
-                        pub.append(k[v])
-
-                    elif  v == 'citedby_url':
-                        citedby.append(k[v])
-
-                    elif v == 'num_citations':
-                        num.append(k[v])
-            else:
-                break
-            counter += 1
-        context['pub'] = pub
-        context['citedby'] = citedby
-        context['num'] = num
-
-        # print(save_dict)
-    except:
-        pass
-
-
-
+    context = {
+        'Book': whichbook, 
+        'bookmark': patron_bookmark, 
+        'reviews': reviews, 
+        "serial":serial_number,
+        "avg_rate": avg_rating
+        }
+    # task = asyncio.ensure_future( grab_author_details(context=context, author=whichbook))
+    grab_author_details(context=context, author=whichbook)
     return render(request, 'shelfs/bookview.html', context)
+    # return HttpResponse('Yoo')
 
 
 # creating a filter functionality
@@ -735,4 +744,20 @@ def filter_by_author(request, author):
     return render(request, 'shelfs/filter.html', {
         'Genres': genreList()
         ,'Book': get_author_book})
+
+@login_required
+def books_location(request):    
+
+    locations = AddBook.objects.all()
+    return render(request, 'location.html', {'locations':locations,
+                                              'library_of_congress':library_of_congress
+                                              })
+
+@login_required
+def filterloc(request,sym):
+    get_book_located = AddBook.objects.filter(call_number__istartswith=sym)
+    return render(request, 'location.html', {'locations':get_book_located,
+                                              'library_of_congress':library_of_congress
+                                              })
+   
 

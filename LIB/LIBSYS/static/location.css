@@ -1,0 +1,16 @@
+.lib-cog{
+    cursor: pointer;
+    
+}
+
+.lib-cog-links{
+    text-decoration: none;
+    color: inherit;
+    transition: 0.5s;
+}
+
+.lib-cog:hover .lib-cog-links{
+    text-decoration: underline;
+    color: coral;
+    transition: 0.5s;
+}

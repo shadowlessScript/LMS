@@ -1,0 +1,54 @@
+{%extends 'base.html'%}
+{%block title%}Books Location {%endblock%}
+{% load static %}
+{% block style %}<link rel="stylesheet" href="{% static 'location.css' %}">{% endblock %}
+{% block content %}
+<div class='d-flex flex-row p-4 flex-wrap' >
+    <div class='p-3' style="box-shadow: 2px 4px 10px 2px rgba(0, 0, 0, 0.5);">
+        <i class="fa-solid fa-filter"></i>
+        {%for lib_cog, rep in library_of_congress.items%}
+            <p class="mb-1 lib-cog" ><a class="lib-cog-links"href="{% url 'filterloc' lib_cog %}">{{lib_cog}} : {{rep}}</a></p>
+        {%endfor%}
+    </div>
+    <div class="container">     
+        {%if locations %}
+        <table class="table caption-top table-bordered">
+
+            <caption>
+               Books Locations in the library
+            </caption>
+
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Book's title</th>
+                    <th scope="col">Edition</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Location</th>                    
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for location in locations %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{location.title|truncatewords:4}}</td>
+                    <td>{{location.edition}}</td>
+                    <td>{{location.Author}}</td>
+                    <td><i>{{location.call_number}}</i></td>                  
+
+
+                </tr>
+                {% endfor %}
+
+
+            </tbody>
+        </table>
+        {%else%}
+        <h5>No books in Shelf</h5>
+        {%endif%}
+    </div>
+    
+    
+<div>
+{% endblock %}
