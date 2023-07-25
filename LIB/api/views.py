@@ -36,6 +36,9 @@ def getBookData(request):
 
 @api_view(["GET"])
 def getBookDetails(request, serial_number):
-	items = AddBook.get(serial_number)
-	serializer = BookSerializer(items)
-	return Response(serializer.data)
+	items = AddBook.objects.filter(serial_number=serial_number)
+	if items.exists():
+		serializer = BookSerializer(items, many=True)
+		return Response(serializer.data)
+	else:
+		return Response("Not found")
