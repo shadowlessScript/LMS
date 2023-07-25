@@ -26,7 +26,9 @@ SECRET_KEY = 'django-insecure-c7pep_6q!jvdt3lb1+!1l5#f6ji90a0v&2(_)22fz7&yx#h17l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = ["*"]
+
 
 
 # Application definition
@@ -50,6 +52,7 @@ INSTALLED_APPS = [
     'django_apscheduler', # trying to replace cron job
     'django.contrib.humanize',
     'crispy_forms',
+    "rest_framework",
 ]
 
 # adding cron Jobs
