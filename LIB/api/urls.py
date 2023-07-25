@@ -7,6 +7,6 @@ urlpatterns = [
     path("login/", mobileLogin, name="login_endpoint"),
     path("logout/", mobileLogOut, name="logout_endpoint"),
     path("booksrepo/",getBookData, name="bookRepo_endpoint"),
-    path("bookdetails/<str:serial_number/", getBookDetails, name="bookDetails_endpoint"),
+    path("bookdetails/<str:serial_number>/", getBookDetails, name="bookDetails_endpoint"),
     ]
 
