@@ -70,6 +70,7 @@ def addBookstoShelf(request):
         form = AddBookForm()
     return render(request, 'shelfs/addbooks.html', {"form":form})
 
+
 @staff_member_required(redirect_field_name='next', login_url=None)
 def manageBook(request):
     Book = AddBook.objects.all()
@@ -93,11 +94,13 @@ def updateBook(request,serial_number):
     context['title']=update.title
     return render(request, 'shelfs/updates/updateBooks.html', context)
 
+
 @staff_member_required
 def deleteBook(request, serial_number):
     deleteBook = AddBook.objects.filter(serial_number=serial_number)
     context = {'Book': deleteBook}      
     return render(request, 'shelfs/updates/confirm_delete.html', context)
+
 
 @staff_member_required
 def deleteBookConfirmation(request, serial_number):
@@ -110,7 +113,6 @@ def deleteBookConfirmation(request, serial_number):
 
 # news form down here
 def index(request):
-    
     News = New.objects.all()
     p = Paginator(New.objects.all().order_by('created'), 3)
     page = request.GET.get('page')
