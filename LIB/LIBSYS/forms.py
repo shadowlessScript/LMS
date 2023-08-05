@@ -1,7 +1,7 @@
 # from dataclasses import fie ld
 from dataclasses import fields
 from django import forms
-from .models import New, AddBook,IssueBook, BookAcquisitionRequest, Exam, Rating, BookReview
+from .models import New, AddBook,IssueBook, BookAcquisitionRequest, Exam, Rating, BookReview, Book, BookDetail
 from django_quill.forms import QuillFormField
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -148,9 +148,31 @@ class RatingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(RatingForm, self).__init__(*args, **kwargs)
 
+
 class BookReviewForm(forms.ModelForm):
     class Meta:
         model = BookReview
         fields = ['review']
 
+
+class BookForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = "__all__"
+
+
+class BookDetailForm(forms.ModelForm):
+    class Meta:
+        model = BookDetail
+        fields = (
+            "author", "copies", "description",
+            "cover_image",  "state",  "genre",
+            "ebook",  "pages", "edition",
+            "publisher", "co_authors",  "year",
+            "call_number", "ISBN", "eISBN"
+        )
     
+class BookUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ['title']

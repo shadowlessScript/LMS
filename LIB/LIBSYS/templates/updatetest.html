@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Welcome the to update testing page</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {%csrf_token%}
+        {{bookForm.as_p}}
+        {{bookDetailsForm.as_p}}
+
+        <input type="submit" value="submit"/>
+    </form>
+{% endblock %}

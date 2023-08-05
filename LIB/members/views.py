@@ -7,21 +7,23 @@ from .forms import UserForm,ProfileForm,RegisterUserForm
 from django.contrib.auth.models import User
 from .models import Profile
 from django.contrib.auth.decorators import login_required
-from django_daraja.mpesa.core import MpesaClient # experiment
+# from django_daraja.mpesa.core import MpesaClient # experiment
 import requests
 import json
 # Create your views here.
+
 def login_user(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
+
         user = authenticate(request, username=username, password=password)
-        if user is not None:   
-            print('post request')
+        if user is not None:
 
             login(request, user)
-            # Redirect to a success page.  
-            return redirect('home')         
+            # print("from validation if statement---", password)
+            # # Redirect to a success page.
+            return redirect('home')
         else:
            messages.success(request,'Incorrect username or password')
            return redirect('login')

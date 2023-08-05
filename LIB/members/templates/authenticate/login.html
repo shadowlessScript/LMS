@@ -3,19 +3,41 @@
 {% block content %}
         <div class="container">
             <h2>Login</h2>
-            <form method='post' >
+            <form id="login-form">
                  {% csrf_token %}
                 <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">Username</label>
-                    <input type="text" class="form-control" name="username" aria-describedby="emailHelp" required>
+                    <input type="text" class="form-control user" id = "user" name="username" aria-describedby="emailHelp" required>
                     
                 </div>
                 <div class="mb-3">
                     <label for="exampleInputPassword1" class="form-label">Password</label>
-                    <input type="password" class="form-control" name="password" required>
+                    <input type="password" class="form-control pass" id="pass" name="password" required>
                 </div>
                 <a href="{% url 'register' %}">Not a member?</a><br/>
                 <button type="submit" class="btn btn-primary">Login</button>
             </form>
         </div>
-    {% endblock %}
+{% endblock %}
+{%block script%}
+<script type="text/javascript">
+    $(document).on(`submit`, "#login-form", function(e){
+        e.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "{% url 'login' %}",
+            data:{
+                username: $("#user").val(),
+                password: $("#pass").val(),
+                csrfmiddlewaretoken: "{{csrf_token}}"
+            },
+            success: function(response){
+                 window.location.href = "{% url "home" %}"
+            }
+
+
+
+        });
+    });
+</script>
+{%endblock%}
