@@ -25,7 +25,7 @@ class ProfileForm(forms.ModelForm):
 		
 	class Meta:
 		model = Profile
-		fields = ('profile_pic', 'bio', 'number')
+		fields = ('profile_pic', 'bio', 'number', "affiliation")
 	def __init__(self, *args, **kwargs):
 		super(ProfileForm, self).__init__(*args, **kwargs)
 		self.fields['profile_pic'].widget.attrs['class'] = 'form-control'

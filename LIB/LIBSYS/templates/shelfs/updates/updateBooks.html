@@ -1,4 +1,5 @@
 {% extends 'dashboard/dashboard.html' %}
+{% load crispy_forms_tags %}
 {% block title %} Update {{title}}
     
  {% endblock %}
@@ -15,9 +16,72 @@
   {% endif %}
 <form method="POST" class="container" enctype="multipart/form-data">
     {% csrf_token %}
+        <div class="row">
+          <div class="form-group col-md-4 mb-0">
+            {{ bookForm.title|as_crispy_field }}
+          </div>
+        </div>
 
-    {{form.as_p}}
-    <input class="btn btn-secondary" id="liveToastBtn" type="submit" value="Update">
+        <div class="row">
+          <div class="form-group col-md-4 mb-0">
+            {{ bookDetailsForm.author|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-2 mb-0">
+            {{ bookDetailsForm.copies|as_crispy_field }}
+          </div>
+
+         <div class="form-group col-md-3 mb-0">
+            {{ bookDetailsForm.cover_image|as_crispy_field }}
+          </div>
+        </div>
+        {{bookDetailsForm.description | as_crispy_field}}
+        <div class="row">
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailsForm.state|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailsForm.genre|as_crispy_field }}
+          </div>
+
+         <div class="form-group col-md-3 mb-0">
+            {{ bookDetailsForm.ebook|as_crispy_field }}
+          </div>
+        </div>
+         <div class="row">
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailsForm.pages|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailsForm.edition|as_crispy_field }}
+          </div>
+
+         <div class="form-group col-md-4 mb-0">
+            {{ bookDetailsForm.publisher|as_crispy_field }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailsForm.co_authors|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailsForm.year|as_crispy_field }}
+          </div>
+
+         <div class="form-group col-md-4 mb-0">
+            {{ bookDetailsForm.call_number|as_crispy_field }}
+          </div>
+        </div>
+         <div class="row">
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailsForm.ISBN|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailsForm.eISBN|as_crispy_field }}
+          </div>
+
+        </div>
+
+    <input type="submit" class="btn btn-primary container" value="submit"/>
     <a href="{% url 'manage' %}"><input class="btn btn-info" value="Back"></a>
 </form>
 {% endblock %}

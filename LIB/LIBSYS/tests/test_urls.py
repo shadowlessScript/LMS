@@ -40,7 +40,7 @@ class TestUrls(SimpleTestCase):
 
     def test_books_url_resolves(self):
         url = reverse('books')
-        self.assertEqual(resolve(url).func, views.ListOfBooks)
+        self.assertEqual(resolve(url).func, views.library_repo)
 
     def test_bookview_url_resolves(self):
         url = reverse('bookview', args=['serial_number'])

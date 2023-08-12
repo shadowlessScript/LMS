@@ -19,11 +19,11 @@ from django_daraja.mpesa.core import MpesaClient
 from django.core.paginator import Paginator
 from django.forms import inlineformset_factory
 from .recommenders import user_user_collab_filtering, content_based_recommender_sys
-from .helpers import genreList, grab_author_details
+from .helpers import genreList, grab_author_details,affiliation
 import asyncio
 from asgiref.sync import sync_to_async, async_to_sync
 from .HelperVar import library_of_congress
-
+from members.models import Profile
 
 # Create your views here.
 def Notfound(request):
@@ -32,46 +32,83 @@ def Notfound(request):
 
 @staff_member_required
 def addBookstoShelf(request):
-    if request.method == 'POST':
-        form = AddBookForm(request.POST, request.FILES)
+    bookForm = BookForm()
+    bookDetailForm = BookDetailForm()
 
-        if form.is_valid():
-            buf = form.save(commit=False)
-            buf.copies_remaining = form.cleaned_data['copies']
-            buf.save()
-            messages.success(request, 'Book added successfully!')
-            return redirect('add')
+
+    # print(request.user.profile.affiliation.id)
+    if request.method == "POST":
+        bookForm = BookForm(request.POST)
+        bookDetailForm = BookDetailForm(request.POST, request.FILES)
+
+        if bookDetailForm.is_valid() and bookForm.is_valid():
+            bookFormbuffer = bookForm.save(commit=False)
+            bookFormbuffer.library_id = affiliation(request)
+            buffer = bookDetailForm.save(commit=False)
+            bookFormbuffer.save()
+            buffer.book_id = bookFormbuffer.serial_number
+            # buffer.library_id = is_affiliated.id
+            buffer.save()
+
+            messages.success(request, "Book added successfully")
+            return redirect("add")
         else:
-            messages.success(request, 'Something went wrong, please try again!')
-            return redirect('add')
-    else:
-        form = AddBookForm()
-    return render(request, 'shelfs/addbooks.html', {"form": form})
+            messages.success(request, "Something went wrong")
+            return redirect("add")
+
+    return render(request, 'shelfs/addbooks.html', {
+        "bookForm": bookForm,
+        "bookDetailForm": bookDetailForm,
+        "is_affiliated": affiliation(request),
+    })
 
 
 @staff_member_required(redirect_field_name='next', login_url=None)
 def manageBook(request):
-    Book = AddBook.objects.all()
-    context = {'Books': Book}
+    # branch_books = Book.objects.filter(library=affiliation(request))
+    library_repo = BookDetail.objects.filter(book__library=affiliation(request))
+    # library_repo = BookDetail.objects.filter(book=affiliation(request))
+    context = {'Books': library_repo}
     return render(request, 'shelfs/manage.html', context)
 
 
 @staff_member_required
 def updateBook(request, serial_number):
-    context = {}
-    update = AddBook.objects.get(pk=serial_number)
-    form = AddBookForm(instance=update)
-    if request.method == 'POST':
-        form = AddBookForm(request.POST, request.FILES, instance=update)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f'{form.cleaned_data["title"]} has been updated!')
-            return redirect('manage')
+    book = Book.objects.get(serial_number=serial_number)
+    bookForm = BookUpdateForm(instance=book)
+    bookdetails = BookDetail.objects.get(book=book)
+    bookDetailsForm = BookDetailForm(instance=bookdetails)
+
+    # saving current number of copies in case new books are added
+    total_copies = bookdetails.copies
+
+    if request.method == "POST":
+        bookForm = BookUpdateForm(request.POST, instance=book)
+        bookDetailForm = BookDetailForm(request.POST, request.FILES, instance=bookdetails)
+
+        if bookDetailForm.is_valid() and bookForm.is_valid():
+            bookFormbuffer = bookForm.save(commit=False)
+            buffer = bookDetailForm.save(commit=False)
+            bookFormbuffer.library_id = affiliation(request)
+            if buffer.copies > total_copies:
+                copies_added = buffer.copies - total_copies
+                buffer.copies_remaining += copies_added  # add the difference to the copies remaining in repo
+
+            bookFormbuffer.save()
+            buffer.book_id = bookFormbuffer.serial_number
+            buffer.save()
+
+            messages.success(request, "Book updated successfully")
+            return redirect("manage")
         else:
-            messages.success(request, f'{form.cleaned_data["title"]} has not been updated, please try again!')
-    context['form'] = form
-    context['title'] = update.title
-    return render(request, 'shelfs/updates/updateBooks.html', context)
+            messages.success(request, "Something went wrong")
+            return redirect("manage")
+
+    return render(request, 'shelfs/updates/updateBooks.html', {
+        "bookDetailsForm": bookDetailsForm,
+        "bookForm": bookForm,
+        "title": book.title
+    })
 
 
 @staff_member_required
@@ -160,9 +197,9 @@ def NewsUpdate(request, id):
 
 
 @login_required
-def ListOfBooks(request):
-    books = AddBook.objects.all()
-    p = Paginator(books.order_by('title'), 10)
+def library_repo(request):
+    books = BookDetail.objects.all()
+    p = Paginator(books.order_by('book'), 10)
     page = request.GET.get('page')
     b = p.get_page(page)
     # genre = AddBook.objects.all()
@@ -170,7 +207,7 @@ def ListOfBooks(request):
     recommended_list = user_user_collab_filtering(request)
     # print(recommended_list)
     if recommended_list:
-        print('tooo')
+        # print('tooo')
         return render(request, "shelfs/book.html", {
             'Books': b,
             'Genres': genreList(),
@@ -514,8 +551,11 @@ def examsrepo(request):
 def search_book_RUD(request):
     if request.method == 'POST':
         searched_books = request.POST['search_books']
-        books = AddBook.objects.filter(Q(title__contains=searched_books) | Q(Author__contains=searched_books) | Q(
-            serial_number__contains=searched_books))
+        books = AddBook.objects.filter(
+            Q(title__contains=searched_books) |
+            Q(Author__contains=searched_books) |
+            Q(serial_number__contains=searched_books)
+        )
         return render(request, 'dashboard/search_book_RUD.html', {'searched': searched_books, 'books': books})
     elif request.method == 'GET':
         return redirect('manage')
@@ -670,7 +710,7 @@ def bookmark(request, book):
 def removebookmark(request, id):
     book = Bookmark.objects.get(id=id)
     serial_number = book.book.serial_number
-    print(f'/removebookmark/{book.id}/')
+    # print(f'/removebookmark/{book.id}/')
     # if _path == f'/mypage/':
     if request.path == f"/removebookmark/{book.id}/":
         messages.success(request, f'{book.book.title} has been removed from your bookmark list')
@@ -807,6 +847,7 @@ def testing(request):
         "bookDetailForm": bookDetailForm
     })
 
+
 def update_test(request, serial_number):
     book = Book.objects.get(serial_number=serial_number)
     bookForm = BookUpdateForm(instance=book)
@@ -830,3 +871,10 @@ def update_test(request, serial_number):
             messages.success(request, "Something went wrong")
             return redirect("update_test", serial_number)
     return render(request, "updatetest.html", {"bookDetailsForm": bookDetailsForm, "bookForm": bookForm})
+
+
+def view_library_repo_test(request):
+    library_repo = BookDetail.objects.all()
+    return render(request, "shelfs/libraryRepo.html", {
+        "repo": library_repo
+    })

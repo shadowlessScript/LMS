@@ -1,16 +1,29 @@
 {% extends 'base.html' %}
 {% block title %}Profile Page{% endblock %}
 {% load static %}
-
+{% load crispy_forms_tags %}
 {% block content %}
 <link rel='stylesheet' href="{% static 'profile.css' %}">
 <h2>Edit Profile</h2>
 	{% if user.profile.profile_pic %}<img src="{{user.profile.profile_pic.url}}" class='profile' width="200px" height="200px" />{% endif %}
 	<form method='post' class="container" enctype="multipart/form-data">
              {% csrf_token %}
-                <!-- {{p_form.media}}             -->
-                {{form.as_p}}
-                {{p_form.as_p}}
+        <!-- {{p_form.media}}             -->
+        {{form.username | as_crispy_field}}
+        {{form.first_name |as_crispy_field}}
+        {{form.last_name | as_crispy_field}}
+        {{form.email | as_crispy_field}}
+        {{form.password |as_crispy_field}}
+        {{p_form.profile_pic |as_crispy_field}}
+        {{p_form.bio | as_crispy_field}}
+        {{p_form.number | as_crispy_field}}
+        {%if is_affiliated%}
+                {{p_form.affiliation.as_hidden}}
+            <h4>Affiliation - {{is_affiliated}}</h4>
+            {%else%}
+              {{p_form.affiliation |as_crispy_field}}<i>Cannot be altered once selected. Choose the correct branch.</i>
+        {%endif%}
+
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
 <!--TODO: Add a library selection option for librarians

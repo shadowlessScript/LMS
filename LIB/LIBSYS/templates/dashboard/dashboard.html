@@ -142,13 +142,18 @@
 		}
 		}
 		function overDueCounter(){
-			count4++;
-			document.querySelector("#overdue").innerHTML = count4;
-			// stop the interval
-			if (count4 == {{fines}}){
-				clearInterval(overDue);
-				
+			if ({{fines}} > 1){
+				count4++;
+				document.querySelector("#overdue").innerHTML = count4;
+				// stop the interval
+				if (count4 == {{fines}}){
+					clearInterval(overDue);
+
+				}
+			}else{
+				document.querySelector("#overdue").innerHTML = {{fines}};
 			}
+
 		}
 		function bookingCounter(){
 			count5++;

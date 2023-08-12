@@ -150,3 +150,8 @@ class TestViews(TestCase):
         response = self.client.get(reverse('location'))
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, 'location.html')
+
+    def test_new_repo_GET(self):
+        response = self.client.get(reverse("repo"))
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "shelfs/libraryRepo.html")

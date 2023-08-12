@@ -1,21 +1,87 @@
 
 {%extends 'dashboard/dashboard.html'%}
-   
+   {% load crispy_forms_tags %}
     {%block task%}
-    {% if user.is_authenticated %}
-    <form action="{%url 'add'%}" method="post" enctype="multipart/form-data">
-          
-        {%csrf_token%}
-        
-        <div class="container" >           
-            {{form.as_p}}
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-      </form>
-    {% else %}
+{%if is_affiliated %}
+    <form action="{%url 'add'%}" method="post" enctype="multipart/form-data" class="form-control">
+            {%csrf_token%}
+        <h4 class="mb-5" style="text-align:center;">Add New book to {{is_affiliated}}</h4>
+        <div class="row">
+          <div class="form-group col-md-5 mb-0">
+            {{ bookForm.title|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-5 mb-0">
+            {{ bookForm.serial_number|as_crispy_field }}
+          </div>
 
-      <h2>You not a member</h2>
-      <a href='{% url "login"%}'>Login?</a>
-    {% endif %}
+        </div>
+
+        <div class="row">
+          <div class="form-group col-md-4 mb-0">
+            {{ bookDetailForm.author|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-2 mb-0">
+            {{ bookDetailForm.copies|as_crispy_field }}
+          </div>
+
+         <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.cover_image|as_crispy_field }}
+          </div>
+        </div>
+        {{bookDetailForm.description | as_crispy_field}}
+        <div class="row">
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.state|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.genre|as_crispy_field }}
+          </div>
+
+         <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.ebook|as_crispy_field }}
+          </div>
+        </div>
+         <div class="row">
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.pages|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.edition|as_crispy_field }}
+          </div>
+
+         <div class="form-group col-md-4 mb-0">
+            {{ bookDetailForm.publisher|as_crispy_field }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.co_authors|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.year|as_crispy_field }}
+          </div>
+
+         <div class="form-group col-md-4 mb-0">
+            {{ bookDetailForm.call_number|as_crispy_field }}
+          </div>
+        </div>
+         <div class="row">
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.ISBN|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.eISBN|as_crispy_field }}
+          </div>
+
+        </div>
+        {%comment%}{{bookDetailForm.as_p}}{%endcomment%}
+        <input type="submit" class="btn btn-primary container" value="submit"/>
+    </form>
+{%else%}
+    <div class="container">
+        <h3>You need to select your <a href="{%url 'profile'%}">library</a>.</h3>
+    </div>
+
+{%endif%}
 {%endblock%}
   

@@ -48,18 +48,19 @@
             <div class="col"> </div>  
         </div>
         {% for Book in Books%}
+        {{Book.get_all_field_names}}
         <div class="row" style="display: flex; justify-content:space-around;">
             <div class="col" name="serial_number">
-            {{Book.serial_number}}
+            {{Book.book.serial_number}}
             </div>
-            <div class="col"> {{Book.title|truncatewords:4}}</div>
-            <div class="col">{{Book.Author}}</div> 
+            <div class="col"> {{Book.book.title|truncatewords:4}}</div>
+            <div class="col">{{Book.author}}</div>
             <!-- <div class="col">{{Book.description}}</div>   -->
             <div class="col">  
-                <a href="{% url 'updateBook' Book.serial_number%}"><i style="margin-right: 1em; font-size: 1.4em;"class="fa-solid fa-pen-to-square"></i></a>
+                <a href="{% url 'updateBook' Book.book.serial_number%}"><i style="margin-right: 1em; font-size: 1.4em;"class="fa-solid fa-pen-to-square"></i></a>
                 
 
-                <a href="{% url 'deletebook' Book.serial_number %}"><i style="color: red; font-size: 1.4em;" class="fa-solid fa-trash"></i></i></a>
+                <a href="{% url 'deletebook' Book.book.serial_number %}"><i style="color: red; font-size: 1.4em;" class="fa-solid fa-trash"></i></i></a>
                 
             </div>  
         </div>
