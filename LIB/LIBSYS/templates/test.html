@@ -1,11 +1,87 @@
 {% extends 'base.html' %}
-{% block content %}
-    <h1>Welcome the to testing page</h1>
-    <form method="POST" enctype="multipart/form-data">
-        {%csrf_token%}
-        {{bookForm.as_p}}
-        {{bookDetailForm.as_p}}
+{% load crispy_forms_tags %}
 
-        <input type="submit" value="submit"/>
+{% block content %}
+<section class="container">
+    <h1>Welcome the to testing page</h1>
+    <form method="POST" enctype="multipart/form-data" class="form-control">
+        {%csrf_token%}
+<!--        {{bookForm | crispy}}-->
+
+
+        <div class="row">
+          <div class="form-group col-md-4 mb-0">
+            {{ bookForm.title|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-5 mb-0">
+            {{ bookForm.serial_number|as_crispy_field }}
+          </div>
+
+         <div class="form-group col-md-3 mb-0">
+            {{ bookForm.library|as_crispy_field }}
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="form-group col-md-4 mb-0">
+            {{ bookDetailForm.author|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-2 mb-0">
+            {{ bookDetailForm.copies|as_crispy_field }}
+          </div>
+
+         <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.cover_image|as_crispy_field }}
+          </div>
+        </div>
+        {{bookDetailForm.description | as_crispy_field}}
+        <div class="row">
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.state|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.genre|as_crispy_field }}
+          </div>
+
+         <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.ebook|as_crispy_field }}
+          </div>
+        </div>
+         <div class="row">
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.pages|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.edition|as_crispy_field }}
+          </div>
+
+         <div class="form-group col-md-4 mb-0">
+            {{ bookDetailForm.publisher|as_crispy_field }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.co_authors|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.year|as_crispy_field }}
+          </div>
+
+         <div class="form-group col-md-4 mb-0">
+            {{ bookDetailForm.call_number|as_crispy_field }}
+          </div>
+        </div>
+         <div class="row">
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.ISBN|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-3 mb-0">
+            {{ bookDetailForm.eISBN|as_crispy_field }}
+          </div>
+
+        </div>
+        {%comment%}{{bookDetailForm.as_p}}{%endcomment%}
+        <input type="submit" class="btn btn-primary container" value="submit"/>
     </form>
+</section>
 {% endblock %}

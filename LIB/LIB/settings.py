@@ -53,7 +53,10 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'crispy_forms',
     "rest_framework",
+    "crispy_bootstrap5",
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 # adding cron Jobs
 CRON_CLASSES = [

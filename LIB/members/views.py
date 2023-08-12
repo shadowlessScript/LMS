@@ -1,15 +1,17 @@
-
-from django.shortcuts import render,redirect, HttpResponse
-from django.contrib.auth import authenticate, login,logout
+from django.shortcuts import render, redirect, HttpResponse
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .forms import UserForm,ProfileForm,RegisterUserForm
+from .forms import UserForm, ProfileForm, RegisterUserForm
 from django.contrib.auth.models import User
 from .models import Profile
 from django.contrib.auth.decorators import login_required
+from LIBSYS.models import Library
 # from django_daraja.mpesa.core import MpesaClient # experiment
 import requests
 import json
+
+
 # Create your views here.
 
 def login_user(request):
@@ -25,17 +27,19 @@ def login_user(request):
             # # Redirect to a success page.
             return redirect('home')
         else:
-           messages.success(request,'Incorrect username or password')
-           return redirect('login')
+            messages.success(request, 'Incorrect username or password')
+            return redirect('login')
             # Return an 'invalid login' error message.
-        
+
     else:
-        return render(request, 'authenticate/login.html',{})
+        return render(request, 'authenticate/login.html', {})
+
 
 def logout_user(request):
     logout(request)
-    messages.success(request,'You have logged out!')
+    messages.success(request, 'You have logged out!')
     return redirect('home')
+
 
 def register_user(request):
     if request.method == 'POST':
@@ -53,41 +57,43 @@ def register_user(request):
             return redirect('home')
     else:
         form = RegisterUserForm()
-        
-    return render(request, 'authenticate/register_user.html',{
+
+    return render(request, 'authenticate/register_user.html', {
         'form': form,
-        })
+    })
 
 
 def profile(request):
     # user = User.objects.get(id=id)
+    user_profile = Profile.objects.get(user=request.user)
+    is_affiliated = user_profile.affiliation
     if request.method == 'POST':
-        form = UserForm(request.POST,request.FILES,instance=request.user)
-        p_form = ProfileForm(request.POST or None,request.FILES,instance=request.user.profile)
+        form = UserForm(request.POST, request.FILES, instance=request.user)
+        p_form_post = ProfileForm(request.POST or None, request.FILES, instance=request.user.profile)
 
-        if form.is_valid() and p_form.is_valid():
+        if form.is_valid() and p_form_post.is_valid():
             form.save()
-            p_form.save()
+            buf = p_form_post.save(commit=False)
+            if is_affiliated:
+                buf.affiliation_id = is_affiliated.id  # in case end user tries to change the hidden affiliation field
+                # for the developer view in the browser
+            buf.save()
             messages.success(request, 'Profile Update successful!')
             return redirect('profile')
         else:
             messages.success(request, 'Did not update ;(')
             return redirect('profile')
     else:
-        
-        form = UserForm(instance=request.user)           
+
+        form = UserForm(instance=request.user)
         p_form = ProfileForm(instance=request.user.profile)
-        
-        # except:
-        #     messages.success(request, 'User has no profile, contact the admin')
-        #     return redirect('home')
-        # else:
-        #     messages.success(request, 'There was an error, contact the admin')
-        #     return redirect('home')
-    return render(request, 'profile/profile.html',{
+
+    return render(request, 'profile/profile.html', {
         'form': form,
         'p_form': p_form,
-        })
+        "is_affiliated": is_affiliated
+    })
+
 
 @login_required
 def payfine(request):
@@ -112,7 +118,7 @@ def payfine(request):
 
     # initiate transcation using tinypesa
     # url = "https://tinypesa.com/api/v1/express/initialize" # API endpoint for tinypesa
-    
+
     # headers = {
     #     "Content-Type": "application/x-www-form-urlencoded",
     #     "ApiKey": "4OzXOaySC7S"
@@ -122,7 +128,7 @@ def payfine(request):
     #     'amount': 1,
     #     'msisdn': phonenumber,
     #     "callback_url": "https://your-callback-url.com" 
-        
+
     # }
     # response = requests.post(url, headers=headers, data=json.dumps(payload))
     # if response.status_code == 201:  # check if the request was successful
@@ -132,10 +138,9 @@ def payfine(request):
     #     return HttpResponse(f"Error: {response.status_code}")  # print the error code if the request was unsuccessful
 
 
-
 @login_required
 def patronlookup(request, username):
     patron = User.objects.get(username=username)
     patron_profile = Profile.objects.filter(id=patron.profile.id)
     # print(patron.profile.id)
-    return render(request, 'profile/patronlookup.html', {'patron':patron_profile})
+    return render(request, 'profile/patronlookup.html', {'patron': patron_profile})

@@ -6,6 +6,9 @@ from datetime import datetime, timedelta
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.admin import UserAdmin
 from .HelperVar import *
+from PIL import Image
+from django_resized import ResizedImageField
+from LIB.settings import BASE_DIR
 
 
 # from django.contrib.auth.models import User
@@ -16,7 +19,7 @@ from .HelperVar import *
 #       - Book model (title, serial number).
 #       - Book Details, which will contain the rest of the fields.
 #       - add ISBN and eISBN field, I may need to customize the save function depending on the book state.
-#       - Create a library model, and make the book model a foreign.
+#       - Create a library model, and make it a foreign key in the book model.
 
 class Library(models.Model):
     name = models.CharField(max_length=100)
@@ -41,7 +44,7 @@ class BookDetail(models.Model):
     copies = models.IntegerField(default=1)
     copies_remaining = models.IntegerField(default=1)
     description = models.TextField(default=' ')
-    cover_image = models.ImageField(upload_to="images/books/%y", blank=True, null=True)
+    cover_image = ResizedImageField(size=[200, 200], upload_to="images/books/%y", blank=True, null=True)
     state = models.CharField(max_length=20, choices=STATE, default='online')
     genre = models.CharField(max_length=50, choices=GENRE, default='Engineering')
     ebook = models.FileField(upload_to='books/%y', blank=True, null=True)
@@ -56,6 +59,7 @@ class BookDetail(models.Model):
 
     # Adding a custom save function
     def save(self, *args, **kwargs):
+
         super().save(*args, *kwargs)
 
 
@@ -83,6 +87,7 @@ class AddBook(models.Model):
 
 # Creating a news models, which will show news about the LIB SYS
 class New(models.Model):
+    # TODO: CHANGE IT NAME FROM NEW TO SOMETHING ELSE
     title = models.CharField(max_length=90)
     story = QuillField(blank=False, null=True)
     created = models.DateTimeField(auto_now_add=True)

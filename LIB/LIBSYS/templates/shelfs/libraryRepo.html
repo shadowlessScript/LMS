@@ -1,0 +1,18 @@
+{%extends 'base.html'%}
+{%load static %}
+{%block content %}
+
+    {% for repo in repo %}
+        <div>
+            <p>{{repo.book.title}}</p>
+            <p>By:{{repo.author}}</p>
+            {% if repo.cover_image %}
+			    <img class="book-cover" src = {{repo.cover_image.url}}/>
+            {% else %}
+                <img class="book-cover" width="100px" height="100px" src = '{% static "images/105093.jpg"%}'>
+            {% endif %}
+        </div>
+    <hr>
+    {% endfor %}
+
+{% endblock %}

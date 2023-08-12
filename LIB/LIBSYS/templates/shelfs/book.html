@@ -50,20 +50,22 @@
 <div class="container">
 <div class="d-flex align-content-start flex-wrap " id="repo">
 	{% for book in Books %}
-	<div class="book">	
-		{% if book.Cover_image %}
-			<img class="book-cover" src = {{book.Cover_image.url}}/>
+	<div class="book">
+		{% if book.cover_image %}
+			<img class="book-cover" src = {{book.cover_image.url}}/>
 		{% else %}
 			<img class="book-cover" src = '{% static "images/105093.jpg"%}'>
 		{% endif %}
 
 		<div class='book-info'>
-			<h5><a class="book-link" href="{% url 'bookview' book.serial_number%}">{{book.title|truncatewords:4}}</a></h5>
-			<p class="author">By: {{book.Author}}</p>
+			<h5><a class="book-link" href="{% url 'bookview' book.book.serial_number%}">{{book.book.title|truncatewords:4}}</a></h5>
+			<p class="author">By: {{book.author}}</p>
 			 <span class="tooltiptext">{{book.description|truncatewords:50}}</span>
 		</div>
 		<div class='tag'>{{book.state}}</div>
 	</div>
+
+
 	{% endfor %}
 
 </div>

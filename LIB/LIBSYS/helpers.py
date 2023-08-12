@@ -44,5 +44,8 @@ def grab_author_details(context, author):
             print(pub)
         except:
             context['author404'] = f'Did not find books related to {author[0].Author} in Google scholar'
-        
-        
+
+
+def affiliation(request):
+    """Returns a clients library branch :param:request"""
+    return request.user.profile.affiliation

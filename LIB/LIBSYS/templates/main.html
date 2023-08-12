@@ -56,12 +56,18 @@
         </div>
         {% endif %}
         <div class="d-flex align-content-start flex-wrap">
-            {% for story in storys %}
-                <div class="news" id="news">
-                    <p>{{story.story.html|safe}}</p>
-                    <span style="color: blue;">Created on: {{story.created}}</span>
-                </div>
-            {%endfor%}
+
+
+        {%for story in storys %}
+        <div class="card container" style="width: 20rem;">
+          <div class="card-body">
+             <p>{{story.story.html|safe}}</p>
+            <div class="card-footer text-body-secondary">
+            Created on: {{story.created}}
+          </div>
+          </div>
+        </div>
+        {%endfor%}
         </div>
         <!-- <Button class="more" >more..</Button> -->
         <!-- <center class="page-link-container"> -->
