@@ -1,7 +1,7 @@
 # from dataclasses import fie ld
 from dataclasses import fields
 from django import forms
-from .models import New, AddBook,IssueBook, BookAcquisitionRequest, Exam, Rating, BookReview, Book, BookDetail
+from .models import Announcement, AddBook,IssueBook, BookAcquisitionRequest, Exam, Rating, BookReview, Book, BookDetail
 from django_quill.forms import QuillFormField
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -37,7 +37,7 @@ class PhysicalBookDropdownField(forms.ModelChoiceField):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        queryset = AddBook.objects.filter(state__contains='print')
+        queryset = Book.objects.filter(book_details__state__contains='print')
         self.queryset = queryset.order_by('title')
 
 class CreateUserForm(UserCreationForm):
@@ -74,7 +74,7 @@ class AddBookForm(forms.ModelForm):
 
 class NewsForm(forms.ModelForm):
     class Meta:
-        model = New
+        model = Announcement
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
@@ -87,10 +87,10 @@ class IssueBookForm(forms.ModelForm):
     # username = UserDropdownField(queryset=User.objects.all())
     class Meta:
         model = IssueBook
-        fields = ("username","isbn",'due_date')
+        fields = ("username","book_issued",'due_date')
     # isbn = forms.ModelChoiceField(queryset=AddBook.objects.all(), widget=forms.Select(attrs={'class': 'form-select'}))
     # due_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}))
-    isbn = PhysicalBookDropdownField(queryset=AddBook.objects.all(), widget=forms.Select(attrs={'class': 'form-select'}))
+    book_issued = PhysicalBookDropdownField(queryset=Book.objects.all(), widget=forms.Select(attrs={'class': 'form-select'}))
     username = UserDropdownField(queryset=User.objects.all(), widget=forms.Select(attrs={'class': 'form-select'}))
 
     def __init__(self, *args, **kwargs):
@@ -133,9 +133,9 @@ class ExtendBookForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ExtendBookForm, self).__init__(*args, **kwargs)
         self.fields['username'].widget.attrs['class'] = 'form-control'
-        self.fields['isbn'].widget.attrs['class'] = 'form-select'
+        self.fields['book_issued'].widget.attrs['class'] = 'form-select'
         self.fields['username'].disabled = True
-        self.fields['isbn'].disabled = True
+        self.fields['book_issued'].disabled = True
         self.fields['status'].disabled = True
         # self.fields['due_date'].widget.attrs.update(input_type='date')
 
@@ -158,7 +158,7 @@ class BookReviewForm(forms.ModelForm):
 class BookForm(forms.ModelForm):
     class Meta:
         model = Book
-        exclude = ("library",)
+        exclude = ("library", "book_details")
     def __init__(self, *args, **kwargs):
         super(BookForm, self).__init__(*args, **kwargs)
 

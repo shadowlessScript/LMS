@@ -110,11 +110,15 @@
 		let count5 = 0;
 
 		function BooksCounter(){
+		if({{number_of_books}} > 1){
 			count1++;
 			document.querySelector("#books").innerHTML = count1;
 			// stop the interval
 			if (count1 == {{number_of_books}}){
 				clearInterval(books);
+			}
+			}else{
+				document.querySelector("#books").innerHTML = {{number_of_books}};
 			}
 		}
 		function issueCounter(){

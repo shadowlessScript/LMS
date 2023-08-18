@@ -34,19 +34,19 @@
         <h3>Your recent activity</h3>
         <div class="history mb-3 ">
             {% for history in history %}
-                {% if history.serial_number.Cover_image %}
+                {% if history.book_viewed.book_details.cover_image %}
                     <div class="mb-3">
-                        <img src={{ history.serial_number.Cover_image.url}} width="50px" height="50px" style="border-radius:50%;" /> 
-                        <a class="history-link" href="{% url 'bookview' history.serial_number.serial_number%}">
-                            {{history.serial_number.title}}  <i class="fa-solid fa-link"></i>
+                        <img src={{ history.book_viewed.book_details.cover_image.url}} width="50px" height="50px" style="border-radius:50%;" />
+                        <a class="history-link" href="{% url 'bookview' history.book_viewed.serial_number%}">
+                            {{history.book_viewed.title}}  <i class="fa-solid fa-link"></i>
                         </a>
                         
                     </div>
                 {% else %}
                     <div class="mb-3">
                         <img src='{% static "images/105093.jpg"%}'  width="50px" height="50px" style="border-radius:50%;" />
-                        <a class="history-link" href="{% url 'bookview' history.serial_number.serial_number%}">
-                            {{history.serial_number.title}}  <i class="fa-solid fa-link"></i>
+                        <a class="history-link" href="{% url 'bookview' history.book_viewed.serial_number %}">
+                            {{history.book_viewed.title}}  <i class="fa-solid fa-link"></i>
                         </a>
                         
                     </div>

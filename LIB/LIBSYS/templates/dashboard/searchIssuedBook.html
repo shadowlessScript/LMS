@@ -17,7 +17,7 @@
                 <th scope="col">Last Name</th>
                 <th scope="col">Username</th>
                 <th scope="col">Book's title</th>
-                <th scope="col">ISBN</th>
+                <th scope="col">Serial Number</th>
                 <th scope="col">Date Issued</th>
                 <th scope="col">Due Date</th>
                 <th scope="col" colspan="2" >Action</th>
@@ -31,9 +31,9 @@
                 <td>{{issue.username.first_name}}</td>
                 <td>{{issue.username.last_name}}</td>
                 <td>{{issue.username}}</td>
-                <td>{{issue.isbn.title|truncatewords:4}}</td>
-                <td>{{issue.isbn.serial_number}}</td>
-                <td>{{issue.issuedate}}</td>
+                <td>{{issue.book_issued.title|truncatewords:4}}</td>
+                <td>{{issue.book_issued.serial_number}}</td>
+                <td>{{issue.issue_date}}</td>
                 <td>{{issue.due_date}}</td>
                 <td><a href="{% url 'bookreturned' issue.id %}"><input class="btn btn-secondary" type="submit" value="Returned"></a></td>
                 <td><a href="{% url 'extendBook' issue.id %}"><input class="btn btn-secondary " type="submit" value="Extend"></a></td>
