@@ -15161,7 +15161,7 @@ filter:
     - 6.0.0
     - 6.2.0
     - 6.3.0
-  label: Filter
+  label: genre_filter
   search:
     terms:
       - funnel
@@ -15185,7 +15185,7 @@ filter-circle-dollar:
     - 6.0.0
     - 6.2.0
     - 6.3.0
-  label: Filter Circle Dollar
+  label: genre_filter Circle Dollar
   search:
     terms:
       - filter
@@ -15203,7 +15203,7 @@ filter-circle-xmark:
     - 6.0.0
     - 6.2.0
     - 6.3.0
-  label: Filter Circle Xmark
+  label: genre_filter Circle Xmark
   search:
     terms:
       - cancel

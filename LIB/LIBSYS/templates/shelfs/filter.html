@@ -14,7 +14,7 @@
 <div class="main-container">
 
 	<div class='filter'>
-		{% comment %} <h4>Filter</h4> {% endcomment %}
+		{% comment %} <h4>genre_filter</h4> {% endcomment %}
 		<div class="filter-genre">
 			{% for genre in Genres %}
 				<a class="genre" href="{% url 'filtered_view' genre %}">{{genre}}</a>
@@ -29,14 +29,14 @@
 		{% comment %} # BY: BEN MUNYASIA BCSC01/0018/2018 {% endcomment %}
 
 		<div class="book">	
-			{% if book.Cover_image %}
-				<img class="book-cover" src = {{book.Cover_image.url}}/>
+			{% if book.cover_image %}
+				<img class="book-cover" src = {{book.cover_image.url}}/>
 			{% else %}
 				<img class="book-cover" src = '{% static "images/105093.jpg"%}'>
 			{% endif %}
 			<div class='book-info'>
-				<h5><a class="book-link" href="{% url 'bookview' book.serial_number%}">{{book.title|truncatewords:4}}</a></h5>
-				<p class="author">By: {{book.Author}}</p>
+				<h5><a class="book-link" href="{% url 'bookview' book.book.serial_number%}">{{book.book.title|truncatewords:4}}</a></h5>
+				<p class="author">By: {{book.author}}</p>
 				{% comment %} <p>{{book.description}}</p>	 {% endcomment %}
 			</div>
 			<div class='tag'>{{book.state}}</div>

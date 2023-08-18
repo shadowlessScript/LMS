@@ -60,8 +60,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 # adding cron Jobs
 CRON_CLASSES = [
-    "LIBSYS.cron.OverDueDetection",
-    "LIBSYS.cron.FineCalculation",
+    "LIBSYS.cron.over_due_detection",
+    "LIBSYS.cron.fine_calculation",
 ]
 
 MIDDLEWARE = [

@@ -52,7 +52,7 @@ class TestUrls(SimpleTestCase):
 
     def test_filtered_view_url_resolves(self):
         url = reverse('filtered_view', args=['genre'])
-        self.assertEqual(resolve(url).func, views.Filter)
+        self.assertEqual(resolve(url).func, views.genre_filter)
 
     def test_404_url_resolves(self):
         url = reverse('404')
@@ -76,11 +76,11 @@ class TestUrls(SimpleTestCase):
 
     def test_IssueBook_url_resolves(self):
         url = reverse('IssueBook')
-        self.assertEqual(resolve(url).func, views.issueBook)
+        self.assertEqual(resolve(url).func, views.issue_book)
 
     def test_view_issued_books_url_resolves(self):
         url = reverse('view_issued_books')
-        self.assertEqual(resolve(url).func, views.viewIssuedBooks)
+        self.assertEqual(resolve(url).func, views.view_issued_books)
 
     def test_overdue_url_resolves(self):
         url = reverse('overdue')

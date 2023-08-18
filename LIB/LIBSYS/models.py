@@ -28,18 +28,10 @@ class Library(models.Model):
     def __str__(self):
         return f'{self.name} Library'
 
-
-class Book(models.Model):
-    title = models.CharField(max_length=90)
-    serial_number = models.CharField(max_length=100, primary_key=True)
-    library = models.ForeignKey(Library, on_delete=models.CASCADE)
-
-
 class BookDetail(models.Model):
     """
         Holds the book's details
     """
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
     author = models.CharField(max_length=50)
     copies = models.IntegerField(default=1)
     copies_remaining = models.IntegerField(default=1)
@@ -47,8 +39,8 @@ class BookDetail(models.Model):
     cover_image = ResizedImageField(size=[200, 200], upload_to="images/books/%y", blank=True, null=True)
     state = models.CharField(max_length=20, choices=STATE, default='online')
     genre = models.CharField(max_length=50, choices=GENRE, default='Engineering')
-    ebook = models.FileField(upload_to='books/%y', blank=True, null=True)
-    pages = models.IntegerField()
+    ebook = models.FileField(upload_to='books/%y', blank=True, null=True, help_text="Enter the path of the ebook here")
+    pages = models.PositiveIntegerField()
     edition = models.CharField(max_length=50, default='first edition', blank=False, null=False)
     publisher = models.CharField(max_length=150, default='Nami printers', blank=False, null=False)
     co_authors = models.CharField(max_length=240, blank=True, null=True)
@@ -61,6 +53,13 @@ class BookDetail(models.Model):
     def save(self, *args, **kwargs):
 
         super().save(*args, *kwargs)
+
+
+class Book(models.Model):
+    title = models.CharField(max_length=90)
+    serial_number = models.CharField(max_length=100, primary_key=True)
+    library = models.ForeignKey(Library, on_delete=models.CASCADE)
+    book_details = models.OneToOneField(BookDetail, on_delete=models.CASCADE, null=True)
 
 
 class AddBook(models.Model):
@@ -86,7 +85,7 @@ class AddBook(models.Model):
 
 
 # Creating a news models, which will show news about the LIB SYS
-class New(models.Model):
+class Announcement(models.Model):
     # TODO: CHANGE IT NAME FROM NEW TO SOMETHING ELSE
     title = models.CharField(max_length=90)
     story = QuillField(blank=False, null=True)
@@ -98,12 +97,12 @@ class New(models.Model):
 
 class Fine(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE, )
-    serial_number = models.ForeignKey(AddBook, on_delete=models.CASCADE, )
+    serial_number = models.ForeignKey(Book, on_delete=models.CASCADE)
     # issuedate = models.DateField(auto_now=True)
     status = models.CharField(max_length=10, choices=FINESTATUS, default='Unpaid')
-    due_date = models.DateField(default=datetime.today())
-    over_due_by = models.IntegerField(default=10)
-    price = models.IntegerField(default=10)
+    due_date = models.DateField()
+    over_due_by = models.PositiveIntegerField(blank=False, null=False)
+    price = models.PositiveIntegerField()
 
     def __str__(self):
         return f'{self.username}'
@@ -129,22 +128,22 @@ def filter_out_admin():
 
 class IssueBook(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE, )
-    isbn = models.ForeignKey(AddBook, on_delete=models.CASCADE, )  # TODO: Change to serial number
+    book_issued = models.ForeignKey(Book, on_delete=models.CASCADE, null=True)
     status = models.CharField(max_length=20, choices=STATUS, default=active)
-    issuedate = models.DateField(auto_now_add=True)
+    issue_date = models.DateField(auto_now_add=True)
     due_date = models.DateField(default=expiry)
 
     def __str__(self):
-        return f'{self.username.first_name} given {self.isbn}'
+        return f'{self.username.first_name} given {self.book_issued.title}'
 
 
 class ReturnedBook(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE, )
-    serial_number = models.ForeignKey(AddBook, on_delete=models.CASCADE, )
+    returned_book = models.ForeignKey(Book, on_delete=models.CASCADE, null=True)
     return_date = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.serial_number}'
+        return f'{self.username} returned {self.returned_book}'
 
 
 class BookAcquisitionRequest(models.Model):
@@ -173,7 +172,7 @@ class Exam(models.Model):
 
 class Rating(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE)
-    serial_number = models.ForeignKey(AddBook, on_delete=models.CASCADE)
+    book_rated = models.ForeignKey(Book, on_delete=models.CASCADE, null=True)
     rate = models.FloatField(default=0, validators=[MaxValueValidator(5), MinValueValidator(0)])
 
     def __str__(self):
@@ -182,17 +181,17 @@ class Rating(models.Model):
 
 class Bookmark(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE)
-    book = models.ForeignKey(AddBook, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
 
 
 class History(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE)
-    serial_number = models.ForeignKey(AddBook, on_delete=models.CASCADE)
+    book_viewed = models.ForeignKey(Book, on_delete=models.CASCADE, null=True)
     checked_at = models.DateTimeField(auto_now=True)
 
 
 class BookReview(models.Model):
-    book = models.ForeignKey(AddBook, related_name='reviews', on_delete=models.CASCADE)
+    reviewed_book = models.ForeignKey(Book, related_name='reviews', on_delete=models.CASCADE, null=True)
     username = models.ForeignKey(User, on_delete=models.CASCADE)
     review = QuillField()
     created = models.DateTimeField(auto_now_add=True)

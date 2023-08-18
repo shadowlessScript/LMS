@@ -2,12 +2,12 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
-from .models import AddBook, New, Fine, Booking, IssueBook, \
+from .models import AddBook, Announcement, Fine, Booking, IssueBook, \
     BookAcquisitionRequest, ReturnedBook, Exam, \
     Rating, Bookmark, History, BookReview, Book, BookDetail, Library
 # Register your models here.
 
-admin.site.register(New)
+admin.site.register(Announcement)
 admin.site.register(AddBook)
 # admin.site.unregister(Fine)
 admin.site.register(Fine)

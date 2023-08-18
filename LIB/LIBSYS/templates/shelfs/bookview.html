@@ -14,19 +14,19 @@
     <div class="container">
         <div class="gcse-search"></div> <!-- Google search bar-->
         {% for ebook in Book %} 
-            <h2>{{ebook.title}}</h2>
+            <h2>{{ebook.book.title}}</h2>
             <div class="book-card">
                 <br />
-                {% if ebook.Cover_image %}
+                {% if ebook.cover_image %}
                 <div class="book-img">
-                    <img class="book-cover" src={{ebook.Cover_image.url}} width="200px" alt="{{ebook.title}}"/>
+                    <img class="book-cover" src={{ebook.cover_image.url}} width="200px" alt="{{ebook.book.title}}"/>
 
                     {%if bookmark%}
                         {% for b in bookmark %}
                         <a href="{% url 'removebmrk' b.id %}"><i class="fa-regular fa-bookmark mark" style="color: coral;"></i></a>
                         {%endfor%}
                     {% else %}
-                        <a href="{% url 'bookmark' ebook.serial_number  %}"><i class="fa-regular fa-bookmark mark fa-bounce"></i></a>
+                        <a href="{% url 'bookmark' ebook.book.serial_number  %}"><i class="fa-regular fa-bookmark mark fa-bounce"></i></a>
                         {% comment %} <span class="tooltiptext">Bookmark</span> {% endcomment %}
                     {% endif %}
 
@@ -39,13 +39,13 @@
                         <a href="{% url 'removebmrk' b.id  %}"><i class="fa-regular fa-bookmark mark" style="color: coral;"></i></a>
                         {%endfor%}
                     {%else%}
-                    <a href="{% url 'bookmark' ebook.serial_number  %}"><i class="fa-regular fa-bookmark mark"></i></a>
+                    <a href="{% url 'bookmark' ebook.book.serial_number  %}"><i class="fa-regular fa-bookmark mark fa-bookmark mark fa-bounce"></i></a>
                     {%endif%}
                 </div>
                     {% endif %}
                 <div class="book-info-container">
                     <p>{{ebook.description}}</p><br />
-                    <h4>Author:<a href="{% url 'authorsbooks' ebook.Author %}"> {{ebook.Author}}</a></h4>
+                    <h4>Author:<a href="{% url 'authorsbooks' ebook.author %}"> {{ebook.author}}</a></h4>
                     {% if ebook.co_author %}<h4>Co-Authors: {{ebook.co_author}}</h4>{% endif %}
                     <h6>Pages: {{ebook.pages}}</h6>
                     <h6>Publisher: {{ebook.publisher}}</h6>
@@ -53,7 +53,7 @@
                     Catergory: <a class="genre mt-5" href="{% url 'filtered_view' ebook.genre %}"> {{ebook.genre}}</a>
                     <p class="mt-4">Call Number: <strong>{{ebook.call_number}}</strong></p>
                     {% if ebook.state == 'print' %}                    
-                        <h6 class='num-copies'>Copies Available: {{ebook.copies}}</h6>
+                        <h6 class='num-copies'>Copies Available: {{ebook.copies_remaining}}</h6>
                     {% endif %}
                     {% if ebook.state == 'print/ebook' %}                    
                     <h6 class='num-copies'>Copies Available: {{ebook.copies}}</h6>
@@ -65,16 +65,16 @@
                         <div class="cites">
                             <i class="fa-solid fa-xmark close-icon" style="font-size: 1.5em; cursor: pointer;"></i><br><br>
                             <div>
-                                <p>APA: {{ebook.Author}}({{ebook.year}}). {{ebook.title}}.{{ebook.publisher}}</p>
+                                <p>APA: {{ebook.author}}({{ebook.year}}). {{ebook.book.title}}. {{ebook.publisher}}</p>
                             </div>
                              <div>
-                                <p>MLA: {{ebook.Author}}. {{ebook.title}}.{{ebook.publisher}}, {{ebook.year}}</p>
+                                <p>MLA: {{ebook.author}}. {{ebook.book.title}}.{{ebook.publisher}}, {{ebook.year}}</p>
                             </div>
                              <div>
-                                <p>Chicago: {{ebook.Author}}. {{ebook.title}}.{{ebook.publisher}}, {{ebook.year}}</p>
+                                <p>Chicago: {{ebook.author}}. {{ebook.book.title}}.{{ebook.publisher}}, {{ebook.year}}</p>
                             </div>
                              <div>
-                                <p>Harvard: {{ebook.Author}}, {{ebook.year}}. {{ebook.title}}.{{ebook.publisher}}.</p>
+                                <p>Harvard: {{ebook.author}}, {{ebook.year}}. {{ebook.book.title}}. {{ebook.publisher}}.</p>
                             </div>
                         </div>
                     </div>
@@ -87,13 +87,13 @@
                         <span class="fa fa-star"></span>
                         <h7>Average rating: {{avg_rate}}</h7>
                     </div>
-                    <a href="{% url 'rate' user  ebook.serial_number %}"><button type="submit" class="btn btn-primary  mt-3" id="rate-book">Rate</button></a>
+                    <a href="{% url 'rate' user  ebook.book.serial_number %}"><button type="submit" class="btn btn-primary  mt-3" id="rate-book">Rate</button></a>
                     {% if form %}
                     <div class="rate mt-3">
                         <a class="close-rate" href="{% url 'bookview'  ebook.serial_number %}"><i class="fa-solid fa-xmark"></i></a>
                         <form method="post">
                             {% csrf_token %}
-                             <h3>Rate {{ebook.title|truncatewords:4}}</h3>
+                             <h3>Rate {{ebook.book.title|truncatewords:4}}</h3>
                             <input type="hidden" name="username" value="{{user}}">
                             <input type="hidden" name="serial_number" value="{{ebook.serial_number}}">
                             {{form.as_p}}
@@ -120,7 +120,7 @@
                         {% csrf_token %}
                         <input value="{{ebook.serial_number}}" type="hidden" name='isbn'>
                         <input value="{{user}}" type="hidden" name='user'>
-                        <input class="btn btn-secondary" type="submit" value="Book" >
+                        <input class="btn btn-secondary" type="submit" value="Place Hold" >
                     </form>
                     
                 {% endif %}
@@ -130,7 +130,7 @@
                         {% csrf_token %}
                         <input value="{{ebook.serial_number}}" type="hidden" name='isbn'>
                         <input value="{{user}}" type="hidden" name='user'>
-                        <input class="btn btn-secondary" type="submit" value="Book">
+                        <input class="btn btn-secondary" type="submit" value="Place Hold">
                     </form>
                     {% if ebook.ebook %}
                     <button id='file-links' class="btn btn-secondary"><a href='{{ebook.ebook.url}}' target="_blank"> Read </a></button>
@@ -141,7 +141,7 @@
                 {% endif %}
         {% endfor %}
         {% if pub %}
-            <h2>Books Related to {% for i in Book%}{{i.Author}}{%endfor%}</h2>
+            <h2>Books Related to {% for i in Book%}{{i.author}}{%endfor%}</h2>
             <div class="related-to-author">
                     <div class="spinner container text-center">
                     <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
@@ -157,11 +157,11 @@
         {%endif%}
         <div class="reviews mt-5">
             {% for b in Book%}
-            <h3>Reviews <a href="{% url 'reviewbook' b.serial_number  %}"><i class="fa-solid fa-comment-medical" style="color: #365996;"></i></a></h3>
+            <h3>Reviews <a href="{% url 'reviewbook' b.book.serial_number  %}"><i class="fa-solid fa-comment-medical" style="color: #365996;"></i></a></h3>
             
             {%if reviewform %}
             <div class="add-review-container">
-                <a class="close-rate" href="{% url 'bookview'  b.serial_number %}"><i class="fa-solid fa-xmark"></i></a>
+                <a class="close-rate" href="{% url 'bookview'  b.book.serial_number %}"><i class="fa-solid fa-xmark"></i></a>
                 <form class="add-review" method="post">
                     {% csrf_token %}
                         {{reviewform.media}}

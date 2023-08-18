@@ -13,13 +13,13 @@
             {% for book in Books %}
             <div class="book">	
                 {% if book.Cover_image %}
-                    <img class="book-cover" src = {{book.Cover_image.url}}/>
+                    <img class="book-cover" src = {{book.cover_image.url}}/>
                 {% else %}
                     <img class="book-cover" src = '{% static "images/105093.jpg"%}'>
                 {% endif %}
                 <div class='book-info'>
-                    <h5><a class="book-link" href="{% url 'bookview' book.serial_number%}">{{book.title|truncatewords:4}}</a></h5>
-                    <p class="author">By: {{book.Author}}</p>
+                    <h5><a class="book-link" href="{% url 'bookview' book.book.serial_number book.id%}">{{book.book.title|truncatewords:4}}</a></h5>
+                    <p class="author">By: {{book.author}}</p>
                     {% comment %} <p>{{book.description}}</p>	 {% endcomment %}
                 </div>
                 <div class='tag'>{{book.state}}</div>

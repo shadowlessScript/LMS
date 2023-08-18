@@ -2,28 +2,23 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
 from PIL import Image
 from .forms import AddBookForm, NewsForm, IssueBookForm, BookAcquisitionRequestForm, ExamForm, ExtendBookForm, \
     RatingForm, BookReviewForm, BookForm, BookDetailForm, BookUpdateForm
-from .models import AddBook, New, Booking, IssueBook, BookAcquisitionRequest, ReturnedBook, Exam, Fine, Rating, \
+from .models import AddBook, Announcement, Booking, IssueBook, BookAcquisitionRequest, ReturnedBook, Exam, Fine, Rating, \
     Bookmark, History, BookReview, Book, BookDetail, Library
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.mail import send_mail
-from django.conf import settings
 from datetime import date, datetime, timedelta
 from django.db.models import Q
-from django_daraja.mpesa.core import MpesaClient
-# from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
 from django.forms import inlineformset_factory
 from .recommenders import user_user_collab_filtering, content_based_recommender_sys
-from .helpers import genreList, grab_author_details,affiliation
-import asyncio
-from asgiref.sync import sync_to_async, async_to_sync
+from .helpers import genreList, grab_author_details, affiliation, issue_book_post, add_update_book
 from .HelperVar import library_of_congress
 from members.models import Profile
+
 
 # Create your views here.
 def Notfound(request):
@@ -35,26 +30,9 @@ def addBookstoShelf(request):
     bookForm = BookForm()
     bookDetailForm = BookDetailForm()
 
-
     # print(request.user.profile.affiliation.id)
     if request.method == "POST":
-        bookForm = BookForm(request.POST)
-        bookDetailForm = BookDetailForm(request.POST, request.FILES)
-
-        if bookDetailForm.is_valid() and bookForm.is_valid():
-            bookFormbuffer = bookForm.save(commit=False)
-            bookFormbuffer.library_id = affiliation(request)
-            buffer = bookDetailForm.save(commit=False)
-            bookFormbuffer.save()
-            buffer.book_id = bookFormbuffer.serial_number
-            # buffer.library_id = is_affiliated.id
-            buffer.save()
-
-            messages.success(request, "Book added successfully")
-            return redirect("add")
-        else:
-            messages.success(request, "Something went wrong")
-            return redirect("add")
+        add_update_book(request)
 
     return render(request, 'shelfs/addbooks.html', {
         "bookForm": bookForm,
@@ -83,26 +61,14 @@ def updateBook(request, serial_number):
     total_copies = bookdetails.copies
 
     if request.method == "POST":
-        bookForm = BookUpdateForm(request.POST, instance=book)
-        bookDetailForm = BookDetailForm(request.POST, request.FILES, instance=bookdetails)
-
-        if bookDetailForm.is_valid() and bookForm.is_valid():
-            bookFormbuffer = bookForm.save(commit=False)
-            buffer = bookDetailForm.save(commit=False)
-            bookFormbuffer.library_id = affiliation(request)
-            if buffer.copies > total_copies:
-                copies_added = buffer.copies - total_copies
-                buffer.copies_remaining += copies_added  # add the difference to the copies remaining in repo
-
-            bookFormbuffer.save()
-            buffer.book_id = bookFormbuffer.serial_number
-            buffer.save()
-
-            messages.success(request, "Book updated successfully")
-            return redirect("manage")
-        else:
-            messages.success(request, "Something went wrong")
-            return redirect("manage")
+       add_update_book(
+           request,
+           is_update=True,
+           book_instance=book,
+           book_detail_instance=bookdetails,
+           total_copies=total_copies,
+           serial_number=serial_number
+       )
 
     return render(request, 'shelfs/updates/updateBooks.html', {
         "bookDetailsForm": bookDetailsForm,
@@ -130,8 +96,8 @@ def deleteBookConfirmation(request, serial_number):
 
 # news form down here
 def index(request):
-    News = New.objects.all()
-    p = Paginator(New.objects.all().order_by('created'), 3)
+    News = Announcement.objects.all()
+    p = Paginator(Announcement.objects.all().order_by('created'), 3)
     page = request.GET.get('page')
     posts = p.get_page(page)
     context = {
@@ -150,7 +116,7 @@ def index(request):
 
 @staff_member_required
 def indexuserview(request):
-    News = New.objects.all()
+    News = Announcement.objects.all()
     context = {
         'storys': News,
     }
@@ -179,7 +145,7 @@ def PostNews(request):
 @staff_member_required
 def NewsUpdate(request, id):
     if request.user.is_superuser:
-        News = New.objects.get(id=id)
+        News = Announcement.objects.get(id=id)
         form = NewsForm(instance=News)
         context = {'blog': form}
 
@@ -198,41 +164,46 @@ def NewsUpdate(request, id):
 
 @login_required
 def library_repo(request):
-    books = BookDetail.objects.all()
-    p = Paginator(books.order_by('book'), 10)
+    books = Book.objects.all()
+    p = Paginator(books.order_by('title'), 10)
     page = request.GET.get('page')
     b = p.get_page(page)
     # genre = AddBook.objects.all()
-
+    print(affiliation(request))
     recommended_list = user_user_collab_filtering(request)
     # print(recommended_list)
     if recommended_list:
         # print('tooo')
+        # TODO: Think of a way to optimize the rendering, for the two types of recommendation. It feel redundant.
         return render(request, "shelfs/book.html", {
             'Books': b,
             'Genres': genreList(),
             'recommendedbooks': recommended_list,
+            'is_affiliated': affiliation(request),
         })
 
     else:
         r = content_based_recommender_sys(request)
         content_based_list = []
         if r:
-            content_based_list = [AddBook.objects.filter(title=title) for title in r[1]]
+            content_based_list = [Book.objects.filter(title=title) for title in r[1]]
 
-        print(content_based_list)
         if content_based_list:
             return render(request, "shelfs/book.html", {
                 'Books': b,
                 'Genres': genreList(),
                 'recommendedbooks': content_based_list,
                 'rectitle': r[0],
+                'is_affiliated': affiliation(request),
+
             })
         else:
 
             return render(request, "shelfs/book.html", {
                 'Books': b,
                 'Genres': genreList(),
+                'is_affiliated': affiliation(request),
+
             })
 
 
@@ -252,20 +223,20 @@ def bookView(request, serial_number):
         except:
             messages.success(request, 'Something went wrong ;(')
 
-    whichbook = AddBook.objects.filter(serial_number=serial_number)
-    if Rating.objects.filter(serial_number=serial_number).exists():
+    whichbook = BookDetail.objects.filter(book__serial_number=serial_number)
+    if Rating.objects.filter(book_rated=serial_number).exists():
         book_rating = Rating.objects.filter(serial_number_id=serial_number)
         avg_rating = mean([i.rate for i in book_rating])
     else:
         avg_rating = 0
     patron_bookmark = Bookmark.objects.filter(username=request.user, book=serial_number)
-    reviews = BookReview.objects.filter(book=serial_number)
-    has_history = History.objects.filter(username=request.user, serial_number=serial_number).exists()
+    reviews = BookReview.objects.filter(reviewed_book=serial_number)
+    has_history = History.objects.filter(username=request.user, book_viewed=serial_number).exists()
     if not has_history:
-        create_history = History.objects.create(username=request.user, serial_number_id=serial_number)
+        create_history = History.objects.create(username=request.user, book_viewed_id=serial_number)
         create_history.save()
     else:
-        for i in History.objects.filter(username=request.user, serial_number=serial_number):
+        for i in History.objects.filter(username=request.user, book_viewed=serial_number):
             i.checked_at = datetime.now()
             i.save()
     # print(whichbook[0].Author)
@@ -284,8 +255,8 @@ def bookView(request, serial_number):
 
 # creating a filter functionality
 @login_required
-def Filter(request, genre):
-    book_filtered = AddBook.objects.filter(genre=genre)
+def genre_filter(request, genre):
+    book_filtered = BookDetail.objects.filter(genre=genre)
     context = {
         'Book': book_filtered,
         'Genres': genreList(),
@@ -299,11 +270,10 @@ def Filter(request, genre):
 def search_book(request):
     if request.method == 'POST':
         searched_books = request.POST['searched_books']
-        books = AddBook.objects.filter(Q(title__contains=searched_books) | Q(Author__contains=searched_books) | Q(
-            serial_number__contains=searched_books))
-        if books == []:
-            print(books)
-            # BY: BEN MUNYASIA BCSC01/0018/2018
+        books = BookDetail.objects.filter(Q(book__title__contains=searched_books) |
+                                          Q(author__contains=searched_books) |
+                                          Q(book__serial_number__contains=searched_books))
+        # BY: BEN MUNYASIA
 
         return render(request, 'search_books.html', {'searched': searched_books, 'Books': books})
     else:
@@ -315,17 +285,19 @@ def dashboard(request):
     request_counter = Booking.objects.count()
     start_date = date.today()
     end_date = start_date - timedelta(days=7)
-    book = AddBook.objects.all()
+    book = BookDetail.objects.filter(book__library=affiliation(request))
     number_of_books = 0
+    books_remaining = 0
     for x in book:
         number_of_books += int(x.copies)
-    print(IssueBook.objects.filter(issuedate__range=(end_date, start_date)).count())
+        books_remaining += int(x.copies_remaining)
+    # print(IssueBook.objects.filter(issuedate__range=(end_date, start_date)).count())
     return render(request, 'dashboard/dashboard.html', {
         'counter': request_counter,
         'number_of_books': number_of_books,
         'fines': Fine.objects.count(),
         'BAR': BookAcquisitionRequest.objects.filter(status='Pending').count(),  # BAR --> BookAcquisitionRequest
-        'books_issued': IssueBook.objects.filter(issuedate__range=(end_date, start_date)).count(),
+        'books_issued': IssueBook.objects.filter(issue_date__range=(end_date, start_date)).count(),
 
     })
 
@@ -346,90 +318,24 @@ def issuebookrequest(request, id, isbn):
     context = {}
     context['form'] = form
     if request.method == 'POST':
-        form = IssueBookForm(request.POST)
-        if form.is_valid():
-            buf = form.save(commit=False)  # hold from saving the posted info
-            if buf.isbn.copies > 0:
-                # condition for checking number of copies and decrementing. # BY: BEN MUNYASIA BCSC01/0018/2018
-
-                book = AddBook.objects.filter(serial_number=form.cleaned_data['isbn'].serial_number)
-                for x in book:
-                    x.copies -= 1
-                    x.save()
-                    # print(x.copies)
-                buf.save()
-                patron = form.cleaned_data['username']
-                mails = User.objects.get(username=patron).email
-                print(mails)
-                send_mail(
-                    f'{form.cleaned_data["isbn"]}',
-                    f' Hi {patron}, you have been given {form.cleaned_data["isbn"]}, the due date is {form.cleaned_data["due_date"]}',
-                    'settings.EMAIL_HOST_USER',
-                    [mails],
-                    fail_silently=False
-                )
-                messages.success(request,
-                                 f'{form.cleaned_data["isbn"]} has been given to {form.cleaned_data["username"]}')
-            else:
-                messages.success(request, "No more books are available in the DB how is this possible")
-        return redirect('IssueBook')
+        issue_book_post(request)
     return render(request, 'dashboard/IssueBook.html', context)
 
 
 @staff_member_required
-def issueBook(request):
+def issue_book(request):
     if request.method == 'POST':
-        form = IssueBookForm(request.POST)
-        if form.is_valid():
-            buf = form.save(commit=False)  # hold from saving the posted info
-            if buf.isbn.copies > 0:
-                # condition for checking number of copies and decrementing
-                patron = form.cleaned_data['username']
-                book = form.cleaned_data['isbn'].serial_number
-                check_patron = IssueBook.objects.filter(username=patron, isbn=book).exists()
-                if not check_patron:
-                    patron_borrowed_books = IssueBook.objects.filter(username=patron)
-
-                    if len(patron_borrowed_books) < 3:
-                        book = AddBook.objects.filter(serial_number=form.cleaned_data['isbn'].serial_number)
-                        for x in book:
-                            x.copies -= 1
-                            x.save()
-                            # print(x.copies)
-                        buf.save()
-                        mails = User.objects.get(username=patron).email
-                        print(mails)
-                        send_mail(
-                            f'{form.cleaned_data["isbn"]}',
-                            f' Hi {patron}, you have been given {form.cleaned_data["isbn"]}, the due date is {form.cleaned_data["due_date"]}',
-                            'settings.EMAIL_HOST_USER',
-                            [mails],
-                            fail_silently=False
-                        )
-                        messages.success(request,
-                                         f'{form.cleaned_data["isbn"]} has been given to {form.cleaned_data["username"]}')
-                    else:
-                        messages.success(request,
-                                         f'{form.cleaned_data["username"]} has reached the maximum number of books borrowed!')
-                else:
-                    messages.success(request,
-                                     f'{form.cleaned_data["username"]} already has {form.cleaned_data["isbn"].title}')
-            else:
-                messages.success(request, "No more books are available in the DB how is this possible")
-
-            return redirect('IssueBook')
-    else:
-        # issueset = inlineformset_factory(AddBook, IssueBook, fields=('__all__'))
-        form = IssueBookForm()
+        issue_book_post(request)
+    form = IssueBookForm()
     context = {}
     context['form'] = form
     return render(request, 'dashboard/IssueBook.html', context)
 
 
 @staff_member_required
-def viewIssuedBooks(request):
-    issuedBooks = IssueBook.objects.filter(status='active')
-    p = Paginator(issuedBooks.order_by('issuedate'), 10)
+def view_issued_books(request):
+    issuedBooks = IssueBook.objects.all()
+    p = Paginator(issuedBooks.order_by('issue_date'), 10)
     page = request.GET.get('page')
     b = p.get_page(page)
     context = {
@@ -643,22 +549,6 @@ def patronpage(request):
     })
 
 
-#     cl = MpesaClient()
-#     # Use a Safaricom phone number that you have access to, for you to be able to view the prompt.
-#     phone_number = U
-#     amount = 1
-#     account_reference = 'reference'
-#     transaction_desc = 'Description'
-#     callback_url = 'https://darajambili.herokuapp.com/express-payment'
-#     response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
-#     return HttpResponse(response)
-#
-#
-# def stk_push_callback(request):
-#     data = request.body
-#
-#     return HttpResponse("STK Push in Django👋")
-
 @staff_member_required
 def finepaid(request, id):
     fine = Fine.objects.get(id=id)
@@ -726,7 +616,7 @@ def removebookmark(request, id):
 @login_required
 def reviewbook(request, serial_number):
     # populate like the bookview page the patron was in
-    whichbook = AddBook.objects.filter(serial_number=serial_number)
+    whichbook = BookDetail.objects.filter(book__serial_number=serial_number)
     if request.method == 'POST':
         try:
             t = BookReview.objects.get(book=serial_number, username=request.user.id)
@@ -735,7 +625,7 @@ def reviewbook(request, serial_number):
             if form.is_valid():
                 buf = form.save(commit=False)
                 buf.username = request.user
-                buf.book_id = serial_number
+                buf.reviewed_book_id = serial_number
                 buf.save()
                 return redirect('bookview', serial_number)
         except:
@@ -743,12 +633,12 @@ def reviewbook(request, serial_number):
             if form.is_valid():
                 buf = form.save(commit=False)
                 buf.username = request.user
-                buf.book_id = serial_number
+                buf.reviewed_book_id = serial_number
                 buf.save()
                 return redirect('bookview', serial_number)
     try:
         # will be used check if patron has already reviewed this book
-        t = BookReview.objects.get(book=serial_number, username=request.user.id)
+        t = BookReview.objects.get(reviwed_book=serial_number, username=request.user.id)
         form = BookReviewForm(instance=t)
         return render(request, 'shelfs/bookview.html', {'reviewform': form, 'Book': whichbook})
     except:

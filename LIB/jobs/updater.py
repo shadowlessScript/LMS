@@ -1,5 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from .jobs import OverDueDetection, FineCalculation, SendReminder
+from .jobs import over_due_detection, fine_calculation, send_reminder
 from django_apscheduler.jobstores import DjangoJobStore
 from apscheduler.triggers.cron import CronTrigger
 
@@ -8,7 +8,7 @@ def start():
     scheduler = BackgroundScheduler()
     scheduler.add_jobstore(DjangoJobStore(), "default")
     scheduler.add_job(
-        OverDueDetection, 
+        over_due_detection,
         trigger=CronTrigger(minute="*/10"),
         id="Overduedetector",
         max_instances=1,
@@ -17,7 +17,7 @@ def start():
     # scheduler.start()
     # scheduler.shutdown()
     scheduler.add_job(
-        FineCalculation, 
+        fine_calculation,
         trigger=CronTrigger(minute="*/30"),
         id="finecalc",
         max_instances=1,
@@ -26,7 +26,7 @@ def start():
     # scheduler.start()
     # scheduler.shutdown()
     scheduler.add_job(
-        SendReminder, 
+        send_reminder,
        trigger=CronTrigger(minute="*/40"),
         id="reminder",
         max_instances=1,

@@ -4,7 +4,12 @@
 {% block style %}<link rel="stylesheet" href="{% static 'books.css' %}">{% endblock %}
 
 {% block content %}
-
+{% if not is_affiliated %}
+	<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  		<strong>{{user}}</strong> You should complete your <a href="{% url 'profile' %}">profile</a> to get the full experience.
+  		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+{% endif %}
 <div class="d-flex align-content-start flex-wrap">
 
 	<div class='filter'>
@@ -28,18 +33,18 @@
 	{% for checkout in recommendedbooks %}
 		{% for book in checkout %}
 	<div class="book">
-		{% if book.Cover_image %}
-			<img class="book-cover" src = {{book.Cover_image.url}}/>
+		{% if book.book_details.cover_image %}
+			<img class="book-cover" src = {{book.book_details.cover_image.url}}/>
 		{% else %}
 			<img class="book-cover" src = '{% static "images/105093.jpg"%}'>
 		{% endif %}
 
 		<div class='book-info'>
-			<h5><a class="book-link" href="{% url 'bookview' book.serial_number%}">{{book.title|truncatewords:4}}</a></h5>
-			<p class="author">By: {{book.Author}}</p>
-			 <span class="tooltiptext">{{book.description|truncatewords:50}}</span>
+			<h5><a class="book-link" href="#">{{book.title|truncatewords:4}}</a></h5> <!--TODO: Fix the recommendation section -->
+			<p class="author">By: {{book.book_details.author}}</p>
+			 <span class="tooltiptext">{{book.book_details.description|truncatewords:50}}</span>
 		</div>
-		<div class='tag'>{{book.state}}</div>
+		<div class='tag'>{{book.book_details.state}}</div>
 	</div>
 	{% endfor %}
 
@@ -50,19 +55,19 @@
 <div class="container">
 <div class="d-flex align-content-start flex-wrap " id="repo">
 	{% for book in Books %}
-	<div class="book">
-		{% if book.cover_image %}
-			<img class="book-cover" src = {{book.cover_image.url}}/>
+	<div class="book shadow-sm p-3 mb-5 bg-body-tertiary rounded">
+		{% if book.book_details.cover_image %}
+			<img class="book-cover" src = {{book.book_details.cover_image.url}}/>
 		{% else %}
 			<img class="book-cover" src = '{% static "images/105093.jpg"%}'>
 		{% endif %}
 
 		<div class='book-info'>
-			<h5><a class="book-link" href="{% url 'bookview' book.book.serial_number%}">{{book.book.title|truncatewords:4}}</a></h5>
-			<p class="author">By: {{book.author}}</p>
-			 <span class="tooltiptext">{{book.description|truncatewords:50}}</span>
+			<h5><a class="book-link" href="{% url 'bookview' book.serial_number%}">{{book.title|truncatewords:4}}</a></h5>
+			<p class="author">By: {{book.book_details.author}}</p>
+			 <span class="tooltiptext">{{book.book_details.description|truncatewords:50}}</span>
 		</div>
-		<div class='tag'>{{book.state}}</div>
+		<div class='tag'>{{book.book_details.state}}</div>
 	</div>
 
 

@@ -5,15 +5,7 @@
  {% endblock %}
     
 {% block task %}
-{%if messages%}
-    {% for messages in messages  %}
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-  {{messages}}
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-      
-    {% endfor %}
-  {% endif %}
+
 <form method="POST" class="container" enctype="multipart/form-data">
     {% csrf_token %}
         <div class="row">

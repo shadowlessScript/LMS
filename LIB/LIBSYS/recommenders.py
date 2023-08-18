@@ -1,4 +1,4 @@
-from .models import AddBook, History, Bookmark, IssueBook, ReturnedBook, Rating
+from .models import AddBook, History, Bookmark, IssueBook, ReturnedBook, Rating, BookDetail, Book
 # BY: BEN MUNYASIA BCSC01/0018/2018
 
 def content_based_recommender_sys(req):
@@ -9,54 +9,59 @@ def content_based_recommender_sys(req):
     import random
     
     # get_title = 'Recommendations'
-    books_repo = pd.DataFrame(list(AddBook.objects.all().values()))   
-    patron_history = History.objects.filter(username=req.user).exists()
-    patron_circulation = ReturnedBook.objects.filter(username=req.user).exists()
-    patron_borrowed_books = IssueBook.objects.filter(username=req.user).exists()
-    patrons_bookmarks = Bookmark.objects.filter(username=req.user).exists()
-    get_title = ''
-    if patrons_bookmarks:
-        patrons_bookmarks = Bookmark.objects.filter(username=req.user)
-        get_title = patrons_bookmarks[random.randint(0,len(patrons_bookmarks)-1)].book.title
-        msg = f'Recommendation based on your bookmarks'
-        
-    elif patron_history:
-        patron_history = History.objects.filter(username=req.user)
-        get_title = patron_history[random.randint(0,len(patron_history)-1)].serial_number.title
-        msg = f'Because you viewed {get_title}'
-    elif patron_circulation:
-        patron_circulation = ReturnedBook.objects.filter(username=req.user)
-        get_title = patron_circulation[random.randint(0,len(patron_circulation)-1)].serial_number.title
-        msg = f'Based on recent return history "{get_title}"'
-    elif patron_borrowed_books:
-        patron_borrowed_books = IssueBook.objects.filter(username=req.user)
-        get_title = patron_borrowed_books[random.randint(0,len(patrons_bookmarks)-1)].isbn.title
-        msg = f'Because you borrowed {get_title}'
-    
-    tfidf = Tfidf(stop_words='english')
-    books_repo['description'] = books_repo['description'].fillna('')
-    description = books_repo['description']
-    tfidf_matrix = tfidf.fit_transform(description)
-    # cosine sim
-    cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
-    indices = pd.Series(books_repo.index, index=books_repo['title']).drop_duplicates()
+    if Book.objects.count() != 0 and BookDetail.objects.count != 0:
 
-    # print(indices['EFFECTS OF PRACTICAL WORK ON STUDENTS’ ACHIEVEMENT'])
-    def get_recommendations(title, cosine_sim=cosine_sim):
-        ind = indices[title]
-        sm_list = [msg]        
-        sim_score = enumerate(cosine_sim[ind])
-        sim_score = sorted(sim_score, key=lambda x:x[1], reverse=True)
-        sim_score = sim_score[1:11] # this will show the top ten books similar to target, while not having the target in the list
-        cleaned_sim_score = [x for x in sim_score if x[1] >= 0.05]
-        for i in sim_score:
-            print(i[1])
-        sim_index = [i[0] for i in cleaned_sim_score]
-        rec_list = books_repo['title'].iloc[sim_index]
-        sm_list.append(rec_list)
-        return sm_list
-    if get_title !="":
-        return get_recommendations(get_title)
+        books = pd.DataFrame(list(Book.objects.all().values()))
+        books.rename(columns={"book_details_id": "id"},inplace=True)
+        books_details = pd.DataFrame(list(BookDetail.objects.all().values()))
+        book_repo = pd.merge(books, books_details, on="id", how="inner")
+        patron_history = History.objects.filter(username=req.user).exists()
+        patron_circulation = ReturnedBook.objects.filter(username=req.user).exists()
+        patron_borrowed_books = IssueBook.objects.filter(username=req.user).exists()
+        patrons_bookmarks = Bookmark.objects.filter(username=req.user).exists()
+        get_title = ''
+        if patrons_bookmarks:
+            patrons_bookmarks = Bookmark.objects.filter(username=req.user)
+            get_title = patrons_bookmarks[random.randint(0,len(patrons_bookmarks)-1)].book.title
+            msg = f'Recommendation based on your bookmarks'
+
+        elif patron_history:
+            patron_history = History.objects.filter(username=req.user)
+            get_title = patron_history[random.randint(0,len(patron_history)-1)].book_viewed.title
+            msg = f'Because you viewed {get_title}'
+        elif patron_circulation:
+            patron_circulation = ReturnedBook.objects.filter(username=req.user)
+            get_title = patron_circulation[random.randint(0,len(patron_circulation)-1)].serial_number.title
+            msg = f'Based on recent return history "{get_title}"'
+        elif patron_borrowed_books:
+            patron_borrowed_books = IssueBook.objects.filter(username=req.user)
+            get_title = patron_borrowed_books[random.randint(0,len(patrons_bookmarks)-1)].isbn.title
+            msg = f'Because you borrowed {get_title}'
+
+        tfidf = Tfidf(stop_words='english')
+        book_repo["description"] = book_repo["description"].fillna('')
+        description = book_repo["description"]
+        tfidf_matrix = tfidf.fit_transform(description)
+        # cosine sim
+        cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
+
+        indices = pd.Series(book_repo.index, index=book_repo['title']).drop_duplicates()
+        # print(indices['EFFECTS OF PRACTICAL WORK ON STUDENTS’ ACHIEVEMENT'])
+        def get_recommendations(title, cosine_sim=cosine_sim):
+            ind = indices[title]
+            sm_list = [msg]
+            sim_score = enumerate(cosine_sim[ind])
+            sim_score = sorted(sim_score, key=lambda x:x[1], reverse=True)
+            sim_score = sim_score[1:11] # this will show the top ten books similar to target, while not having the target in the list
+            cleaned_sim_score = [x for x in sim_score if x[1] >= 0.05]
+            for i in sim_score:
+                print(i[1])
+            sim_index = [i[0] for i in cleaned_sim_score]
+            rec_list = book_repo['title'].iloc[sim_index]
+            sm_list.append(rec_list)
+            return sm_list
+        if get_title !="":
+            return get_recommendations(get_title)
     
 
 def user_user_collab_filtering(req):

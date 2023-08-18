@@ -18815,7 +18815,7 @@ filter:
     pro:
       - family: classic
         style: solid
-  label: Filter
+  label: genre_filter
   search:
     terms:
       - funnel
@@ -18844,7 +18844,7 @@ filter-circle-dollar:
     pro:
       - family: classic
         style: solid
-  label: Filter Circle Dollar
+  label: genre_filter Circle Dollar
   search:
     terms:
       - filter
@@ -18867,7 +18867,7 @@ filter-circle-xmark:
     pro:
       - family: classic
         style: solid
-  label: Filter Circle Xmark
+  label: genre_filter Circle Xmark
   search:
     terms:
       - cancel
