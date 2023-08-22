@@ -20,11 +20,11 @@ class TestViews(TestCase):
         self.lib = models.Library(id=1,name="Main Lib")
         self.profile = Profile(user=self.staff_user, profile_pic="", affiliation_id=1)
         self.client.login(username='staffuser', password='testpassword')  # librarian login
-        # self.patron_user = User.objects.create_user(
-        #     username="patron", password="testpassword", is_staff=False
-        # )
-        # self.patron = Client()
-        # self.patron.login(username="patron", password="testpassword")
+        self.patron_user = User.objects.create_user(
+            username="patron", password="testpassword", is_staff=False
+        )
+        self.patron = Client()
+        self.patron.login(username="patron", password="testpassword")
 
     def test_notfound_get(self):
         # BY: BEN MUNYASIA BCSC01/0018/2018
@@ -209,3 +209,20 @@ class TestViews(TestCase):
         response = self.client.get(reverse("dashboard"))
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, "dashboard/dashboard.html")
+
+    def test_book_rating_GET(self):
+        response = self.patron.get(reverse('rate', args=["patron", "23ed4"]))
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, 'shelfs/bookview.html')
+
+    def test_book_rating_POST(self):
+        response = self.patron.post(reverse('rate', args=["patron", "23ed4"]),
+                                    {
+                                        "rate": 3.4
+                                    })
+        self.assertEquals(response.status_code, 302)
+
+    def test_book_selected_GET(self):
+        response = self.patron.get(reverse('bookview', args=['NetSys01']))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateNotUsed(response, "shelfs/bookview.html")

@@ -22,9 +22,9 @@ def genreList():
 
 def grab_author_details(context, author):
     try:
-        search_query = scholarly.search_author(f'{author[0].Author}')
-        author = scholarly.fill(next(search_query))
-        strip_author = author['publications']  # seleting dict with publications
+        search_query = scholarly.search_author(f'{author[0].author}')
+        Author = scholarly.fill(next(search_query))
+        strip_author = Author['publications']  # seleting dict with publications
         # print(strip_author)
         counter = 0
         pub = []
@@ -136,6 +136,11 @@ def add_update_book(
             if buffer.copies > total_copies:
                 copies_added = buffer.copies - total_copies
                 buffer.copies_remaining += copies_added  # add the difference to the copies remaining in repo
+            elif total_copies > buffer.copies:
+                copies_lost = total_copies - buffer.copies
+                print("copies lost", copies_lost)
+                if copies_lost < buffer.copies_remaining:
+                    buffer.copies_remaining -= copies_lost
         else:
             buffer.copies_remaining = buffer.copies
         buffer.save()
@@ -144,13 +149,8 @@ def add_update_book(
 
         if is_update:
             messages.success(request, f"{bookForm.cleaned_data['title']} has been updated!")
-            return redirect("updateBook", serial_number)
+
         else:
             messages.success(request, "Book added successfully")
-            return redirect("add")
     else:
         messages.success(request, "Something went wrong")
-        if is_update:
-            return redirect("updateBook", serial_number)
-        else:
-            return redirect("add")

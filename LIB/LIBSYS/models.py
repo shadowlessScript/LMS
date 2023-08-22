@@ -176,7 +176,7 @@ class Rating(models.Model):
     rate = models.FloatField(default=0, validators=[MaxValueValidator(5), MinValueValidator(0)])
 
     def __str__(self):
-        return "%s, %s, %s" % (self.username, self.serial_number.title, self.rate)
+        return "%s, %s, %s" % (self.username, self.book_rated.title, self.rate)
 
 
 class Bookmark(models.Model):

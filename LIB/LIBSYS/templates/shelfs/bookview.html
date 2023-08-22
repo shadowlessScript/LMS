@@ -87,21 +87,32 @@
                         <span class="fa fa-star"></span>
                         <h7>Average rating: {{avg_rate}}</h7>
                     </div>
-                    <a href="{% url 'rate' user  ebook.book.serial_number %}"><button type="submit" class="btn btn-primary  mt-3" id="rate-book">Rate</button></a>
-                    {% if form %}
-                    <div class="rate mt-3">
-                        <a class="close-rate" href="{% url 'bookview'  ebook.serial_number %}"><i class="fa-solid fa-xmark"></i></a>
-                        <form method="post">
+                    <button type="submit" class="btn btn-primary  mt-3" id="rate-book" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@mdo">Rate</button>
+                    <!-- rating modal-->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Rate {{ebook.book.title}}</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                             <form action="{% url 'rate' user ebook.book.serial_number %}" method="post">
                             {% csrf_token %}
-                             <h3>Rate {{ebook.book.title|truncatewords:4}}</h3>
                             <input type="hidden" name="username" value="{{user}}">
-                            <input type="hidden" name="serial_number" value="{{ebook.serial_number}}">
+                            <input type="hidden" name="serial_number" value="{{ebook.book.serial_number}}">
                             {{form.as_p}}
                            <button type="submit" class="btn btn-primary  mt-3">Submit</button>
-                        </form>
-
+                            </form>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    {% endif %}
+                    <!-- End of the rating modal-->
+
                 </div>
             </div>
             <hr>
