@@ -31,7 +31,7 @@ def content_based_recommender_sys(req):
             msg = f'Because you viewed {get_title}'
         elif patron_circulation:
             patron_circulation = ReturnedBook.objects.filter(username=req.user)
-            get_title = patron_circulation[random.randint(0,len(patron_circulation)-1)].serial_number.title
+            get_title = patron_circulation[random.randint(0,len(patron_circulation)-1)].returned_book.title
             msg = f'Based on recent return history "{get_title}"'
         elif patron_borrowed_books:
             patron_borrowed_books = IssueBook.objects.filter(username=req.user)
@@ -49,7 +49,7 @@ def content_based_recommender_sys(req):
         # print(indices['EFFECTS OF PRACTICAL WORK ON STUDENTS’ ACHIEVEMENT'])
         def get_recommendations(title, cosine_sim=cosine_sim):
             ind = indices[title]
-            sm_list = [msg]
+            sm_list = []
             sim_score = enumerate(cosine_sim[ind])
             sim_score = sorted(sim_score, key=lambda x:x[1], reverse=True)
             sim_score = sim_score[1:11] # this will show the top ten books similar to target, while not having the target in the list
@@ -58,9 +58,10 @@ def content_based_recommender_sys(req):
                 print(i[1])
             sim_index = [i[0] for i in cleaned_sim_score]
             rec_list = book_repo['title'].iloc[sim_index]
+            
             sm_list.append(rec_list)
             return sm_list
-        if get_title !="":
+        if get_title != "":
             return get_recommendations(get_title)
     
 
@@ -77,8 +78,11 @@ def user_user_collab_filtering(req):
         # Convert the data model to a dataframe
         ratings = pd.DataFrame(list(Rating.objects.all().values()))
         # renaming the columns of the ratings model to match with the key columns of the Addbook model
-        ratings.rename(columns={"username_id":"username", "serial_number_id":"serial_number"},inplace=True)
-        books_repo = pd.DataFrame(list(AddBook.objects.all().values()))
+        ratings.rename(columns={"username_id":"username", "book_rated_id":"serial_number"},inplace=True)
+        books = pd.DataFrame(list(Book.objects.all().values()))
+        books.rename(columns={"book_details_id": "id"}, inplace=True)
+        books_details = pd.DataFrame(list(BookDetail.objects.all().values()))
+        books_repo = pd.merge(books, books_details, on="id", how="inner")
         df = pd.merge(ratings, books_repo, on='serial_number', how='inner')
         agg_ratings = df.groupby('serial_number').agg(mean_rating = ('rate', 'mean'),
                                                     number_of_rating=('rate', 'count')).reset_index()
@@ -155,5 +159,28 @@ def user_user_collab_filtering(req):
         recommended_list = []
         for k in ranked_item_score['book']:
             if k != 1:
-                recommended_list.append(AddBook.objects.filter(serial_number=k))
+                recommended_list.append(Book.objects.filter(serial_number=k))
         return recommended_list
+    
+def client_books_recommendation(request):
+    """
+        Merges the recommendations from user_user_collab_filtering and content_based_recommender_sys
+    """
+    user_user_list = user_user_collab_filtering(request)   
+    
+    r = content_based_recommender_sys(request)
+    content_based_list = []
+    if r:
+        content_based_list = [Book.objects.filter(title=title) for title in r[0]]
+    
+    if user_user_list != [] and content_based_list != []:
+        return list(set(*user_user_list,*content_based_list))
+    elif user_user_list == [] and content_based_list != []:
+        return content_based_list
+    elif user_user_list != [] and content_based_list == []:
+        
+        return user_user_list
+    else: 
+        return False
+    
+

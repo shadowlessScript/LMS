@@ -6,7 +6,6 @@ urlpatterns = [
     path('add/', views.addBookstoShelf, name='add'),
     path('manage/',views.manageBook, name='manage'),
     path('updateBook/<str:serial_number>/', views.updateBook, name='updateBook'),
-    path('delete/<str:serial_number>/', views.deleteBook, name='deletebook'),
     path('delete_Confirm/<str:serial_number>/', views.deleteBookConfirmation, name='deletebook_confirm'),
     path('blog/news/', views.PostNews, name='blog'),
     path('books/', views.library_repo, name="books"),
@@ -46,9 +45,7 @@ urlpatterns = [
     path('authorfilter/<str:author>/', views.filter_by_author, name='authorsbooks'),
     path('location/', views.books_location, name='location'),
     path('filterloc/<str:sym>/', views.filterloc, name='filterloc'),
-    path("test/v1/", views.testing, name="test"),
-    path("update/test/<str:serial_number>", views.update_test, name="update_test"),
-    path("repo/test/", views.view_library_repo_test, name="repo"),
+    
     # mpesa push
     # path('mpesa/stk_push/', views.stk_push_callback, name='stk_push_callback'),
 

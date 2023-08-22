@@ -53,14 +53,23 @@
             {{Book.serial_number}}
             </div>
             <div class="col"> {{Book.title|truncatewords:4}}</div>
-            <div class="col">{{Book.Author}}</div> 
+            <div class="col">{{Book.book_details.author}}</div> 
             <!-- <div class="col">{{Book.description}}</div>   -->
             <div class="col">  
                 <a href="{% url 'updateBook' Book.serial_number%}"><i style="margin-right: 1em; font-size: 1.4em;"class="fa-solid fa-pen-to-square"></i></a>
                 
 
-                <a href="{% url 'deletebook' Book.serial_number %}"><i style="color: red; font-size: 1.4em;" class="fa-solid fa-trash"></i></i></a>
-                
+<a  
+                tabindex="0" 
+                role="button"
+                data-bs-html="true"
+                data-bs-toggle="popover"
+                data-bs-trigger="focus"
+                data-bs-title="<i>Delete {{Book.title}}</i>" 
+                data-bs-content="<div>Are you sure you want to delete {{Book.title}}? </div> <a role='button' type='submit' href='{%url 'deletebook_confirm' Book.serial_number%}'>Yes</a>"
+                >
+                    <i style="color: red; font-size: 1.4em;" class="fa-solid fa-trash"></i>
+                </a>                
             </div>  
         </div>
        
@@ -72,3 +81,12 @@
 </div>
     {% endif %}
 {% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+    
+    const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))    
+       
+</script>
+{%endblock%}

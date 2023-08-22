@@ -14,7 +14,7 @@ from datetime import date, datetime, timedelta
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.forms import inlineformset_factory
-from .recommenders import user_user_collab_filtering, content_based_recommender_sys
+from .recommenders import user_user_collab_filtering, content_based_recommender_sys, client_books_recommendation
 from .helpers import genreList, grab_author_details, affiliation, issue_book_post, add_update_book
 from .HelperVar import library_of_congress
 from members.models import Profile
@@ -33,7 +33,7 @@ def addBookstoShelf(request):
     # print(request.user.profile.affiliation.id)
     if request.method == "POST":
         add_update_book(request)
-
+        return redirect('add')
     return render(request, 'shelfs/addbooks.html', {
         "bookForm": bookForm,
         "bookDetailForm": bookDetailForm,
@@ -61,14 +61,16 @@ def updateBook(request, serial_number):
     total_copies = bookdetails.copies
 
     if request.method == "POST":
-       add_update_book(
-           request,
-           is_update=True,
-           book_instance=book,
-           book_detail_instance=bookdetails,
-           total_copies=total_copies,
-           serial_number=serial_number
-       )
+        add_update_book(
+                request,
+                is_update=True,
+                book_instance=book,
+                book_detail_instance=bookdetails,
+                total_copies=total_copies,
+                serial_number=serial_number
+        )
+        return redirect("manage")
+
 
     return render(request, 'shelfs/updates/updateBooks.html', {
         "bookDetailsForm": bookDetailsForm,
@@ -76,17 +78,9 @@ def updateBook(request, serial_number):
         "title": book.title
     })
 
-
-@staff_member_required
-def deleteBook(request, serial_number):
-    deleteBook = AddBook.objects.filter(serial_number=serial_number)
-    context = {'Book': deleteBook}
-    return render(request, 'shelfs/updates/confirm_delete.html', context)
-
-
 @staff_member_required
 def deleteBookConfirmation(request, serial_number):
-    deleteBook = AddBook.objects.filter(serial_number=serial_number)
+    deleteBook = Book.objects.filter(serial_number=serial_number)
     context = {'Book': deleteBook}
     messages.success(request, f'Book has been deleted')
     deleteBook.delete()
@@ -169,42 +163,13 @@ def library_repo(request):
     page = request.GET.get('page')
     b = p.get_page(page)
     # genre = AddBook.objects.all()
-    print(affiliation(request))
-    recommended_list = user_user_collab_filtering(request)
-    # print(recommended_list)
-    if recommended_list:
-        # print('tooo')
-        # TODO: Think of a way to optimize the rendering, for the two types of recommendation. It feel redundant.
-        return render(request, "shelfs/book.html", {
-            'Books': b,
-            'Genres': genreList(),
-            'recommendedbooks': recommended_list,
-            'is_affiliated': affiliation(request),
-        })
-
-    else:
-        r = content_based_recommender_sys(request)
-        content_based_list = []
-        if r:
-            content_based_list = [Book.objects.filter(title=title) for title in r[1]]
-
-        if content_based_list:
-            return render(request, "shelfs/book.html", {
-                'Books': b,
-                'Genres': genreList(),
-                'recommendedbooks': content_based_list,
-                'rectitle': r[0],
-                'is_affiliated': affiliation(request),
-
-            })
-        else:
-
-            return render(request, "shelfs/book.html", {
-                'Books': b,
-                'Genres': genreList(),
-                'is_affiliated': affiliation(request),
-
-            })
+   
+    return render(request, "shelfs/book.html", {
+        'Books': b,
+        'Genres': genreList(),
+        'is_affiliated': affiliation(request),
+        'recommendedbooks': client_books_recommendation(request)
+    })
 
 
 # @sync_to_async
@@ -224,8 +189,20 @@ def bookView(request, serial_number):
             messages.success(request, 'Something went wrong ;(')
 
     whichbook = BookDetail.objects.filter(book__serial_number=serial_number)
+
+    # check whether parton has rated a book
+     
+    # will be used check if patron has already rated this book
+    t = Rating.objects.filter(book_rated=serial_number, username=request.user.id)
+    if t.exists():
+        form = RatingForm(instance=t[0])
+    else:
+        form = RatingForm()
+        # first time rating it
+
+
     if Rating.objects.filter(book_rated=serial_number).exists():
-        book_rating = Rating.objects.filter(serial_number_id=serial_number)
+        book_rating = Rating.objects.filter(book_rated_id=serial_number)
         avg_rating = mean([i.rate for i in book_rating])
     else:
         avg_rating = 0
@@ -245,7 +222,8 @@ def bookView(request, serial_number):
         'bookmark': patron_bookmark,
         'reviews': reviews,
         "serial": serial_number,
-        "avg_rate": avg_rating
+        "avg_rate": avg_rating,
+        "form": form
     }
     # task = asyncio.ensure_future( grab_author_details(context=context, author=whichbook))
     grab_author_details(context=context, author=whichbook)
@@ -395,10 +373,10 @@ def questCompleted(request, id):
 def returnedBook(request, id):
     # the book's details are moved to return book model and deleted from IssueBook model
     book = IssueBook.objects.get(id=id)
-    hydrate = AddBook.objects.get(pk=book.isbn.serial_number)
+    hydrate = Book.objects.get(pk=book.issued_book.serial_number)
     hydrate.copies += 1
     hydrate.save()
-    returned = ReturnedBook(username=book.username, serial_number=book.isbn)
+    returned = ReturnedBook(username=book.username, serial_number=book.issued_book)
     returned.save()
     # patron = book.username
     # mails = User.objects.get(username=patron).email
@@ -457,9 +435,9 @@ def examsrepo(request):
 def search_book_RUD(request):
     if request.method == 'POST':
         searched_books = request.POST['search_books']
-        books = AddBook.objects.filter(
+        books = Book.objects.filter(
             Q(title__contains=searched_books) |
-            Q(Author__contains=searched_books) |
+            Q(book_details__author__contains=searched_books) |
             Q(serial_number__contains=searched_books)
         )
         return render(request, 'dashboard/search_book_RUD.html', {'searched': searched_books, 'books': books})
@@ -472,7 +450,7 @@ def extendBook(request, id):
     """This deals with extending a book's due date"""
     b = IssueBook.objects.get(id=id)
     bookIssued = ExtendBookForm(instance=b)
-    issuedBooks = IssueBook.objects.filter(status='active')
+    issuedBooks = IssueBook.objects.filter(status='active') # TODO: `status` field is deprecated
     if request.method == 'POST':
         new_due_date = ExtendBookForm(request.POST, instance=b)
         if new_due_date.is_valid():
@@ -496,36 +474,31 @@ def searchissuedbooks(request):
 
 
 @login_required
-def rate(request, username, serial_number):
-    # populate like the bookview page the patron was in
-    whichbook = AddBook.objects.filter(serial_number=serial_number)
+def rate(request, username, serial_number): # TODO: Make the rating thing modal.
+   
     if request.method == 'POST':
         try:
-            t = Rating.objects.get(serial_number=serial_number, username=request.user.id)
+            t = Rating.objects.get(book_rated=serial_number, username=request.user.id)
             # update the existing rating of the patron
             form = RatingForm(request.POST, instance=t)
             if form.is_valid():
                 buf = form.save(commit=False)
                 buf.username = request.user
-                buf.serial_number_id = serial_number
+                buf.book_rated_id = serial_number
                 buf.save()
+                messages.success(request, "Your rate has been submitted")
+
                 return redirect('bookview', serial_number)
         except:
             form = RatingForm(request.POST)
             if form.is_valid():
                 buf = form.save(commit=False)
                 buf.username = request.user
-                buf.serial_number_id = serial_number
+                buf.book_rated_id = serial_number
                 buf.save()
+                messages.success(request, "Your rate has been submitted")
                 return redirect('bookview', serial_number)
-    try:
-        # will be used check if patron has already rated this book
-        t = Rating.objects.get(serial_number=serial_number, username=request.user.id)
-        form = RatingForm(instance=t)
-        return render(request, 'shelfs/bookview.html', {'form': form, 'Book': whichbook})
-    except:
-        # first time rating it
-        return render(request, 'shelfs/bookview.html', {'form': RatingForm(), 'Book': whichbook})
+   
 
 
 @login_required
@@ -538,8 +511,7 @@ def patronpage(request):
     p = Paginator(patron_bookmark.order_by('book'), 4)
     page = request.GET.get('page')
     b = p.get_page(page)
-    for x in patron_bookmark:
-        print(x.book.Cover_image)
+    
     return render(request, 'patronpage.html', {
         'request_status': request_status,
         'borrowed': books_borrowed,
@@ -586,9 +558,9 @@ def returnfinedbook(request, id):
 
 @login_required
 def bookmark(request, book):
-    book1 = AddBook.objects.get(serial_number=book)
+    book1 = Book.objects.get(serial_number=book)
     patron_bookmark = Bookmark(username=request.user, book=book1)
-    if Bookmark.objects.filter(username=request.user, book=book1).exists():
+    if Bookmark.objects.filter(username=request.user, book=book1).exists(): # TODO: I think I can use this to remove a bookmark
         messages.success(request, f'You have already bookmarked {patron_bookmark.book.title}')
         return redirect('bookview', book)
     else:
@@ -711,60 +683,3 @@ def filterloc(request, sym):
                                              })
 
 
-def testing(request):
-    bookForm = BookForm()
-    bookDetailForm = BookDetailForm()
-
-    if request.method == "POST":
-        bookForm = BookForm(request.POST)
-        bookDetailForm = BookDetailForm(request.POST, request.FILES)
-
-        if bookDetailForm.is_valid() and bookForm.is_valid():
-            bookFormbuffer = bookForm.save(commit=False)
-            buffer = bookDetailForm.save(commit=False)
-            bookFormbuffer.save()
-            buffer.book_id = bookFormbuffer.serial_number
-            buffer.save()
-
-            messages.success(request, "Book added successfully")
-            return redirect("test")
-        else:
-            messages.success(request, "Something went wrong")
-            return redirect("test")
-
-    return render(request, "test.html", {
-        "bookForm": bookForm,
-        "bookDetailForm": bookDetailForm
-    })
-
-
-def update_test(request, serial_number):
-    book = Book.objects.get(serial_number=serial_number)
-    bookForm = BookUpdateForm(instance=book)
-    bookdetails = BookDetail.objects.get(book=book)
-    bookDetailsForm = BookDetailForm(instance=bookdetails)
-
-    if request.method == "POST":
-        bookForm = BookUpdateForm(request.POST, instance=book)
-        bookDetailForm = BookDetailForm(request.POST, request.FILES, instance=bookdetails)
-
-        if bookDetailForm.is_valid() and bookForm.is_valid():
-            bookFormbuffer = bookForm.save(commit=False)
-            buffer = bookDetailForm.save(commit=False)
-            bookFormbuffer.save()
-            buffer.book_id = bookFormbuffer.serial_number
-            buffer.save()
-
-            messages.success(request, "Book updated successfully")
-            return redirect("update_test", serial_number)
-        else:
-            messages.success(request, "Something went wrong")
-            return redirect("update_test", serial_number)
-    return render(request, "updatetest.html", {"bookDetailsForm": bookDetailsForm, "bookForm": bookForm})
-
-
-def view_library_repo_test(request):
-    library_repo = BookDetail.objects.all()
-    return render(request, "shelfs/libraryRepo.html", {
-        "repo": library_repo
-    })

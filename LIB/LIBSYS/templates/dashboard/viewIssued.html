@@ -36,7 +36,8 @@
                 <td>{{issue.issue_date}}</td>
                 <td>{{issue.due_date}}</td>
                 <td><a href="{% url 'bookreturned' issue.id %}"><input class="btn btn-secondary" type="submit" value="Returned"></a></td>
-                <td><a href="{% url 'extendBook' issue.id %}"><input class="btn btn-secondary " type="submit" value="Extend"></a></td>
+                <td><a href="{% url 'extendBook' issue.id %}">    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Extend</button>
+</a></td>
 
             </tr>
 
@@ -45,21 +46,9 @@
         </tbody>
     </table>
 
-    <nav aria-label="Page navigation example" class="nav-pag">
-            <ul class="pagination">
-                {% if issues.has_previous %}
-                    <li class="page-item"><a href="?page=1 #news" class="page-link">&laquo First</a></li>
-                    <li class="page-item"><a href="?page={{issues.previous_page_number}} #news" class="page-link">{{issues.previous_page_number}}</a></li>
-                {% endif %}
-                <li class="page-item active"><a class="page-link" href="#">{{issues.number}}</a></li>
-                {% if issues.has_next %}
-                    <li class="page-item"><a href="?page={{issues.next_page_number}} #news" class="page-link">{{issues.next_page_number}}</a></li>
-                    <li class="page-item"><a href="?page={{issues.paginator.num_pages}} #news" class="page-link">&raquo</a></li>
-                {% endif %}
-            </ul>
-        </nav>
 
-     {% if extendBook %}
+    {% if extendBook %}
+    <!-- TODO: Fix how it looks -->
        <div class="stepping-stone">
             <div class='content'>
                 <button class='close'><i class="fa-solid fa-xmark"></i></button>
@@ -72,5 +61,25 @@
 
             </div>
         </div>
+       
          {% endif %}
+
+
+
+
+    <nav aria-label="Page navigation example" class="nav-pag" >
+            <ul class="pagination">
+                {% if issues.has_previous %}
+                    <li class="page-item"><a href="?page=1" class="page-link">&laquo First</a></li>
+                    <li class="page-item"><a href="?page={{issues.previous_page_number}} #news" class="page-link">{{issues.previous_page_number}}</a></li>
+                {% endif %}
+                <li class="page-item active"><a class="page-link" href="#">{{issues.number}}</a></li>
+                {% if issues.has_next %}
+                    <li class="page-item"><a href="?page={{issues.next_page_number}} #news" class="page-link">{{issues.next_page_number}}</a></li>
+                    <li class="page-item"><a href="?page={{issues.paginator.num_pages}} #news" class="page-link">&raquo</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        
 {% endblock %}

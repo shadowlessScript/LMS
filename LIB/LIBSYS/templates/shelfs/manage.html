@@ -60,38 +60,31 @@
                 <a href="{% url 'updateBook' Book.book.serial_number%}"><i style="margin-right: 1em; font-size: 1.4em;"class="fa-solid fa-pen-to-square"></i></a>
                 
 
-                <a href="{% url 'deletebook' Book.book.serial_number %}"><i style="color: red; font-size: 1.4em;" class="fa-solid fa-trash"></i></i></a>
-                
+                <a  
+                tabindex="0" 
+                role="button"
+                data-bs-html="true"
+                data-bs-toggle="popover"
+                data-bs-trigger="focus"
+                data-bs-title="<i>Delete {{Book.book.title}}</i>" 
+                data-bs-content="<div>Are you sure you want to delete {{Book.book.title}}? </div> <a role='button' type='submit' href='{%url 'deletebook_confirm' Book.book.serial_number%}'>Yes</a>"
+                >
+                    <i style="color: red; font-size: 1.4em;" class="fa-solid fa-trash"></i>
+                </a>
             </div>  
         </div>
        
         {% endfor %}
         </div>
 </form>
-
 {% endblock %}
 
 {% block script %}
 <script src="https://kit.fontawesome.com/46b9b4df1d.js" crossorigin="anonymous"></script> <!--Used for icons-->
-<!-- <script type="text/javascript">
-    // console.log('yoo');
+<script type="text/javascript">
+    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
     
-    document.querySelector(".btn-search").addEventListener('click',activate );
-    document.querySelector(".search-bar").addEventListener('input',activate1 );
-    function activate(){
-        if (document.querySelector(".search-bar").value === ''){
-            document.querySelector(".btn-search").disabled = false;
-        }else{
-            document.querySelector(".btn-search").disabled = true;
-        }
-    }
-     function activate1(){        
-            document.querySelector(".btn-search").disabled = false;
-        
-    }
-    // if document.querySelector(".search-bar").value === ''{
-    //         document.querySelector(".btn-search").disabled = true;
-    //     }
+    const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))    
        
-</script> -->
+</script>
 {%endblock%}
