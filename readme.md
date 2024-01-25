@@ -1,5 +1,5 @@
 # What is this project about?
-This project main objective was to a recommendation system to the OPAC (Open Public Access Catalog), which will recommend books to patrons. Two recommendation techniques were used:
+This project main objective was to make a recommendation system to the OPAC (Open Public Access Catalog), which will recommend books to patrons. Two recommendation techniques were used:
 - User-based collaborative filtering.
 - Content based collaborative filtering.
 
