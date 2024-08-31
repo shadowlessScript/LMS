@@ -169,6 +169,7 @@ def client_books_recommendation(request):
     user_user_list = user_user_collab_filtering(request)   
     
     r = content_based_recommender_sys(request)
+    print("recommender sys",r)
     content_based_list = []
     if r:
         content_based_list = [Book.objects.filter(title=title) for title in r[0]]

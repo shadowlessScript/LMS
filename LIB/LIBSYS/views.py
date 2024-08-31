@@ -535,7 +535,7 @@ def returnfinedbook(request, id):
     patron_mail = fined_book.username.email
     # check if fine has been paid
     if fined_book.status == 'Paid':
-        returned = ReturnedBook(username=fined_book.username, serial_number=fined_book.serial_number)
+        returned = ReturnedBook(username=fined_book.username, returned_book=fined_book.serial_number) # TODO:check to ensure it does not cause a security issue
         returned.save()
         print(fined_book)
         messages.success(request,
